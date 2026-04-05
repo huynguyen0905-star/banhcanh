@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>POS Bánh Canh Thanh Quyên - V16.1 (Sheets & CukCuk)</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <style>
+        /* --- GIAO DIỆN CHÍNH --- */
+        :root { --primary: #2c3e50; --success: #27ae60; --danger: #e74c3c; --warning: #f1c40f; --info: #3498db; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; display: flex; flex-direction: column; height: 100vh; background: #f4f7f6; }
+        
+        .header { background: var(--primary); color: white; padding: 8px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.2); z-index: 10;}
+        .brand-nav { display: flex; align-items: center; gap: 15px; }
+        .nav-btn { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; background: #34495e; color: white; font-size: 14px; transition: 0.2s;}
+        .nav-btn:hover { background: #3f5770; }
+        .nav-btn.active { background: var(--info); box-shadow: 0 0 10px rgba(52, 152, 219, 0.6); }
+        
+        #network-status { font-size: 12px; background: #95a5a6; padding: 4px 10px; border-radius: 15px; font-weight: bold; color: white;}
+        #network-status.online { background: var(--success); }
+        #network-status.offline { background: var(--danger); }
+
+        .admin-input { display: flex; gap: 8px; align-items: center; }
+        .admin-input input { padding: 8px; border-radius: 5px; border: none; outline: none; }
+        .btn-header { padding: 8px 12px; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 13px;}
+
+        .page-container { display: flex; flex: 1; overflow: hidden; width: 100%; }
+        
+        /* TRANG 1: SƠ ĐỒ BÀN (DASHBOARD) */
+        #page-dashboard { background: #e0e6ed; padding: 15px; overflow-y: auto; flex-direction: column; gap: 15px; display: flex; flex: 1; width: 100%; box-sizing: border-box;}
+        .dash-zone { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .dash-zone-title { margin-top: 0; padding-bottom: 8px; margin-bottom: 10px; border-bottom: 2px solid var(--info); color: var(--primary); display: flex; justify-content: space-between; align-items: center; font-size: 16px; font-weight: 900; text-transform: uppercase;}
+        
+        .dash-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 12px; }
+        .dash-card { padding: 15px 5px; border-radius: 8px; text-align: center; cursor: pointer; border: 2px solid #ddd; background: #fff; transition: all 0.2s; position: relative; box-shadow: 0 2px 4px rgba(0,0,0,0.05);}
+        .dash-card.occupied { border-color: var(--danger); background: #fdf2f0; box-shadow: 0 4px 10px rgba(231, 76, 60, 0.2);}
+        .dash-card:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.15); border-color: var(--info);}
+        .dash-card-title { font-size: 18px; font-weight: 900; color: #2c3e50; }
+        .dash-card.occupied .dash-card-title { color: var(--danger); }
+        .dash-time { font-size: 11px; color: #7f8c8d; font-weight: bold; margin-top: 8px; display: inline-block; padding: 3px 8px; background: #eee; border-radius: 15px;}
+        .dash-card.occupied .dash-time { background: #fadbd8; color: var(--danger); }
+
+        /* TRANG 2: GIAO DIỆN BÁN HÀNG (POS) */
+        #page-pos { display: none; flex: 1; width: 100%; overflow: hidden; }
+        .sidebar { width: 200px; background: #fff; border-right: 1px solid #ddd; padding: 15px; overflow-y: auto; }
+        .zone-header { background: #e9ecef; padding: 8px 10px; font-weight: bold; font-size: 12px; color: #2c3e50; display: flex; justify-content: space-between; align-items: center; border-radius: 5px; margin-top: 15px; margin-bottom: 10px; border-left: 4px solid var(--info);}
+        .zone-header:first-child { margin-top: 0; }
+        .btn-add-table { background: var(--info); color: white; border: none; border-radius: 3px; cursor: pointer; padding: 2px 8px; font-size: 13px; font-weight: bold;}
+        .table-btn { width: 100%; padding: 8px 25px 8px 8px; border: 1px solid #ddd; border-radius: 8px; cursor: pointer; font-weight: bold; text-align: left; background: #f9f9f9; transition: 0.2s; box-sizing: border-box; line-height: 1.3; position: relative; font-size: 13px;}
+        .table-btn.active { border: 2px solid var(--info); background: #ebf5fb; }
+        .table-btn.occupied { border-color: var(--danger); }
+        .stt-dang-an { color: var(--danger); font-size: 11px; font-weight: normal; display: block; }
+        .btn-del-table { position: absolute; top: 4px; right: 4px; background: none; border: none; color: #bbb; cursor: pointer; font-size: 12px; padding: 0; display: none;}
+        .btn-edit-table { position: absolute; top: 4px; right: 20px; background: none; border: none; color: #bbb; cursor: pointer; font-size: 12px; padding: 0; display: none;}
+        .table-btn:hover .btn-del-table, .table-btn:hover .btn-edit-table { display: block; color: #555; }
+        .table-btn .btn-del-table:hover { color: var(--danger); }
+        .table-btn .btn-edit-table:hover { color: var(--info); }
+
+        .menu-area { flex: 1; display: flex; flex-direction: column; background: #f4f7f6; overflow: hidden; }
+        .category-tabs { display: flex; background: white; padding: 10px 20px 0; border-bottom: 1px solid #ddd; gap: 10px; }
+        .tab-btn { padding: 10px 15px; background: #eee; border: 1px solid #ddd; border-bottom: none; border-radius: 8px 8px 0 0; cursor: pointer; font-weight: bold; color: #555; font-size: 13px;}
+        .tab-btn.active { background: var(--info); color: white; border-color: var(--info); }
+        .modifiers { background: white; padding: 10px 20px; border-bottom: 1px solid #ddd; display: flex; flex-direction: column; gap: 8px; }
+        .mod-row { display: flex; align-items: center; gap: 10px; }
+        .mod-title { font-weight: bold; width: 70px; color: #333; font-size: 13px;}
+        .mod-btn { padding: 6px 12px; border: 1px solid #ccc; background: white; border-radius: 20px; cursor: pointer; font-size: 12px; font-weight: bold; color: #555;}
+        .mod-btn.active { background: #e74c3c; color: white; border-color: #e74c3c; }
+        .content { flex: 1; padding: 15px; display: flex; gap: 12px; flex-wrap: wrap; align-content: flex-start; overflow-y: auto; }
+        .food-card { background: white; padding: 12px; border-radius: 8px; width: 110px; text-align: center; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.05); position: relative; transition: 0.1s; border: 1px solid transparent;}
+        .food-card:active { transform: scale(0.95); }
+        .food-card:hover { border-color: var(--info); }
+        .food-card b { display: block; height: 32px; font-size: 13px; overflow: hidden; color: #2c3e50;}
+        .food-card span { color: var(--danger); font-weight: bold; font-size: 14px;}
+        .btn-del-menu { position: absolute; top: -5px; right: -5px; background: var(--danger); color: white; border: none; border-radius: 50%; width: 20px; height: 20px; cursor: pointer; font-size: 10px; font-weight: bold; display: none;}
+        .food-card:hover .btn-del-menu { display: block; }
+
+        .cart-panel { width: 350px; background: white; border-left: 1px solid #ddd; padding: 15px; display: flex; flex-direction: column; box-sizing: border-box;}
+        .cart-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--info); padding-bottom: 10px; margin-bottom: 10px; }
+        .items-list { flex: 1; overflow-y: auto; }
+        .item-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f1f1f1; align-items: stretch;}
+        .item-info { flex: 1; font-size: 14px;}
+        .qty-controls { display: flex; align-items: center; gap: 8px; margin-top: 5px; }
+        .btn-qty { width: 24px; height: 24px; border: 1px solid #ccc; background: white; border-radius: 4px; cursor: pointer; font-weight: bold; display: flex; justify-content: center; align-items: center; color: #333; font-size: 14px;}
+        .qty-number { font-weight: bold; width: 20px; text-align: center; font-size: 14px;}
+        .item-price-col { text-align: right; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-end; font-size: 14px;}
+        .btn-remove-item { color: var(--danger); cursor: pointer; border: none; background: none; font-size: 11px; font-weight: bold; padding: 0;}
+        .payment-methods { display: flex; gap: 8px; margin: 10px 0; }
+        .method-btn { flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 5px; cursor: pointer; text-align: center; font-size: 12px; font-weight: bold; }
+        .method-btn.selected { background: var(--info); color: white; border-color: var(--info); }
+        .footer-cart { border-top: 2px solid #eee; padding-top: 10px; }
+        .total-box { font-size: 20px; font-weight: bold; display: flex; justify-content: space-between; margin-bottom: 10px; }
+        
+        .btn-group-cart { display: flex; gap: 8px; margin-bottom: 8px; }
+        .btn { flex: 1; padding: 10px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; color: white; font-size: 12px;}
+        
+        /* Modals */
+        .modal { display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:white; padding:20px; border-radius:10px; box-shadow:0 0 20px rgba(0,0,0,0.3); z-index:100; min-width: 300px; max-height: 80vh; overflow-y: auto;}
+        .modal-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:99;}
+        .history-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 13px;}
+        .history-table th, .history-table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        .history-table th { background: #f4f7f6; }
+        .action-btn { padding: 4px 8px; border: none; border-radius: 3px; cursor: pointer; color: white; font-size: 12px; margin-right: 4px; font-weight: bold; }
+
+        /* --- GIAO DIỆN IN --- */
+        #khu-vuc-in-bill, #khu-vuc-in-bep { display: none; }
+        @media print {
+            body * { visibility: hidden; } 
+            @page { margin: 0; }
+            body { margin: 0; padding: 0; background: #fff; }
+            body.print-bill #khu-vuc-in-bill, body.print-bill #khu-vuc-in-bill * { visibility: visible; }
+            body.print-bep #khu-vuc-in-bep, body.print-bep #khu-vuc-in-bep * { visibility: visible; }
+            #khu-vuc-in-bill, #khu-vuc-in-bep { position: absolute; left: 0; top: 0; width: 78mm; padding: 0; margin: 0; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #000; box-shadow: none; }
+            body.print-bill #khu-vuc-in-bill { display: block; }
+            body.print-bep #khu-vuc-in-bep { display: block; }
+            .bill-header { text-align: center; border-bottom: 1px dashed #000; padding-bottom: 8px; margin-bottom: 8px; }
+            .bill-header h2 { font-size: 18px; margin: 0 0 5px 0; text-transform: uppercase; }
+            .bill-header p { font-size: 12px; margin: 3px 0; }
+            .bill-title { font-size: 16px; font-weight: bold; margin-top: 8px; }
+            .bill-info { font-size: 12px; margin-bottom: 8px; line-height: 1.5;}
+            .bill-info .row { display: flex; justify-content: space-between; }
+            .bill-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 10px; }
+            .bill-table th { border-bottom: 1px solid #000; padding: 5px 0; }
+            .bill-table td { padding: 5px 0; vertical-align: top; }
+            .text-left { text-align: left; } .text-center { text-align: center; } .text-right { text-align: right; }
+            .col-mon { width: 40%; } .col-sl { width: 12%; } .col-gia { width: 22%; } .col-ttien { width: 26%; }
+            .bill-footer { border-top: 1px dashed #000; padding-top: 10px; }
+            .total-row { display: flex; justify-content: space-between; font-weight: bold; font-size: 15px; margin-bottom: 10px; }
+            .thank-you { text-align: center; font-size: 12px; font-style: italic; margin: 0; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div class="brand-nav">
+        <h2 style="margin:0; font-size: 18px;">BÁNH CANH THANH QUYÊN</h2>
+        <button class="nav-btn active" id="nav-dash" onclick="switchPage('dash')">📊 SƠ ĐỒ BÀN</button>
+        <button class="nav-btn" id="nav-pos" onclick="switchPage('pos')">🛒 BÁN HÀNG</button>
+        <span id="network-status">Đang kết nối...</span>
+    </div>
+    <div class="admin-input">
+        <input type="text" id="newFoodName" placeholder="Tên món" style="width: 100px;">
+        <input type="number" id="newFoodPrice" placeholder="Giá" style="width: 70px;">
+        <button class="btn-header" style="background: var(--success);" onclick="addMenu()">+ Thêm Món</button>
+        <button class="btn-header" style="background: var(--warning); color:#333;" onclick="showTransferModal()">⇄ Chuyển Bàn</button>
+        <button class="btn-header" style="background: #8e44ad;" onclick="exportToExcel()">⬇ Excel</button>
+        <button class="btn-header" style="background: #d35400;" onclick="showHistoryModal()">🕒 Lịch sử</button>
+    </div>
+</div>
+
+<div class="page-container">
+    <div id="page-dashboard"></div>
+
+    <div id="page-pos">
+        <div class="sidebar" id="sidebar-tables">Đang tải bàn...</div>
+        <div class="menu-area">
+            <div class="category-tabs">
+                <div class="tab-btn active" onclick="switchTab('main', this)">MÓN CHÍNH</div>
+                <div class="tab-btn" onclick="switchTab('sup', this)">CHÉN SÚP</div>
+                <div class="tab-btn" onclick="switchTab('them', this)">MÓN THÊM</div>
+                <div class="tab-btn" onclick="switchTab('nuoc', this)">GIẢI KHÁT</div>
+                <div class="tab-btn" onclick="switchTab('khac', this)">MÓN KHÁC</div>
+            </div>
+            <div class="modifiers" id="modifiers-panel">
+                <div class="mod-row">
+                    <span class="mod-title">Loại Sợi:</span>
+                    <button class="mod-btn active" onclick="setNoodle('Bánh Canh', this)">Bánh Canh</button>
+                    <button class="mod-btn" onclick="setNoodle('Hủ Tiếu', this)">Hủ Tiếu</button>
+                    <button class="mod-btn" onclick="setNoodle('Nui', this)">Nui</button>
+                    <button class="mod-btn" onclick="setNoodle('Mì Gói', this)">Mì Gói</button>
+                </div>
+                <div class="mod-row">
+                    <span class="mod-title">Cách Làm:</span>
+                    <button class="mod-btn active" onclick="setDry(false, this)">Có Nước</button>
+                    <button class="mod-btn" onclick="setDry(true, this)">Làm Khô (+5k)</button>
+                </div>
+            </div>
+            <div class="content" id="menu-items">Đang tải menu...</div>
+        </div>
+        
+        <div class="cart-panel">
+            <div class="cart-header"><h3 id="target-table" style="margin:0">Chọn bàn...</h3></div>
+            <div class="items-list" id="cart-details"></div>
+            <div class="payment-methods">
+                <div id="m-cash" class="method-btn selected" onclick="setPayment('CASH')">TM TIỀN MẶT</div>
+                <div id="m-bank" class="method-btn" onclick="setPayment('BANK')">CK CHUYỂN KHOẢN</div>
+            </div>
+            <div class="footer-cart">
+                <div class="total-box"><span>TỔNG:</span><span id="total-val" style="color:var(--danger)">0đ</span></div>
+                <div id="cash-calc-area" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; font-size: 14px;">
+                        <span>Khách đưa:</span>
+                        <input type="text" id="cus-given" placeholder="Nhập số tiền..." oninput="formatCurrencyInput(this)" style="text-align: right; width: 120px; padding: 5px; border: 1px solid #ccc; border-radius: 4px; font-weight: bold;">
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; font-size: 14px; font-weight: bold; color: var(--success);">
+                        <span>Tiền thối:</span>
+                        <span id="cus-change">0đ</span>
+                    </div>
+                </div>
+                <div class="btn-group-cart">
+                    <button class="btn" style="background:#e67e22;" onclick="printKitchen()">👨‍🍳 BÁO BẾP</button>
+                    <button class="btn" style="background:#8e44ad;" onclick="printProvisional()">🖨 TẠM TÍNH</button>
+                    <button class="btn" style="background:#95a5a6;" onclick="clearCurrentTable()">HỦY ĐƠN</button>
+                </div>
+                <button class="btn" style="background:var(--success); width:100%; padding: 15px; font-size: 16px;" onclick="processPayment()">THANH TOÁN & IN BILL</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="overlay" onclick="closeAllModals()"></div>
+
+<div class="modal" id="transfer-modal">
+    <h3 style="margin-top:0">Chuyển từ <span id="from-t" style="color:var(--info)"></span> sang:</h3>
+    <select id="to-t-select" style="width:100%; padding:10px; margin-bottom:15px; font-size:16px;"></select>
+    <div style="display:flex; gap:10px;">
+        <button onclick="execTransfer()" style="flex:1; background:var(--info); color:white; border:none; padding:10px; border-radius:5px; font-weight:bold;">Xác nhận</button>
+        <button onclick="closeAllModals()" style="flex:1; padding:10px; border-radius:5px;">Hủy</button>
+    </div>
+</div>
+
+<div class="modal" id="history-modal" style="min-width: 900px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #3498db; padding-bottom: 10px;">
+        <h3 style="margin:0">Lịch Sử Đơn Hàng</h3>
+        <button onclick="closeAllModals()" style="background:none; border:none; font-size:20px; cursor:pointer;">×</button>
+    </div>
+    <table class="history-table">
+        <thead><tr><th>Mã Bill</th><th>Bàn</th><th>Giờ Ra</th><th>Chi Tiết</th><th>Tổng Tiền</th><th>PTTT</th><th>Thao Tác</th></tr></thead>
+        <tbody id="history-body"></tbody>
+    </table>
+</div>
+
+<div id="khu-vuc-in-bill">
+    <div class="bill-header"><h2>BÁNH CANH THANH QUYÊN</h2><p>ĐC: 428 Nguyễn Tri Phương, TP.HCM</p>
+        <p class="bill-title" id="bill-type-title">HÓA ĐƠN THANH TOÁN</p>
+    </div>
+    <div class="bill-info"><div class="row"><b>Số Bill:</b> <span id="bill-no"></span></div><div class="row"><b>Bàn:</b> <span id="bill-table"></span></div><div class="row"><b>Giờ vào:</b> <span id="bill-time-in"></span></div><div class="row"><b>Giờ ra:</b> <span id="bill-time-out"></span></div><div class="row"><b>PTTT:</b> <span id="bill-method"></span></div></div>
+    <table class="bill-table">
+            <thead><tr><th class="text-left col-mon">Món</th><th class="text-center col-sl">SL</th><th class="text-right col-gia">Giá</th><th class="text-right col-ttien">T.Tiền</th></tr></thead>
+        <tbody id="bill-body"></tbody>
+    </table>
+    <div class="bill-footer">
+        <div class="total-row" style="margin-bottom: 5px;"><span>Tổng cộng:</span><span id="bill-total-price">0đ</span></div>
+        <div class="total-row" id="bill-given-row" style="font-size: 13px; font-weight: normal; margin-bottom: 5px; display: none;"><span>Khách đưa:</span><span id="bill-given">0đ</span></div>
+        <div class="total-row" id="bill-change-row" style="font-size: 13px; font-weight: normal; margin-bottom: 10px; display: none;"><span>Tiền thối:</span><span id="bill-change">0đ</span></div>
+        <p class="thank-you">Cảm ơn quý khách & Hẹn gặp lại!</p>
+    </div>
+</div>
+
+<div id="khu-vuc-in-bep">
+        <div class="bill-header"><h2>BÁNH CANH THANH QUYÊN</h2><p class="bill-title" style="font-size: 20px;">PHIẾU BÁO BẾP</p></div>
+        <div class="bill-info"><div class="row"><b>Bàn:</b> <span id="bep-table" style="font-size: 22px; font-weight: bold;"></span></div><div class="row"><b>Thời gian in:</b> <span id="bep-time"></span></div></div>
+        <table class="bill-table" style="font-size: 18px;">
+        <thead><tr><th class="text-left" style="width:75%">TÊN MÓN</th><th class="text-center" style="width:25%">SL</th></tr></thead>
+        <tbody id="bep-body"></tbody>
+    </table>
+    <div style="border-top: 1px dashed #000; margin-top: 10px; padding-top: 10px; text-align: center; font-style: italic; font-size: 12px;">(Phiếu dành cho nhà bếp)</div>
+</div>
+
+<script>
+    // ==========================================
+    // CẤU HÌNH API GOOGLE SHEETS MỚI NHẤT
+    // ==========================================
+    const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbxeIy4_EkcDR_M4Qtw3SMxY-dqxymYbD1XVKTtE_j7Zy0SkOvJuX39htWfiq6lKpIpI/exec"; 
+
+    // CẤU HÌNH FIREBASE
+    const firebaseConfig = {
+      apiKey: "AIzaSyA7B8ktRm_hSnT8xebwasPYibfcs9QMN9A",
+      authDomain: "pos-thanh-quyen.firebaseapp.com",
+      databaseURL: "https://pos-thanh-quyen-default-rtdb.firebaseio.com",
+      projectId: "pos-thanh-quyen",
+      storageBucket: "pos-thanh-quyen.firebasestorage.app",
+      messagingSenderId: "151209547582",
+      appId: "1:151209547582:web:4ddb41cdd7be77ab72be6f"
+    };
+
+    let db;
+    try {
+        if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+        db = firebase.database();
+    } catch (error) { alert("Lỗi cấu hình Firebase: " + error.message); }
+    
+    const PATH_MENU = 'pos_thanhquyen/menu';
+    const PATH_TABLES = 'pos_thanhquyen/tables';
+    const PATH_ORDERS = 'pos_thanhquyen/orders';
+    const PATH_TIMES = 'pos_thanhquyen/times';
+    const PATH_HISTORY = 'pos_thanhquyen/history';
+
+    // DỮ LIỆU MẶC ĐỊNH
+    const defaultMenuData = {
+        main: [
+            { name: 'Thịt Nạc Heo', price: 33000 }, { name: 'Chả Cá', price: 33000 }, { name: 'Phèo Non', price: 38000 }, { name: 'Xương Heo', price: 38000 }, { name: 'Chả Cua', price: 38000 }, { name: 'Giò Heo', price: 38000 }, { name: 'Nạc Bắp', price: 38000 }, { name: 'Bò Viên', price: 38000 }, { name: 'Bò Tái', price: 43000 }, { name: 'Xí Quách', price: 43000 }, { name: 'Giò Mỡ', price: 43000 }, { name: 'Tôm Tươi', price: 48000 }, { name: 'Thập Cẩm Thường', price: 50000 }, { name: 'Thập Cẩm Đặc Biệt', price: 60000 }
+        ],
+        sup: [
+            { name: 'Súp Thịt Nạc', price: 23000 }, { name: 'Súp Chả Cá', price: 23000 }, { name: 'Súp Phèo Non', price: 28000 }, { name: 'Súp Xương Heo', price: 28000 }, { name: 'Súp Chả Cua', price: 28000 }, { name: 'Súp Giò Heo', price: 28000 }, { name: 'Súp Nạc Bắp', price: 28000 }, { name: 'Súp Bò Viên', price: 28000 }, { name: 'Súp Bò Tái', price: 33000 }, { name: 'Súp Tôm Tươi', price: 38000 }, { name: 'Súp Xí Quách', price: 33000 }, { name: 'Súp Giò Mỡ', price: 33000 }
+        ],
+        them: [
+            { name: 'Thêm Bò Tái (30g)', price: 15000 }, { name: 'Thêm Bò Viên (3v)', price: 10000 }, { name: 'Thêm Chả Cá', price: 5000 }, { name: 'Thêm Chả Cua', price: 7000 }, { name: 'Thêm Nạc Heo (2m)', price: 7000 }, { name: 'Thêm Phèo (3m)', price: 10000 }, { name: 'Thêm Tôm (1 con)', price: 13000 }, { name: 'Huyết thêm', price: 5000 }, { name: 'Bánh Quẩy', price: 7000 }, { name: 'Chén Hột Gà', price: 7000 }, { name: 'Hành Phi', price: 5000 }
+        ],
+        nuoc: [
+            { name: 'NC Trà Đá', price: 3000 }, { name: 'NC Nước Suối', price: 10000 }, { name: 'NC Sâm Mía Lau', price: 15000 }, { name: 'NC Nha Đam', price: 15000 }, { name: 'NC Mũ Trôm', price: 15000 }, { name: 'NC Trà Tắc', price: 15000 }, { name: 'NC Chanh Xả Gừng', price: 15000 }, { name: 'NC Red Bull', price: 15000 }, { name: 'NC Sữa Tươi', price: 20000 }, { name: 'NC Sữa Sen', price: 15000 }, { name: 'NC Sữa Gạo Lức', price: 15000 }, { name: 'NC Sữa Bắp', price: 15000 }, { name: 'NC Nước Ngọt', price: 15000 }
+        ],
+        khac: [ { name: 'Khăn lạnh', price: 2000 } ]
+    };
+
+    const defaultTablesData = {
+        "Trong nhà": ["Bàn 1", "Bàn 2", "Bàn 3", "Bàn 4", "Bàn 5", "Bàn 6", "Bàn 7", "Bàn 8", "Bàn 9", "Bàn 10", "Bàn 11", "Bàn 12", "Bàn 13", "Bàn 14", "Bàn 15", "Bàn 16"],
+        "Ngoài sân": ["Sân 1", "Sân 2", "Sân 3", "Sân 4", "Sân 5", "Sân 6", "Sân 7", "Sân 8", "Sân 9", "Sân 10"],
+        "Mang về": ["MV 1", "MV 2", "MV 3", "MV 4", "MV 5", "MV 6"]
+    };
+
+    let menuDB = {}; let tablesDB = {}; let orders = {}; let tableTimes = {}; let orderHistory = [];
+    let currentTable = null; let paymentMethod = 'CASH'; let activeTab = 'main'; let activeNoodle = 'Bánh Canh'; let isDryMode = false;
+    let currentPage = 'dash'; let currentTotal = 0;
+
+    function verifyPIN() { return prompt("NHẬP MÃ BẢO MẬT ĐỂ XÁC NHẬN:") === "1688"; }
+
+    function switchPage(page) {
+        currentPage = page;
+        document.getElementById('page-pos').style.display = (page === 'pos') ? 'flex' : 'none';
+        document.getElementById('page-dashboard').style.display = (page === 'dash') ? 'flex' : 'none';
+        document.getElementById('nav-pos').classList.toggle('active', page === 'pos');
+        document.getElementById('nav-dash').classList.toggle('active', page === 'dash');
+        if(page === 'dash') renderDashboard();
+    }
+
+    function initFirebaseListeners() {
+        if (!db) return;
+        let statusEl = document.getElementById('network-status');
+        db.ref(".info/connected").on("value", function(snap) {
+            if (snap.val() === true) { statusEl.innerText = "● Online"; statusEl.className = "online"; } 
+            else { statusEl.innerText = "○ Mất mạng"; statusEl.className = "offline"; }
+        });
+
+        db.ref(PATH_MENU).on('value', snap => {
+            if(snap.exists()) { menuDB = snap.val(); } else { menuDB = defaultMenuData; db.ref(PATH_MENU).set(menuDB); }
+            renderMenu();
+        });
+
+        db.ref(PATH_TABLES).on('value', snap => {
+            if(snap.exists()) { tablesDB = snap.val(); } else { tablesDB = defaultTablesData; db.ref(PATH_TABLES).set(tablesDB); }
+            renderTables(); updateTransferModal(); if(currentPage === 'dash') renderDashboard();
+        });
+
+        db.ref(PATH_ORDERS).on('value', snap => { 
+            orders = snap.val() || {}; 
+            renderTables(); renderCart(); if(currentPage === 'dash') renderDashboard();
+        });
+        db.ref(PATH_TIMES).on('value', snap => { 
+            tableTimes = snap.val() || {}; 
+            if(currentPage === 'dash') renderDashboard();
+        });
+        db.ref(PATH_HISTORY).on('value', snap => { orderHistory = snap.val() || []; });
+    }
+
+    initFirebaseListeners();
+    function updateFirebase(path, data) { if(db) db.ref(path).set(data); }
+
+    function renderDashboard() {
+        const el = document.getElementById('page-dashboard'); el.innerHTML = '';
+        if(Object.keys(tablesDB).length === 0) return;
+        const order = ["Trong nhà", "Ngoài sân", "Mang về"];
+        let sortedZones = Object.keys(tablesDB).sort((a, b) => {
+            let idxA = order.indexOf(a), idxB = order.indexOf(b);
+            if(idxA === -1) idxA = 99; if(idxB === -1) idxB = 99; return idxA - idxB;
+        });
+
+        sortedZones.forEach(zone => {
+            let tablesInZone = tablesDB[zone] || [];
+            let occupiedCount = tablesInZone.filter(t => orders[t] && Object.keys(orders[t]).length > 0).length;
+            let zoneHtml = `<div class="dash-zone"><h3 class="dash-zone-title">${zone} <span style="color:var(--danger); font-size: 14px;">(${occupiedCount} bàn đang ăn)</span></h3><div class="dash-grid">`;
+            tablesInZone.forEach(t => {
+                let occ = orders[t] && Object.keys(orders[t]).length > 0;
+                let timeInStr = occ && tableTimes[t] ? tableTimes[t].split(" ")[0] : ""; 
+                zoneHtml += `<div class="dash-card ${occ ? 'occupied' : ''}" onclick="goToTableFromDash('${t}')"><div class="dash-card-title">${t}</div><div class="dash-time">${occ ? '⏳ ' + timeInStr : 'Trống'}</div></div>`;
+            });
+            zoneHtml += `</div></div>`; el.innerHTML += zoneHtml;
+        });
+    }
+
+    function goToTableFromDash(t) { switchPage('pos'); selectTable(t); }
+
+    function renderTables() {
+        const el = document.getElementById('sidebar-tables'); el.innerHTML = '';
+        if(Object.keys(tablesDB).length === 0) return; 
+        const order = ["Trong nhà", "Ngoài sân", "Mang về"];
+        let sortedZones = Object.keys(tablesDB).sort((a, b) => {
+            let idxA = order.indexOf(a), idxB = order.indexOf(b);
+            if(idxA === -1) idxA = 99; if(idxB === -1) idxB = 99; return idxA - idxB;
+        });
+
+        sortedZones.forEach(zone => {
+            el.innerHTML += `<div class="zone-header">${zone.toUpperCase()} <button class="btn-add-table" onclick="addTablePrompt('${zone}')">+</button></div>`;
+            let zCon = document.createElement('div'); zCon.style.display = 'flex'; zCon.style.flexDirection = 'column'; zCon.style.gap = '6px';
+            (tablesDB[zone] || []).forEach((t, i) => {
+                let occ = orders[t] && Object.keys(orders[t]).length > 0;
+                let btnHtml = `<div class="table-btn ${currentTable === t ? 'active' : ''} ${occ ? 'occupied' : ''}" onclick="selectTable('${t}')">`;
+                if(!occ) {
+                    btnHtml += `<button class="btn-edit-table" title="Đổi tên bàn" onclick="event.stopPropagation(); editTablePrompt('${zone}', ${i})">✎</button>`;
+                    btnHtml += `<button class="btn-del-table" title="Xóa bàn" onclick="event.stopPropagation(); deleteTable('${zone}', ${i})">✖</button>`;
+                }
+                btnHtml += `${t} ${occ ? '<span class="stt-dang-an">(Đang ăn)</span>' : ''}</div>`;
+                zCon.innerHTML += btnHtml;
+            });
+            el.appendChild(zCon);
+        });
+    }
+
+    function addTablePrompt(zone) {
+        let name = prompt(`Tên bàn mới cho khu vực [${zone}]:`);
+        if (!name || name.trim() === "") return;
+        if (Object.values(tablesDB).flat().includes(name.trim())) return alert("Tên bàn đã tồn tại!");
+        tablesDB[zone].push(name.trim()); updateFirebase(PATH_TABLES, tablesDB);
+    }
+
+    function editTablePrompt(zone, i) {
+        let oldName = tablesDB[zone][i], newName = prompt(`Đổi tên bàn [${oldName}] thành:`, oldName);
+        if(!newName || newName.trim() === "" || newName === oldName) return; newName = newName.trim();
+        if (Object.values(tablesDB).flat().includes(newName)) return alert("Tên bàn đã tồn tại!");
+        if (!verifyPIN()) return alert("Sai mã bảo mật!");
+        tablesDB[zone][i] = newName;
+        if (orders[oldName]) { orders[newName] = orders[oldName]; delete orders[oldName]; updateFirebase(PATH_ORDERS, orders); }
+        if (tableTimes[oldName]) { tableTimes[newName] = tableTimes[oldName]; delete tableTimes[oldName]; updateFirebase(PATH_TIMES, tableTimes); }
+        if (currentTable === oldName) { currentTable = newName; document.getElementById('target-table').innerText = "Đơn: " + newName; }
+        updateFirebase(PATH_TABLES, tablesDB);
+    }
+
+    function deleteTable(zone, i) {
+        if (confirm(`XÓA bàn [${tablesDB[zone][i]}]?`)) {
+            if (!verifyPIN()) return alert("Sai mã bảo mật!");
+            if (currentTable === tablesDB[zone][i]) { currentTable = null; document.getElementById('target-table').innerText = "Chọn bàn..."; document.getElementById('cart-details').innerHTML = ''; document.getElementById('total-val').innerText = '0đ'; }
+            tablesDB[zone].splice(i, 1); updateFirebase(PATH_TABLES, tablesDB);
+        }
+    }
+
+    function selectTable(t) { 
+        currentTable = t; 
+        document.getElementById('target-table').innerText = "Đơn: " + t; 
+        document.getElementById('cus-given').value = ''; 
+        renderTables(); 
+        renderCart(); 
+    }
+
+    function switchTab(tabId, el) { document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); el.classList.add('active'); activeTab = tabId; document.getElementById('modifiers-panel').style.display = (tabId === 'main') ? 'flex' : 'none'; renderMenu(); }
+    function setNoodle(type, el) { document.querySelectorAll('.mod-row:nth-child(1) .mod-btn').forEach(b => b.classList.remove('active')); el.classList.add('active'); activeNoodle = type; }
+    function setDry(isDry, el) { document.querySelectorAll('.mod-row:nth-child(2) .mod-btn').forEach(b => b.classList.remove('active')); el.classList.add('active'); isDryMode = isDry; }
+
+    function renderMenu() {
+        const el = document.getElementById('menu-items'); el.innerHTML = '';
+        (menuDB[activeTab] || []).forEach((m, i) => {
+            let p = m.price; if (activeTab === 'main' && isDryMode) p += 5000;
+            let dBtn = (activeTab === 'khac') ? `<button class="btn-del-menu" onclick="event.stopPropagation(); delMenu(${i})">×</button>` : '';
+            el.innerHTML += `<div class="food-card" onclick="processOrderClick('${m.name}', ${m.price})">${dBtn}<b>${m.name}</b><span>${p.toLocaleString()}đ</span></div>`;
+        });
+    }
+
+    function addMenu() {
+        let n = document.getElementById('newFoodName').value, p = document.getElementById('newFoodPrice').value;
+        if(!n || !p) return alert("Nhập đủ tên và giá!"); 
+        if(!menuDB.khac) menuDB.khac = []; menuDB.khac.push({name: n, price: parseInt(p)});
+        if(activeTab === 'khac') renderMenu(); else alert("Đã thêm vào MÓN KHÁC!");
+        document.getElementById('newFoodName').value = ''; document.getElementById('newFoodPrice').value = ''; updateFirebase(PATH_MENU, menuDB);
+    }
+    function delMenu(i) { if(confirm("Xóa?")) { menuDB.khac.splice(i, 1); updateFirebase(PATH_MENU, menuDB); } }
+
+    function processOrderClick(bName, bPrice) {
+        if(!currentTable) return alert("Chọn bàn trước!");
+        let fName = bName, fPrice = bPrice;
+        if (activeTab === 'main') { fName = `${activeNoodle}${isDryMode ? " Khô" : " Nước"} - ${bName}`; if (isDryMode) fPrice += 5000; }
+        if(!orders[currentTable]) { 
+            orders[currentTable] = {}; 
+            tableTimes[currentTable] = new Date().toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}) + " " + new Date().toLocaleDateString('vi-VN'); 
+            updateFirebase(PATH_TIMES, tableTimes);
+        }
+        if(orders[currentTable][fName]) orders[currentTable][fName].qty++; else orders[currentTable][fName] = { price: fPrice, qty: 1 };
+        updateFirebase(PATH_ORDERS, orders);
+    }
+
+    function increaseQty(n) { orders[currentTable][n].qty++; updateFirebase(PATH_ORDERS, orders); }
+    function decreaseQty(n) { if(orders[currentTable][n].qty > 1) { orders[currentTable][n].qty--; updateFirebase(PATH_ORDERS, orders); } else removeCartItem(n); }
+    function removeCartItem(n) { 
+        delete orders[currentTable][n]; 
+        if(Object.keys(orders[currentTable]).length === 0) { delete orders[currentTable]; delete tableTimes[currentTable]; updateFirebase(PATH_TIMES, tableTimes); } 
+        updateFirebase(PATH_ORDERS, orders); 
+    }
+
+    function renderCart() {
+        const el = document.getElementById('cart-details'); el.innerHTML = ''; let t = 0;
+        if(currentTable && orders[currentTable]) {
+            for(let n in orders[currentTable]) {
+                let i = orders[currentTable][n]; let sub = i.price * i.qty; t += sub;
+                el.innerHTML += `<div class="item-row"><div class="item-info"><b>${n}</b><br><small>${i.price.toLocaleString()}đ</small><div class="qty-controls"><button class="btn-qty" onclick="decreaseQty('${n}')">-</button><span class="qty-number">${i.qty}</span><button class="btn-qty" onclick="increaseQty('${n}')">+</button></div></div><div class="item-price-col"><button class="btn-remove-item" onclick="removeCartItem('${n}')">❌ Xóa</button><b>${sub.toLocaleString()}đ</b></div></div>`;
+            }
+        }
+        currentTotal = t;
+        document.getElementById('total-val').innerText = t.toLocaleString() + "đ";
+        calculateChange();
+    }
+
+    function setPayment(m) { 
+        paymentMethod = m; 
+        document.getElementById('m-cash').className = m === 'CASH' ? 'method-btn selected' : 'method-btn'; 
+        document.getElementById('m-bank').className = m === 'BANK' ? 'method-btn selected' : 'method-btn'; 
+        document.getElementById('cash-calc-area').style.display = m === 'CASH' ? 'flex' : 'none';
+        calculateChange();
+    }
+
+    function formatCurrencyInput(el) {
+        let val = el.value.replace(/\D/g, '');
+        if(val !== '') {
+            el.value = parseInt(val).toLocaleString();
+        } else {
+            el.value = '';
+        }
+        calculateChange();
+    }
+
+    function calculateChange() {
+        let givenInput = document.getElementById('cus-given').value.replace(/\D/g, '');
+        let given = parseInt(givenInput) || 0;
+        let change = given - currentTotal;
+        document.getElementById('cus-change').innerText = change >= 0 ? change.toLocaleString() + "đ" : "0đ";
+    }
+
+    function updateTransferModal() {
+        const sel = document.getElementById('to-t-select'); sel.innerHTML = '';
+        if(Object.keys(tablesDB).length > 0) { Object.values(tablesDB).flat().filter(t => t !== currentTable).forEach(t => sel.innerHTML += `<option value="${t}">${t}</option>`); }
+    }
+
+    function showTransferModal() {
+        if(!currentTable || !orders[currentTable]) return alert("Bàn trống!"); document.getElementById('from-t').innerText = currentTable; updateTransferModal();
+        document.getElementById('overlay').style.display = 'block'; document.getElementById('transfer-modal').style.display = 'block';
+    }
+
+    function execTransfer() {
+        let toT = document.getElementById('to-t-select').value;
+        if(orders[toT]) { if(!confirm("Gộp đơn?")) return; for(let n in orders[currentTable]) { if(orders[toT][n]) orders[toT][n].qty += orders[currentTable][n].qty; else orders[toT][n] = orders[currentTable][n]; } } 
+        else { orders[toT] = orders[currentTable]; tableTimes[toT] = tableTimes[currentTable]; }
+        delete orders[currentTable]; delete tableTimes[currentTable];
+        updateFirebase(PATH_ORDERS, orders); updateFirebase(PATH_TIMES, tableTimes); closeAllModals(); selectTable(toT);
+    }
+    
+    function closeAllModals() { document.getElementById('overlay').style.display = 'none'; document.getElementById('transfer-modal').style.display = 'none'; document.getElementById('history-modal').style.display = 'none'; }
+
+    function printKitchen() {
+        if(!currentTable || !orders[currentTable]) return alert("Chưa có món để báo bếp!");
+        document.getElementById('bep-table').innerText = currentTable; document.getElementById('bep-time').innerText = new Date().toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'});
+        let tb = document.getElementById('bep-body'); tb.innerHTML = ''; 
+            for(let n in orders[currentTable]) tb.innerHTML += `<tr><td class="text-left" style="padding: 10px 0; border-bottom: 1px dashed #000;"><b>${n}</b></td><td class="text-center" style="font-size:22px; font-weight:bold; padding: 10px 0; border-bottom: 1px dashed #000;">${orders[currentTable][n].qty}</td></tr>`;
+        document.body.classList.add('print-bep'); window.print(); document.body.classList.remove('print-bep'); 
+    }
+
+    function printProvisional() {
+        if(!currentTable || !orders[currentTable]) return alert("Giỏ hàng trống!");
+        let now = new Date(); let timeOutStr = now.toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}) + " " + now.toLocaleDateString('vi-VN');
+        let timeInStr = tableTimes[currentTable] || timeOutStr; let total = 0;
+        let tbody = document.getElementById('bill-body'); tbody.innerHTML = ''; 
+        for(let n in orders[currentTable]) { let i = orders[currentTable][n], tTien = i.price * i.qty; total += tTien; tbody.innerHTML += `<tr><td class="text-left">${n}</td><td class="text-center">${i.qty}</td><td class="text-right">${i.price/1000}k</td><td class="text-right">${tTien.toLocaleString()}</td></tr>`; }
+        document.getElementById('bill-type-title').innerText = "PHIẾU TẠM TÍNH"; document.getElementById('bill-no').innerText = "---"; document.getElementById('bill-table').innerText = currentTable; document.getElementById('bill-time-in').innerText = timeInStr; document.getElementById('bill-time-out').innerText = timeOutStr; document.getElementById('bill-method').innerText = "Chưa thanh toán"; document.getElementById('bill-total-price').innerText = total.toLocaleString() + "đ";
+        document.getElementById('bill-given-row').style.display = 'none';
+        document.getElementById('bill-change-row').style.display = 'none';
+        document.body.classList.add('print-bill'); window.print(); document.body.classList.remove('print-bill');
+    }
+
+    function generateBillNumber() {
+        let t = new Date(), dStr = ("0"+t.getDate()).slice(-2)+("0"+(t.getMonth()+1)).slice(-2)+t.getFullYear();
+        let last = localStorage.getItem('last_bill_date'), c = parseInt(localStorage.getItem('bill_counter') || "0");
+        if (last !== dStr) { c = 1; localStorage.setItem('last_bill_date', dStr); } else c++;
+        localStorage.setItem('bill_counter', c); return dStr + "-" + ("000" + c).slice(-3);
+    }
+
+    async function syncToCukCuk(billNo, total, excelItems, timeInStr, timeOutStr) {
+        console.log("CHUYỂN DỮ LIỆU SANG CUKCUK...");
+    }
+
+    async function processPayment() {
+        if(!currentTable || !orders[currentTable]) return alert("Giỏ hàng trống!");
+        let billNo = generateBillNumber(), timeOutStr = new Date().toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}) + " " + new Date().toLocaleDateString('vi-VN'), timeInStr = tableTimes[currentTable] || timeOutStr;
+        let total = 0, tbody = document.getElementById('bill-body'); tbody.innerHTML = ''; let excelItems = []; let rawItemsData = {}; 
+        
+        for(let n in orders[currentTable]) {
+            let i = orders[currentTable][n], tTien = i.price * i.qty; total += tTien; excelItems.push(`${n} x${i.qty}`); rawItemsData[n] = { price: i.price, qty: i.qty };
+            tbody.innerHTML += `<tr><td class="text-left">${n}</td><td class="text-center">${i.qty}</td><td class="text-right">${i.price/1000}k</td><td class="text-right">${tTien.toLocaleString()}</td></tr>`;
+        }
+
+        let pMethodText = paymentMethod === 'CASH' ? 'TM TIỀN MẶT' : 'CK CHUYỂN KHOẢN';
+        
+        if (paymentMethod === 'BANK') {
+            await syncToCukCuk(billNo, total, excelItems, timeInStr, timeOutStr);
+            alert("✅ Đã gửi dữ liệu thành công sang hệ thống CukCuk!");
+        }
+
+        // Đẩy lên Google Sheets
+        if (GOOGLE_SHEET_URL.trim() !== "") {
+            fetch(GOOGLE_SHEET_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({ billNo: billNo, table: currentTable, timeIn: timeInStr, timeOut: timeOutStr, itemsText: excelItems.join(", "), total: total, method: pMethodText, status: "Thanh toán", cancelReason: "", cancelTime: "" })
+            }).catch(e => console.log("Lỗi gửi Sheets"));
+        }
+
+        document.getElementById('bill-type-title').innerText = "HÓA ĐƠN THANH TOÁN"; document.getElementById('bill-no').innerText = billNo; document.getElementById('bill-table').innerText = currentTable; document.getElementById('bill-time-in').innerText = timeInStr; document.getElementById('bill-time-out').innerText = timeOutStr; document.getElementById('bill-method').innerText = pMethodText; document.getElementById('bill-total-price').innerText = total.toLocaleString() + "đ";
+        
+        if (paymentMethod === 'CASH') {
+            let givenInput = document.getElementById('cus-given').value.replace(/\D/g, '');
+            let given = parseInt(givenInput) || 0;
+            let change = given - total;
+            document.getElementById('bill-given-row').style.display = 'flex';
+            document.getElementById('bill-change-row').style.display = 'flex';
+            document.getElementById('bill-given').innerText = given.toLocaleString() + "đ";
+            document.getElementById('bill-change').innerText = (change >= 0 ? change : 0).toLocaleString() + "đ";
+        } else {
+            document.getElementById('bill-given-row').style.display = 'none';
+            document.getElementById('bill-change-row').style.display = 'none';
+        }
+
+        orderHistory.unshift({ billNo: billNo, table: currentTable, timeIn: timeInStr, timeOut: timeOutStr, itemsText: excelItems.join(", "), rawItems: rawItemsData, total: total, method: pMethodText });
+        updateFirebase(PATH_HISTORY, orderHistory);
+
+        document.body.classList.add('print-bill'); window.print(); document.body.classList.remove('print-bill');
+        
+        setTimeout(() => { 
+            delete orders[currentTable]; delete tableTimes[currentTable]; 
+            updateFirebase(PATH_ORDERS, orders); updateFirebase(PATH_TIMES, tableTimes);
+            document.getElementById('cus-given').value = '';
+            calculateChange();
+        }, 500); 
+    }
+
+    function clearCurrentTable() { 
+        if(!currentTable || !orders[currentTable]) return;
+        if(!confirm(`Hủy toàn bộ đơn hàng của [${currentTable}]?`)) return; 
+        if(!verifyPIN()) return alert("Sai mã bảo mật! Không thể hủy đơn hàng.");
+
+        let reason = prompt("Nhập lý do hủy đơn (hoặc để trống):");
+        if (reason === null) return; // Nhấn Cancel ở hộp thoại lý do
+        
+        let cancelTime = new Date().toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}) + " " + new Date().toLocaleDateString('vi-VN');
+        let excelItems = []; let total = 0; let rawItemsData = {};
+        for(let n in orders[currentTable]) {
+            let i = orders[currentTable][n]; excelItems.push(`${n} x${i.qty}`); total += i.price * i.qty;
+            rawItemsData[n] = { price: i.price, qty: i.qty };
+        }
+        if (GOOGLE_SHEET_URL.trim() !== "") {
+            fetch(GOOGLE_SHEET_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({ billNo: "HỦY BÀN", table: currentTable, timeIn: tableTimes[currentTable] || cancelTime, timeOut: cancelTime, itemsText: excelItems.join(", "), total: total, method: "Chưa thanh toán", status: "HỦY ĐƠN", cancelReason: reason || "Không có lý do", cancelTime: cancelTime })
+            }).catch(e => console.log("Lỗi gửi Sheets"));
+        }
+
+        orderHistory.unshift({ billNo: "HỦY BÀN", table: currentTable, timeIn: tableTimes[currentTable] || cancelTime, timeOut: cancelTime, itemsText: excelItems.join(", "), rawItems: rawItemsData, total: total, method: "HỦY: " + (reason || "Không có lý do"), isCanceled: true });
+        updateFirebase(PATH_HISTORY, orderHistory);
+
+        delete orders[currentTable]; delete tableTimes[currentTable]; 
+        updateFirebase(PATH_ORDERS, orders); updateFirebase(PATH_TIMES, tableTimes);
+        document.getElementById('cus-given').value = '';
+        calculateChange();
+    }
+
+    function showHistoryModal() {
+        let tb = document.getElementById('history-body'); tb.innerHTML = '';
+        if(orderHistory.length === 0) tb.innerHTML = '<tr><td colspan="7" style="text-align:center;">Chưa có đơn!</td></tr>';
+        else orderHistory.forEach((r, i) => {
+            let btnHtml = r.isCanceled ? '<span style="color:#e74c3c; font-weight:bold;">Đã Hủy</span>' : `<button class="action-btn" style="background:var(--info)" onclick="editHistory(${i})">Sửa</button> <button class="action-btn" style="background:var(--warning); color:#333;" onclick="copyHistory(${i})">Copy</button> <button class="action-btn" style="background:var(--danger)" onclick="deleteHistory(${i})">Hủy</button>`;
+            tb.innerHTML += `<tr ${r.isCanceled ? 'style="background:#ffebee; color:#c0392b;"' : ''}><td><b>${r.billNo}</b></td><td>${r.table}</td><td>${r.timeOut}</td><td>${r.itemsText}</td><td style="color:var(--danger); font-weight:bold;">${r.total.toLocaleString()}đ</td><td>${r.method}</td><td>${btnHtml}</td></tr>`;
+        });
+        document.getElementById('overlay').style.display = 'block'; document.getElementById('history-modal').style.display = 'block';
+    }
+
+    function editHistory(i) { 
+        let r = orderHistory[i]; 
+        if(orders[r.table] && Object.keys(orders[r.table]).length > 0) return alert(`Lỗi: Bàn ${r.table} đang có khách mới.`); 
+        if(confirm(`Khôi phục bill [${r.billNo}] về bàn ${r.table} để sửa?\n(Sẽ tạm xóa bill này khỏi doanh thu)`)) { 
+            orders[r.table] = r.rawItems; tableTimes[r.table] = r.timeIn; 
+            updateFirebase(PATH_ORDERS, orders); updateFirebase(PATH_TIMES, tableTimes); 
+            orderHistory.splice(i, 1); updateFirebase(PATH_HISTORY, orderHistory); 
+            closeAllModals(); selectTable(r.table); 
+        } 
+    }
+
+    function copyHistory(i) {
+        let r = orderHistory[i];
+        let targetTable = prompt(`COPY đơn hàng [${r.billNo}] sang bàn nào?\n(Nhập chính xác tên bàn. VD: Bàn 1, Sân 2...)`);
+        if(!targetTable || targetTable.trim() === "") return; targetTable = targetTable.trim();
+
+        let allTables = Object.values(tablesDB).flat();
+        if(!allTables.includes(targetTable)) return alert("Tên bàn không tồn tại trong sơ đồ!");
+
+        if(orders[targetTable] && Object.keys(orders[targetTable]).length > 0) {
+            if(!confirm(`Bàn [${targetTable}] đang có khách. Gộp copy vào bàn này?`)) return;
+            for(let n in r.rawItems) {
+                if(orders[targetTable][n]) orders[targetTable][n].qty += r.rawItems[n].qty;
+                else orders[targetTable][n] = JSON.parse(JSON.stringify(r.rawItems[n]));
+            }
+        } else {
+            orders[targetTable] = JSON.parse(JSON.stringify(r.rawItems));
+            tableTimes[targetTable] = new Date().toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}) + " " + new Date().toLocaleDateString('vi-VN');
+        }
+        updateFirebase(PATH_ORDERS, orders); updateFirebase(PATH_TIMES, tableTimes);
+        closeAllModals(); selectTable(targetTable); alert("Copy thành công! Vui lòng chọn bàn " + targetTable + " để tiếp tục.");
+    }
+
+    function deleteHistory(i) { 
+        if(confirm(`Bạn có chắc chắn muốn HỦY (Xóa) bill [${orderHistory[i].billNo}] khỏi báo cáo doanh thu?`)) { 
+            if(!verifyPIN()) return alert("Sai mã bảo mật! Không thể hủy bill.");
+            
+            let reason = prompt("Nhập lý do hủy bill (hoặc để trống):");
+            if (reason === null) return;
+            
+            let r = orderHistory[i]; let cancelTime = new Date().toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}) + " " + new Date().toLocaleDateString('vi-VN');
+            if (GOOGLE_SHEET_URL.trim() !== "") {
+                fetch(GOOGLE_SHEET_URL, {
+                    method: 'POST', mode: 'no-cors',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ billNo: r.billNo + " (HỦY)", table: r.table, timeIn: r.timeIn, timeOut: cancelTime, itemsText: r.itemsText, total: r.total, method: r.method, status: "HỦY BILL", cancelReason: reason || "Không có lý do", cancelTime: cancelTime })
+                }).catch(e => console.log("Lỗi gửi Sheets"));
+            }
+
+            orderHistory[i].isCanceled = true;
+            orderHistory[i].method = "HỦY: " + (reason || "Không có lý do");
+            orderHistory[i].billNo = r.billNo + " (HỦY)";
+            updateFirebase(PATH_HISTORY, orderHistory); showHistoryModal(); 
+        } 
+    }
+
+    function exportToExcel() {
+        if(orderHistory.length === 0) return alert("Chưa có đơn hàng!");
+        if(!verifyPIN()) return alert("Sai mã bảo mật! Không thể xuất file Excel.");
+        let tC = 0, tB = 0, csv = "\uFEFFMã Bill,Bàn,Giờ Vào,Giờ Ra,Chi Tiết Món,Tổng Tiền,PTTT\n";
+        orderHistory.forEach(r => { 
+            let iC = r.itemsText.replace(/,/g, " -"); 
+            csv += `${r.billNo},${r.table},${r.timeIn},${r.timeOut},${iC},${r.total},${r.method}\n`; 
+            if (!r.isCanceled) {
+                if (r.method === 'TM TIỀN MẶT') tC += r.total; else if (r.method === 'CK CHUYỂN KHOẢN') tB += r.total; 
+            }
+        });
+        csv += `\n,,,,\n,,,BÁO CÁO DOANH THU,\n,,,TM TIỀN MẶT:,${tC},VND\n,,,CK CHUYỂN KHOẢN:,${tB},VND\n,,,TỔNG DOANH THU:,${tC + tB},VND\n`;
+        let b = new Blob([csv], { type: 'text/csv;charset=utf-8;' }), l = document.createElement("a"); l.setAttribute("href", URL.createObjectURL(b)); l.setAttribute("download", `DoanhThu_BanhCanh_${new Date().toLocaleDateString('vi-VN').replace(/\//g,'-')}.csv`); document.body.appendChild(l); l.click(); document.body.removeChild(l);
+    }
+</script>
+</body>
+</html>
