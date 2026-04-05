@@ -78,7 +78,8 @@
         .cart-panel { width: 350px; background: white; border-left: 1px solid #ddd; padding: 15px; display: flex; flex-direction: column; box-sizing: border-box;}
         .cart-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--info); padding-bottom: 10px; margin-bottom: 10px; }
         .items-list { flex: 1; overflow-y: auto; }
-        .item-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f1f1f1; align-items: stretch;}
+        .item-row { display: flex; justify-content: space-between; padding: 8px; border-bottom: 1px solid #f1f1f1; align-items: stretch; cursor: pointer; transition: background-color 0.2s; border-radius: 4px;}
+        .item-row.selected-cart-item { background-color: #ebf5fb; border-left: 4px solid var(--info); padding-left: 6px; }
         .item-info { flex: 1; font-size: 14px;}
         .qty-controls { display: flex; align-items: center; gap: 8px; margin-top: 5px; }
         .btn-qty { width: 24px; height: 24px; border: 1px solid #ccc; background: white; border-radius: 4px; cursor: pointer; font-weight: bold; display: flex; justify-content: center; align-items: center; color: #333; font-size: 14px;}
@@ -121,7 +122,7 @@
             .bill-info .row { display: flex; justify-content: space-between; }
             .bill-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 10px; }
             .bill-table th { border-bottom: 1px solid #000; padding: 5px 0; }
-            .bill-table td { padding: 5px 0; vertical-align: top; }
+            .bill-table td { padding: 6px 0; vertical-align: top; border-bottom: 1px dashed #555; }
             .text-left { text-align: left; } .text-center { text-align: center; } .text-right { text-align: right; }
             .col-mon { width: 40%; } .col-sl { width: 12%; } .col-gia { width: 22%; } .col-ttien { width: 26%; }
             .bill-footer { border-top: 1px dashed #000; padding-top: 10px; }
@@ -132,6 +133,15 @@
 </head>
 <body>
 
+<div id="login-screen" style="position:fixed; top:0; left:0; width:100%; height:100%; background:#2c3e50; z-index:9999; display:flex; justify-content:center; align-items:center; flex-direction:column; color:white;">
+    <h2 style="margin-bottom: 20px;">BÁNH CANH THANH QUYÊN - POS</h2>
+    <div style="background:white; padding:30px; border-radius:10px; text-align:center; box-shadow:0 10px 30px rgba(0,0,0,0.3);">
+        <h3 style="color:#2c3e50; margin-top:0;">ĐĂNG NHẬP</h3>
+        <input type="password" id="login-pin" placeholder="Nhập mã PIN..." style="padding:12px; font-size:20px; text-align:center; border-radius:5px; border:1px solid #ccc; margin-bottom:15px; width:200px; display:block; outline:none;" onkeyup="if(event.key==='Enter') login()">
+        <button onclick="login()" style="padding:12px; font-size:16px; font-weight:bold; background:var(--success); color:white; border:none; border-radius:5px; cursor:pointer; width:100%;">VÀO HỆ THỐNG</button>
+    </div>
+</div>
+
 <div class="header">
     <div class="brand-nav">
         <h2 style="margin:0; font-size: 18px;">BÁNH CANH THANH QUYÊN</h2>
@@ -140,12 +150,16 @@
         <span id="network-status">Đang kết nối...</span>
     </div>
     <div class="admin-input">
-        <input type="text" id="newFoodName" placeholder="Tên món" style="width: 100px;">
-        <input type="number" id="newFoodPrice" placeholder="Giá" style="width: 70px;">
-        <button class="btn-header" style="background: var(--success);" onclick="addMenu()">+ Thêm Món</button>
+        <span id="admin-add-menu" style="display:flex; gap:8px;">
+            <input type="text" id="newFoodName" placeholder="Tên món" style="width: 100px;">
+            <input type="number" id="newFoodPrice" placeholder="Giá" style="width: 70px;">
+            <button class="btn-header" style="background: var(--success);" onclick="addMenu()">+ Thêm Món</button>
+        </span>
         <button class="btn-header" style="background: var(--warning); color:#333;" onclick="showTransferModal()">⇄ Chuyển Bàn</button>
-        <button class="btn-header" style="background: #8e44ad;" onclick="exportToExcel()">⬇ Excel</button>
-        <button class="btn-header" style="background: #d35400;" onclick="showHistoryModal()">🕒 Lịch sử</button>
+        <button class="btn-header" id="btn-export" style="background: #8e44ad;" onclick="exportToExcel()">⬇ Excel</button>
+        <button class="btn-header" id="btn-history" style="background: #d35400;" onclick="showHistoryModal()">🕒 Lịch sử</button>
+        <button class="btn-header" id="btn-users" style="background: #34495e;" onclick="showUsersModal()">👥 Nhân sự</button>
+        <button class="btn-header" style="background: #c0392b;" onclick="logout()">Thoát</button>
     </div>
 </div>
 
@@ -223,7 +237,10 @@
 <div class="modal" id="history-modal" style="min-width: 900px;">
     <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #3498db; padding-bottom: 10px;">
         <h3 style="margin:0">Lịch Sử Đơn Hàng</h3>
-        <button onclick="closeAllModals()" style="background:none; border:none; font-size:20px; cursor:pointer;">×</button>
+        <div style="display: flex; gap: 15px; align-items: center;">
+            <input type="date" id="history-date" onchange="renderHistory()" style="padding: 5px 10px; border: 1px solid #ccc; border-radius: 4px; font-weight: bold; cursor: pointer;">
+            <button onclick="closeAllModals()" style="background:none; border:none; font-size:20px; cursor:pointer;">×</button>
+        </div>
     </div>
     <table class="history-table">
         <thead><tr><th>Mã Bill</th><th>Bàn</th><th>Giờ Ra</th><th>Chi Tiết</th><th>Tổng Tiền</th><th>PTTT</th><th>Thao Tác</th></tr></thead>
@@ -231,11 +248,29 @@
     </table>
 </div>
 
+<div class="modal" id="users-modal" style="min-width: 500px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #3498db; padding-bottom: 10px; margin-bottom: 15px;">
+        <h3 style="margin:0">Quản Lý Nhân Viên</h3>
+        <button onclick="closeAllModals()" style="background:none; border:none; font-size:20px; cursor:pointer;">×</button>
+    </div>
+    <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+        <input type="text" id="new-user-name" placeholder="Tên NV..." style="padding:8px; flex:1; border: 1px solid #ccc; border-radius:4px;">
+        <input type="text" id="new-user-pin" placeholder="Mã PIN (số)" style="padding:8px; width: 120px; border: 1px solid #ccc; border-radius:4px;">
+        <select id="new-user-role" style="padding:8px; border: 1px solid #ccc; border-radius:4px;"><option value="staff">Nhân viên</option><option value="admin">Quản lý</option></select>
+        <button onclick="addUser()" style="padding:8px 15px; background:var(--success); color:white; border:none; border-radius:4px; font-weight:bold; cursor:pointer;">Thêm</button>
+    </div>
+    <table class="history-table">
+        <thead><tr><th>Tên Nhân Viên</th><th>Mã PIN</th><th>Phân Quyền</th><th>Thao Tác</th></tr></thead>
+        <tbody id="users-body"></tbody>
+    </table>
+</div>
+
 <div id="khu-vuc-in-bill">
     <div class="bill-header"><h2>BÁNH CANH THANH QUYÊN</h2><p>ĐC: 428 Nguyễn Tri Phương, TP.HCM</p>
+        <p style="font-weight: bold; font-size: 13px;">Hotline góp ý: 0907.622.772</p>
         <p class="bill-title" id="bill-type-title">HÓA ĐƠN THANH TOÁN</p>
     </div>
-    <div class="bill-info"><div class="row"><b>Số Bill:</b> <span id="bill-no"></span></div><div class="row"><b>Bàn:</b> <span id="bill-table"></span></div><div class="row"><b>Giờ vào:</b> <span id="bill-time-in"></span></div><div class="row"><b>Giờ ra:</b> <span id="bill-time-out"></span></div><div class="row"><b>PTTT:</b> <span id="bill-method"></span></div></div>
+    <div class="bill-info"><div class="row"><b>Số Bill:</b> <span id="bill-no"></span></div><div class="row"><b>Bàn:</b> <span id="bill-table"></span></div><div class="row"><b>Giờ vào:</b> <span id="bill-time-in"></span></div><div class="row"><b>Giờ ra:</b> <span id="bill-time-out"></span></div><div class="row"><b>Nhân viên:</b> <span id="bill-staff"></span></div><div class="row"><b>PTTT:</b> <span id="bill-method"></span></div></div>
     <table class="bill-table">
             <thead><tr><th class="text-left col-mon">Món</th><th class="text-center col-sl">SL</th><th class="text-right col-gia">Giá</th><th class="text-right col-ttien">T.Tiền</th></tr></thead>
         <tbody id="bill-body"></tbody>
@@ -244,6 +279,7 @@
         <div class="total-row" style="margin-bottom: 5px;"><span>Tổng cộng:</span><span id="bill-total-price">0đ</span></div>
         <div class="total-row" id="bill-given-row" style="font-size: 13px; font-weight: normal; margin-bottom: 5px; display: none;"><span>Khách đưa:</span><span id="bill-given">0đ</span></div>
         <div class="total-row" id="bill-change-row" style="font-size: 13px; font-weight: normal; margin-bottom: 10px; display: none;"><span>Tiền thối:</span><span id="bill-change">0đ</span></div>
+        <p class="thank-you" style="margin-bottom: 5px;">Xin đánh giá 5 sao trên Google để quán phục vụ tốt hơn!</p>
         <p class="thank-you">Cảm ơn quý khách & Hẹn gặp lại!</p>
     </div>
 </div>
@@ -286,6 +322,8 @@
     const PATH_ORDERS = 'pos_thanhquyen/orders';
     const PATH_TIMES = 'pos_thanhquyen/times';
     const PATH_HISTORY = 'pos_thanhquyen/history';
+    const PATH_USERS = 'pos_thanhquyen/users';
+    const PATH_STAFFS = 'pos_thanhquyen/staffs';
 
     // DỮ LIỆU MẶC ĐỊNH
     const defaultMenuData = {
@@ -310,11 +348,41 @@
         "Mang về": ["MV 1", "MV 2", "MV 3", "MV 4", "MV 5", "MV 6"]
     };
 
-    let menuDB = {}; let tablesDB = {}; let orders = {}; let tableTimes = {}; let orderHistory = [];
+    let menuDB = {}; let tablesDB = {}; let orders = {}; let tableTimes = {}; let orderHistory = []; let tableStaffs = {};
+    let usersDB = {}; let currentUser = null;
     let currentTable = null; let paymentMethod = 'CASH'; let activeTab = 'main'; let activeNoodle = 'Bánh Canh'; let isDryMode = false;
     let currentPage = 'dash'; let currentTotal = 0;
+    let selectedCartItemKey = null;
 
-    function verifyPIN() { return prompt("NHẬP MÃ BẢO MẬT ĐỂ XÁC NHẬN:") === "1688"; }
+    function verifyPIN() { 
+        if (currentUser && currentUser.role === 'admin') return true;
+        let pin = prompt("YÊU CẦU QUYỀN QUẢN LÝ.\nNhập mã PIN Admin để xác nhận thao tác:"); 
+        return pin && usersDB[pin] && usersDB[pin].role === 'admin';
+    }
+
+    function login() {
+        let pin = document.getElementById('login-pin').value;
+        if (usersDB[pin]) {
+            currentUser = usersDB[pin];
+            document.getElementById('login-screen').style.display = 'none';
+            applyRolePermissions();
+        } else { alert("Mã PIN không đúng!"); }
+    }
+
+    function logout() {
+        currentUser = null;
+        document.getElementById('login-screen').style.display = 'flex';
+        document.getElementById('login-pin').value = '';
+    }
+
+    function applyRolePermissions() {
+        let isAdmin = currentUser && currentUser.role === 'admin';
+        document.getElementById('admin-add-menu').style.display = isAdmin ? 'flex' : 'none';
+        document.getElementById('btn-export').style.display = isAdmin ? 'inline-block' : 'none';
+        document.getElementById('btn-history').style.display = isAdmin ? 'inline-block' : 'none';
+        document.getElementById('btn-users').style.display = isAdmin ? 'inline-block' : 'none';
+        renderTables(); renderMenu();
+    }
 
     function switchPage(page) {
         currentPage = page;
@@ -352,6 +420,12 @@
             if(currentPage === 'dash') renderDashboard();
         });
         db.ref(PATH_HISTORY).on('value', snap => { orderHistory = snap.val() || []; });
+        db.ref(PATH_USERS).on('value', snap => {
+            if(snap.exists()) { usersDB = snap.val(); } 
+            else { usersDB = { "1688": { name: "Admin Gốc", role: "admin" } }; db.ref(PATH_USERS).set(usersDB); }
+            if (document.getElementById('users-modal').style.display === 'block') renderUsers();
+        });
+        db.ref(PATH_STAFFS).on('value', snap => { tableStaffs = snap.val() || {}; });
     }
 
     initFirebaseListeners();
@@ -373,7 +447,7 @@
             tablesInZone.forEach(t => {
                 let occ = orders[t] && Object.keys(orders[t]).length > 0;
                 let timeInStr = occ && tableTimes[t] ? tableTimes[t].split(" ")[0] : ""; 
-                zoneHtml += `<div class="dash-card ${occ ? 'occupied' : ''}" onclick="goToTableFromDash('${t}')"><div class="dash-card-title">${t}</div><div class="dash-time">${occ ? '⏳ ' + timeInStr : 'Trống'}</div></div>`;
+                zoneHtml += `<div class="dash-card ${occ ? 'occupied' : ''}" onclick="goToTableFromDash('${t}')"><div class="dash-card-title">🍽️ ${t}</div><div class="dash-time">${occ ? '⏳ ' + timeInStr : 'Trống'}</div></div>`;
             });
             zoneHtml += `</div></div>`; el.innerHTML += zoneHtml;
         });
@@ -396,11 +470,11 @@
             (tablesDB[zone] || []).forEach((t, i) => {
                 let occ = orders[t] && Object.keys(orders[t]).length > 0;
                 let btnHtml = `<div class="table-btn ${currentTable === t ? 'active' : ''} ${occ ? 'occupied' : ''}" onclick="selectTable('${t}')">`;
-                if(!occ) {
+                if(!occ && currentUser && currentUser.role === 'admin') {
                     btnHtml += `<button class="btn-edit-table" title="Đổi tên bàn" onclick="event.stopPropagation(); editTablePrompt('${zone}', ${i})">✎</button>`;
                     btnHtml += `<button class="btn-del-table" title="Xóa bàn" onclick="event.stopPropagation(); deleteTable('${zone}', ${i})">✖</button>`;
                 }
-                btnHtml += `${t} ${occ ? '<span class="stt-dang-an">(Đang ăn)</span>' : ''}</div>`;
+                btnHtml += `🍽️ ${t} ${occ ? '<span class="stt-dang-an">(Đang ăn)</span>' : ''}</div>`;
                 zCon.innerHTML += btnHtml;
             });
             el.appendChild(zCon);
@@ -408,6 +482,7 @@
     }
 
     function addTablePrompt(zone) {
+        if (!verifyPIN()) return;
         let name = prompt(`Tên bàn mới cho khu vực [${zone}]:`);
         if (!name || name.trim() === "") return;
         if (Object.values(tablesDB).flat().includes(name.trim())) return alert("Tên bàn đã tồn tại!");
@@ -438,6 +513,7 @@
         currentTable = t; 
         document.getElementById('target-table').innerText = "Đơn: " + t; 
         document.getElementById('cus-given').value = ''; 
+        selectedCartItemKey = null;
         renderTables(); 
         renderCart(); 
     }
@@ -450,7 +526,7 @@
         const el = document.getElementById('menu-items'); el.innerHTML = '';
         (menuDB[activeTab] || []).forEach((m, i) => {
             let p = m.price; if (activeTab === 'main' && isDryMode) p += 5000;
-            let dBtn = (activeTab === 'khac') ? `<button class="btn-del-menu" onclick="event.stopPropagation(); delMenu(${i})">×</button>` : '';
+            let dBtn = (activeTab === 'khac' && currentUser && currentUser.role === 'admin') ? `<button class="btn-del-menu" onclick="event.stopPropagation(); delMenu(${i})">×</button>` : '';
             el.innerHTML += `<div class="food-card" onclick="processOrderClick('${m.name}', ${m.price})">${dBtn}<b>${m.name}</b><span>${p.toLocaleString()}đ</span></div>`;
         });
     }
@@ -464,6 +540,12 @@
     }
     function delMenu(i) { if(confirm("Xóa?")) { menuDB.khac.splice(i, 1); updateFirebase(PATH_MENU, menuDB); } }
 
+    function selectCartItem(key) {
+        if (selectedCartItemKey === key) selectedCartItemKey = null;
+        else selectedCartItemKey = key;
+        renderCart();
+    }
+
     function processOrderClick(bName, bPrice) {
         if(!currentTable) return alert("Chọn bàn trước!");
         let fName = bName, fPrice = bPrice;
@@ -471,9 +553,53 @@
         if(!orders[currentTable]) { 
             orders[currentTable] = {}; 
             tableTimes[currentTable] = new Date().toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}) + " " + new Date().toLocaleDateString('vi-VN'); 
+            tableStaffs[currentTable] = currentUser ? currentUser.name : "Admin";
             updateFirebase(PATH_TIMES, tableTimes);
+            updateFirebase(PATH_STAFFS, tableStaffs);
         }
-        if(orders[currentTable][fName]) orders[currentTable][fName].qty++; else orders[currentTable][fName] = { price: fPrice, qty: 1 };
+
+        if (activeTab === 'them' && selectedCartItemKey && orders[currentTable][selectedCartItemKey]) {
+            let oldKey = selectedCartItemKey;
+            let item = orders[currentTable][oldKey];
+            
+            let newExtras = item.extras ? JSON.parse(JSON.stringify(item.extras)) : [];
+            let existing = newExtras.find(e => e.name === fName);
+            if (existing) { existing.qty = (existing.qty || 1) + 1; } 
+            else { newExtras.push({ name: fName, price: fPrice, qty: 1 }); }
+            
+            newExtras.sort((a,b) => a.name.localeCompare(b.name));
+            
+            let baseName = item.baseName || oldKey.split('|')[0];
+            let newKey = baseName + '|' + newExtras.map(e=>`${e.name}x${e.qty||1}`).join('|');
+            let basePrice = item.basePrice || item.price;
+            let newPrice = basePrice + newExtras.reduce((sum, e) => sum + (e.price * (e.qty || 1)), 0);
+
+            let qtyToMove = item.qty;
+            delete orders[currentTable][oldKey];
+            
+            if (orders[currentTable][newKey]) {
+                orders[currentTable][newKey].qty += qtyToMove;
+            } else {
+                orders[currentTable][newKey] = {
+                    baseName: baseName,
+                    basePrice: basePrice,
+                    price: newPrice,
+                    qty: qtyToMove,
+                    extras: newExtras
+                };
+            }
+            selectedCartItemKey = newKey;
+            updateFirebase(PATH_ORDERS, orders);
+            return;
+        }
+
+        let newKey = fName;
+        if(orders[currentTable][newKey]) {
+            orders[currentTable][newKey].qty++;
+        } else {
+            orders[currentTable][newKey] = { baseName: fName, basePrice: fPrice, price: fPrice, qty: 1, extras: [] };
+        }
+        selectedCartItemKey = newKey;
         updateFirebase(PATH_ORDERS, orders);
     }
 
@@ -481,8 +607,37 @@
     function decreaseQty(n) { if(orders[currentTable][n].qty > 1) { orders[currentTable][n].qty--; updateFirebase(PATH_ORDERS, orders); } else removeCartItem(n); }
     function removeCartItem(n) { 
         delete orders[currentTable][n]; 
-        if(Object.keys(orders[currentTable]).length === 0) { delete orders[currentTable]; delete tableTimes[currentTable]; updateFirebase(PATH_TIMES, tableTimes); } 
+        if (selectedCartItemKey === n) selectedCartItemKey = null;
+        if(Object.keys(orders[currentTable]).length === 0) { delete orders[currentTable]; delete tableTimes[currentTable]; delete tableStaffs[currentTable]; updateFirebase(PATH_TIMES, tableTimes); updateFirebase(PATH_STAFFS, tableStaffs); } 
         updateFirebase(PATH_ORDERS, orders); 
+    }
+
+    function removeExtraItem(itemKey, extraIndex) {
+        let item = orders[currentTable][itemKey];
+        if (!item || !item.extras || item.extras.length <= extraIndex) return;
+
+        let newExtras = JSON.parse(JSON.stringify(item.extras));
+        if (newExtras[extraIndex].qty > 1) {
+            newExtras[extraIndex].qty--;
+        } else {
+            newExtras.splice(extraIndex, 1);
+        }
+        
+        let baseName = item.baseName || itemKey.split('|')[0];
+        let newKey = baseName + (newExtras.length > 0 ? '|' + newExtras.map(e=>`${e.name}x${e.qty||1}`).join('|') : '');
+        let basePrice = item.basePrice || item.price;
+        let newPrice = basePrice + newExtras.reduce((sum, e) => sum + (e.price * (e.qty || 1)), 0);
+
+        let qtyToMove = item.qty;
+        delete orders[currentTable][itemKey];
+
+        if (orders[currentTable][newKey]) {
+            orders[currentTable][newKey].qty += qtyToMove;
+        } else {
+            orders[currentTable][newKey] = { baseName: baseName, basePrice: basePrice, price: newPrice, qty: qtyToMove, extras: newExtras };
+        }
+        if (selectedCartItemKey === itemKey) selectedCartItemKey = newKey;
+        updateFirebase(PATH_ORDERS, orders);
     }
 
     function renderCart() {
@@ -490,7 +645,18 @@
         if(currentTable && orders[currentTable]) {
             for(let n in orders[currentTable]) {
                 let i = orders[currentTable][n]; let sub = i.price * i.qty; t += sub;
-                el.innerHTML += `<div class="item-row"><div class="item-info"><b>${n}</b><br><small>${i.price.toLocaleString()}đ</small><div class="qty-controls"><button class="btn-qty" onclick="decreaseQty('${n}')">-</button><span class="qty-number">${i.qty}</span><button class="btn-qty" onclick="increaseQty('${n}')">+</button></div></div><div class="item-price-col"><button class="btn-remove-item" onclick="removeCartItem('${n}')">❌ Xóa</button><b>${sub.toLocaleString()}đ</b></div></div>`;
+                
+                let extHtml = (i.extras && i.extras.length > 0) ? i.extras.map((e, idx) => `<br><small style="font-style:italic; color:#7f8c8d; display:inline-flex; align-items:center; margin-top:2px;">+ ${e.name} x${e.qty||1} (+${(e.price*(e.qty||1))/1000}k) <span onclick="event.stopPropagation(); removeExtraItem('${n}', ${idx})" style="color:var(--danger); cursor:pointer; margin-left:5px; font-weight:bold; padding:0 5px; border-radius:3px; background:#ffebee;">✖</span></small>`).join('') : '';
+                let isSelected = (n === selectedCartItemKey);
+
+                el.innerHTML += `<div class="item-row ${isSelected ? 'selected-cart-item' : ''}" onclick="selectCartItem('${n}')">
+                    <div class="item-info"><b>${i.baseName || n}</b>${extHtml}<br><small>${i.price.toLocaleString()}đ/phần</small>
+                    <div class="qty-controls" onclick="event.stopPropagation()">
+                        <button class="btn-qty" onclick="decreaseQty('${n}')">-</button><span class="qty-number">${i.qty}</span><button class="btn-qty" onclick="increaseQty('${n}')">+</button>
+                    </div></div>
+                    <div class="item-price-col">
+                        <button class="btn-remove-item" onclick="event.stopPropagation(); removeCartItem('${n}')">❌ Xóa</button><b>${sub.toLocaleString()}đ</b>
+                    </div></div>`;
             }
         }
         currentTotal = t;
@@ -536,28 +702,63 @@
     function execTransfer() {
         let toT = document.getElementById('to-t-select').value;
         if(orders[toT]) { if(!confirm("Gộp đơn?")) return; for(let n in orders[currentTable]) { if(orders[toT][n]) orders[toT][n].qty += orders[currentTable][n].qty; else orders[toT][n] = orders[currentTable][n]; } } 
-        else { orders[toT] = orders[currentTable]; tableTimes[toT] = tableTimes[currentTable]; }
-        delete orders[currentTable]; delete tableTimes[currentTable];
-        updateFirebase(PATH_ORDERS, orders); updateFirebase(PATH_TIMES, tableTimes); closeAllModals(); selectTable(toT);
+        else { orders[toT] = orders[currentTable]; tableTimes[toT] = tableTimes[currentTable]; tableStaffs[toT] = tableStaffs[currentTable]; }
+        delete orders[currentTable]; delete tableTimes[currentTable]; delete tableStaffs[currentTable];
+        updateFirebase(PATH_ORDERS, orders); updateFirebase(PATH_TIMES, tableTimes); updateFirebase(PATH_STAFFS, tableStaffs); closeAllModals(); selectTable(toT);
     }
     
-    function closeAllModals() { document.getElementById('overlay').style.display = 'none'; document.getElementById('transfer-modal').style.display = 'none'; document.getElementById('history-modal').style.display = 'none'; }
+    function closeAllModals() { document.getElementById('overlay').style.display = 'none'; document.getElementById('transfer-modal').style.display = 'none'; document.getElementById('history-modal').style.display = 'none'; document.getElementById('users-modal').style.display = 'none'; }
+
+    function showUsersModal() {
+        if(!verifyPIN()) return;
+        renderUsers();
+        document.getElementById('overlay').style.display = 'block';
+        document.getElementById('users-modal').style.display = 'block';
+    }
+    function renderUsers() {
+        let tb = document.getElementById('users-body'); tb.innerHTML = '';
+        for(let pin in usersDB) {
+            let u = usersDB[pin];
+            let delBtn = pin === '1688' ? '' : `<button onclick="deleteUser('${pin}')" style="background:var(--danger); color:white; border:none; padding:4px 8px; border-radius:3px; cursor:pointer;">Xóa</button>`;
+            tb.innerHTML += `<tr><td><b>${u.name}</b></td><td>${pin}</td><td>${u.role === 'admin' ? 'Quản lý' : 'Nhân viên'}</td><td>${delBtn}</td></tr>`;
+        }
+    }
+    function addUser() {
+        let n = document.getElementById('new-user-name').value, p = document.getElementById('new-user-pin').value, r = document.getElementById('new-user-role').value;
+        if(!n || !p) return alert("Nhập đủ tên và mã PIN!");
+        if(usersDB[p]) return alert("Mã PIN này đã tồn tại, vui lòng chọn số khác!");
+        usersDB[p] = { name: n, role: r }; updateFirebase(PATH_USERS, usersDB);
+        document.getElementById('new-user-name').value = ''; document.getElementById('new-user-pin').value = '';
+    }
+    function deleteUser(pin) {
+        if(pin === '1688') return alert("Không thể xóa Admin gốc!");
+        if(confirm(`Xóa nhân viên ${usersDB[pin].name}?`)) { delete usersDB[pin]; updateFirebase(PATH_USERS, usersDB); }
+    }
 
     function printKitchen() {
         if(!currentTable || !orders[currentTable]) return alert("Chưa có món để báo bếp!");
         document.getElementById('bep-table').innerText = currentTable; document.getElementById('bep-time').innerText = new Date().toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'});
         let tb = document.getElementById('bep-body'); tb.innerHTML = ''; 
-            for(let n in orders[currentTable]) tb.innerHTML += `<tr><td class="text-left" style="padding: 10px 0; border-bottom: 1px dashed #000;"><b>${n}</b></td><td class="text-center" style="font-size:22px; font-weight:bold; padding: 10px 0; border-bottom: 1px dashed #000;">${orders[currentTable][n].qty}</td></tr>`;
+        for(let n in orders[currentTable]) {
+            let i = orders[currentTable][n], bName = i.baseName || n;
+            let extHtml = (i.extras && i.extras.length > 0) ? `<br><span style="font-style:italic; font-size:16px; font-weight:normal;">+ ${i.extras.map(e=>`${e.name} x${e.qty||1}`).join('<br>+ ')}</span>` : '';
+            tb.innerHTML += `<tr><td class="text-left" style="padding: 10px 0; border-bottom: 1px dashed #000;"><b>${bName}</b>${extHtml}</td><td class="text-center" style="font-size:22px; font-weight:bold; padding: 10px 0; border-bottom: 1px dashed #000;">${i.qty}</td></tr>`;
+        }
         document.body.classList.add('print-bep'); window.print(); document.body.classList.remove('print-bep'); 
     }
 
     function printProvisional() {
         if(!currentTable || !orders[currentTable]) return alert("Giỏ hàng trống!");
         let now = new Date(); let timeOutStr = now.toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}) + " " + now.toLocaleDateString('vi-VN');
-        let timeInStr = tableTimes[currentTable] || timeOutStr; let total = 0;
+        let timeInStr = tableTimes[currentTable] || timeOutStr; let total = 0; let staffName = tableStaffs[currentTable] || (currentUser ? currentUser.name : "Admin");
         let tbody = document.getElementById('bill-body'); tbody.innerHTML = ''; 
-        for(let n in orders[currentTable]) { let i = orders[currentTable][n], tTien = i.price * i.qty; total += tTien; tbody.innerHTML += `<tr><td class="text-left">${n}</td><td class="text-center">${i.qty}</td><td class="text-right">${i.price/1000}k</td><td class="text-right">${tTien.toLocaleString()}</td></tr>`; }
-        document.getElementById('bill-type-title').innerText = "PHIẾU TẠM TÍNH"; document.getElementById('bill-no').innerText = "---"; document.getElementById('bill-table').innerText = currentTable; document.getElementById('bill-time-in').innerText = timeInStr; document.getElementById('bill-time-out').innerText = timeOutStr; document.getElementById('bill-method').innerText = "Chưa thanh toán"; document.getElementById('bill-total-price').innerText = total.toLocaleString() + "đ";
+        for(let n in orders[currentTable]) { 
+            let i = orders[currentTable][n], tTien = i.price * i.qty; total += tTien; 
+            let bName = i.baseName || n;
+            let extHtml = (i.extras && i.extras.length > 0) ? `<br><span style="font-style:italic; font-size:11px; color:#555;">+ ${i.extras.map(e=>`${e.name} x${e.qty||1} (+${(e.price*(e.qty||1))/1000}k)`).join('<br>+ ')}</span>` : '';
+            tbody.innerHTML += `<tr><td class="text-left">${bName}${extHtml}</td><td class="text-center">${i.qty}</td><td class="text-right">${i.price/1000}k</td><td class="text-right">${tTien.toLocaleString()}</td></tr>`; 
+        }
+        document.getElementById('bill-type-title').innerText = "PHIẾU TẠM TÍNH"; document.getElementById('bill-no').innerText = "---"; document.getElementById('bill-table').innerText = currentTable; document.getElementById('bill-time-in').innerText = timeInStr; document.getElementById('bill-time-out').innerText = timeOutStr; document.getElementById('bill-staff').innerText = staffName; document.getElementById('bill-method').innerText = "Chưa thanh toán"; document.getElementById('bill-total-price').innerText = total.toLocaleString() + "đ";
         document.getElementById('bill-given-row').style.display = 'none';
         document.getElementById('bill-change-row').style.display = 'none';
         document.body.classList.add('print-bill'); window.print(); document.body.classList.remove('print-bill');
@@ -577,11 +778,14 @@
     async function processPayment() {
         if(!currentTable || !orders[currentTable]) return alert("Giỏ hàng trống!");
         let billNo = generateBillNumber(), timeOutStr = new Date().toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}) + " " + new Date().toLocaleDateString('vi-VN'), timeInStr = tableTimes[currentTable] || timeOutStr;
-        let total = 0, tbody = document.getElementById('bill-body'); tbody.innerHTML = ''; let excelItems = []; let rawItemsData = {}; 
+        let total = 0, tbody = document.getElementById('bill-body'); tbody.innerHTML = ''; let excelItems = []; let rawItemsData = {}; let staffName = tableStaffs[currentTable] || (currentUser ? currentUser.name : "Admin");
         
         for(let n in orders[currentTable]) {
-            let i = orders[currentTable][n], tTien = i.price * i.qty; total += tTien; excelItems.push(`${n} x${i.qty}`); rawItemsData[n] = { price: i.price, qty: i.qty };
-            tbody.innerHTML += `<tr><td class="text-left">${n}</td><td class="text-center">${i.qty}</td><td class="text-right">${i.price/1000}k</td><td class="text-right">${tTien.toLocaleString()}</td></tr>`;
+            let i = orders[currentTable][n], tTien = i.price * i.qty; total += tTien; 
+            let bName = i.baseName || n, extraStr = (i.extras && i.extras.length > 0) ? ` (+${i.extras.map(e=>`${e.name} x${e.qty||1}`).join(', ')})` : '';
+            excelItems.push(`${bName}${extraStr} x${i.qty}`); rawItemsData[n] = { price: i.price, qty: i.qty, baseName: i.baseName, extras: i.extras || [] };
+            let extHtml = (i.extras && i.extras.length > 0) ? `<br><span style="font-style:italic; font-size:11px; color:#555;">+ ${i.extras.map(e=>`${e.name} x${e.qty||1} (+${(e.price*(e.qty||1))/1000}k)`).join('<br>+ ')}</span>` : '';
+            tbody.innerHTML += `<tr><td class="text-left">${bName}${extHtml}</td><td class="text-center">${i.qty}</td><td class="text-right">${i.price/1000}k</td><td class="text-right">${tTien.toLocaleString()}</td></tr>`;
         }
 
         let pMethodText = paymentMethod === 'CASH' ? 'TM TIỀN MẶT' : 'CK CHUYỂN KHOẢN';
@@ -597,11 +801,11 @@
                 method: 'POST',
                 mode: 'no-cors',
                 headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: JSON.stringify({ billNo: billNo, table: currentTable, timeIn: timeInStr, timeOut: timeOutStr, itemsText: excelItems.join(", "), total: total, method: pMethodText, status: "Thanh toán", cancelReason: "", cancelTime: "" })
+                body: JSON.stringify({ billNo: billNo, table: currentTable, timeIn: timeInStr, timeOut: timeOutStr, itemsText: excelItems.join(", "), total: total, method: pMethodText + " (NV: " + staffName + ")", status: "Thanh toán", cancelReason: "", cancelTime: "" })
             }).catch(e => console.log("Lỗi gửi Sheets"));
         }
 
-        document.getElementById('bill-type-title').innerText = "HÓA ĐƠN THANH TOÁN"; document.getElementById('bill-no').innerText = billNo; document.getElementById('bill-table').innerText = currentTable; document.getElementById('bill-time-in').innerText = timeInStr; document.getElementById('bill-time-out').innerText = timeOutStr; document.getElementById('bill-method').innerText = pMethodText; document.getElementById('bill-total-price').innerText = total.toLocaleString() + "đ";
+        document.getElementById('bill-type-title').innerText = "HÓA ĐƠN THANH TOÁN"; document.getElementById('bill-no').innerText = billNo; document.getElementById('bill-table').innerText = currentTable; document.getElementById('bill-time-in').innerText = timeInStr; document.getElementById('bill-time-out').innerText = timeOutStr; document.getElementById('bill-staff').innerText = staffName; document.getElementById('bill-method').innerText = pMethodText; document.getElementById('bill-total-price').innerText = total.toLocaleString() + "đ";
         
         if (paymentMethod === 'CASH') {
             let givenInput = document.getElementById('cus-given').value.replace(/\D/g, '');
@@ -616,14 +820,14 @@
             document.getElementById('bill-change-row').style.display = 'none';
         }
 
-        orderHistory.unshift({ billNo: billNo, table: currentTable, timeIn: timeInStr, timeOut: timeOutStr, itemsText: excelItems.join(", "), rawItems: rawItemsData, total: total, method: pMethodText });
+        orderHistory.unshift({ billNo: billNo, table: currentTable, timeIn: timeInStr, timeOut: timeOutStr, itemsText: excelItems.join(", "), rawItems: rawItemsData, total: total, method: pMethodText, staff: staffName });
         updateFirebase(PATH_HISTORY, orderHistory);
 
         document.body.classList.add('print-bill'); window.print(); document.body.classList.remove('print-bill');
         
         setTimeout(() => { 
-            delete orders[currentTable]; delete tableTimes[currentTable]; 
-            updateFirebase(PATH_ORDERS, orders); updateFirebase(PATH_TIMES, tableTimes);
+            delete orders[currentTable]; delete tableTimes[currentTable]; delete tableStaffs[currentTable];
+            updateFirebase(PATH_ORDERS, orders); updateFirebase(PATH_TIMES, tableTimes); updateFirebase(PATH_STAFFS, tableStaffs);
             document.getElementById('cus-given').value = '';
             calculateChange();
         }, 500); 
@@ -638,37 +842,53 @@
         if (reason === null) return; // Nhấn Cancel ở hộp thoại lý do
         
         let cancelTime = new Date().toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}) + " " + new Date().toLocaleDateString('vi-VN');
-        let excelItems = []; let total = 0; let rawItemsData = {};
+        let excelItems = []; let total = 0; let rawItemsData = {}; let staffName = tableStaffs[currentTable] || (currentUser ? currentUser.name : "Admin");
         for(let n in orders[currentTable]) {
-            let i = orders[currentTable][n]; excelItems.push(`${n} x${i.qty}`); total += i.price * i.qty;
-            rawItemsData[n] = { price: i.price, qty: i.qty };
+            let i = orders[currentTable][n], bName = i.baseName || n;
+            let extraStr = (i.extras && i.extras.length > 0) ? ` (+${i.extras.map(e=>`${e.name} x${e.qty||1}`).join(', ')})` : '';
+            excelItems.push(`${bName}${extraStr} x${i.qty}`); total += i.price * i.qty;
+            rawItemsData[n] = { price: i.price, qty: i.qty, baseName: i.baseName, extras: i.extras || [] };
         }
         if (GOOGLE_SHEET_URL.trim() !== "") {
             fetch(GOOGLE_SHEET_URL, {
                 method: 'POST',
                 mode: 'no-cors',
                 headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: JSON.stringify({ billNo: "HỦY BÀN", table: currentTable, timeIn: tableTimes[currentTable] || cancelTime, timeOut: cancelTime, itemsText: excelItems.join(", "), total: total, method: "Chưa thanh toán", status: "HỦY ĐƠN", cancelReason: reason || "Không có lý do", cancelTime: cancelTime })
+                body: JSON.stringify({ billNo: "HỦY BÀN", table: currentTable, timeIn: tableTimes[currentTable] || cancelTime, timeOut: cancelTime, itemsText: excelItems.join(", "), total: total, method: "HỦY ĐƠN (NV: " + staffName + ")", status: "HỦY ĐƠN", cancelReason: reason || "Không có lý do", cancelTime: cancelTime })
             }).catch(e => console.log("Lỗi gửi Sheets"));
         }
 
-        orderHistory.unshift({ billNo: "HỦY BÀN", table: currentTable, timeIn: tableTimes[currentTable] || cancelTime, timeOut: cancelTime, itemsText: excelItems.join(", "), rawItems: rawItemsData, total: total, method: "HỦY: " + (reason || "Không có lý do"), isCanceled: true });
+        orderHistory.unshift({ billNo: "HỦY BÀN", table: currentTable, timeIn: tableTimes[currentTable] || cancelTime, timeOut: cancelTime, itemsText: excelItems.join(", "), rawItems: rawItemsData, total: total, method: "HỦY: " + (reason || "Không có lý do"), isCanceled: true, staff: staffName });
         updateFirebase(PATH_HISTORY, orderHistory);
 
-        delete orders[currentTable]; delete tableTimes[currentTable]; 
-        updateFirebase(PATH_ORDERS, orders); updateFirebase(PATH_TIMES, tableTimes);
+        delete orders[currentTable]; delete tableTimes[currentTable]; delete tableStaffs[currentTable];
+        updateFirebase(PATH_ORDERS, orders); updateFirebase(PATH_TIMES, tableTimes); updateFirebase(PATH_STAFFS, tableStaffs);
         document.getElementById('cus-given').value = '';
         calculateChange();
     }
 
     function showHistoryModal() {
-        let tb = document.getElementById('history-body'); tb.innerHTML = '';
-        if(orderHistory.length === 0) tb.innerHTML = '<tr><td colspan="7" style="text-align:center;">Chưa có đơn!</td></tr>';
-        else orderHistory.forEach((r, i) => {
-            let btnHtml = r.isCanceled ? '<span style="color:#e74c3c; font-weight:bold;">Đã Hủy</span>' : `<button class="action-btn" style="background:var(--info)" onclick="editHistory(${i})">Sửa</button> <button class="action-btn" style="background:var(--warning); color:#333;" onclick="copyHistory(${i})">Copy</button> <button class="action-btn" style="background:var(--danger)" onclick="deleteHistory(${i})">Hủy</button>`;
-            tb.innerHTML += `<tr ${r.isCanceled ? 'style="background:#ffebee; color:#c0392b;"' : ''}><td><b>${r.billNo}</b></td><td>${r.table}</td><td>${r.timeOut}</td><td>${r.itemsText}</td><td style="color:var(--danger); font-weight:bold;">${r.total.toLocaleString()}đ</td><td>${r.method}</td><td>${btnHtml}</td></tr>`;
-        });
+        if (!verifyPIN()) return;
+        let today = new Date();
+        let yyyy = today.getFullYear(), mm = ('0'+(today.getMonth()+1)).slice(-2), dd = ('0'+today.getDate()).slice(-2);
+        document.getElementById('history-date').value = `${yyyy}-${mm}-${dd}`;
+        renderHistory();
         document.getElementById('overlay').style.display = 'block'; document.getElementById('history-modal').style.display = 'block';
+    }
+
+    function renderHistory() {
+        let tb = document.getElementById('history-body'); tb.innerHTML = '';
+        let dateVal = document.getElementById('history-date').value;
+        if (!dateVal) return; let [y, m, d] = dateVal.split('-'); let dNum = parseInt(d, 10), mNum = parseInt(m, 10);
+        let dateStr1 = `${d}/${m}/${y}`, dateStr2 = `${dNum}/${mNum}/${y}`;
+        let filtered = orderHistory.map((r, i) => ({...r, originalIndex: i})).filter(r => r.timeOut.includes(dateStr1) || r.timeOut.includes(dateStr2));
+
+        if(filtered.length === 0) tb.innerHTML = '<tr><td colspan="7" style="text-align:center;">Không có đơn hàng nào trong ngày này!</td></tr>';
+        else filtered.forEach(r => {
+            let i = r.originalIndex;
+            let btnHtml = r.isCanceled ? '<span style="color:#e74c3c; font-weight:bold;">Đã Hủy</span>' : `<button class="action-btn" style="background:var(--info)" onclick="editHistory(${i})">Sửa</button> <button class="action-btn" style="background:var(--warning); color:#333;" onclick="copyHistory(${i})">Copy</button> <button class="action-btn" style="background:var(--danger)" onclick="deleteHistory(${i})">Hủy</button>`;
+            tb.innerHTML += `<tr ${r.isCanceled ? 'style="background:#ffebee; color:#c0392b;"' : ''}><td><b>${r.billNo}</b></td><td>${r.table}<br><small style="color:#7f8c8d;">(${r.staff || 'Admin'})</small></td><td>${r.timeOut}</td><td>${r.itemsText}</td><td style="color:var(--danger); font-weight:bold;">${r.total.toLocaleString()}đ</td><td>${r.method}</td><td>${btnHtml}</td></tr>`;
+        });
     }
 
     function editHistory(i) { 
@@ -723,7 +943,7 @@
             orderHistory[i].isCanceled = true;
             orderHistory[i].method = "HỦY: " + (reason || "Không có lý do");
             orderHistory[i].billNo = r.billNo + " (HỦY)";
-            updateFirebase(PATH_HISTORY, orderHistory); showHistoryModal(); 
+            updateFirebase(PATH_HISTORY, orderHistory); renderHistory(); 
         } 
     }
 
