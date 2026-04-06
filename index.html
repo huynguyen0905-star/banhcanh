@@ -11,15 +11,15 @@
         :root { --primary: #2c3e50; --success: #27ae60; --danger: #e74c3c; --warning: #f1c40f; --info: #3498db; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; display: flex; flex-direction: column; height: 100vh; background: #f4f7f6; }
         
-        .header { background: var(--primary); color: white; padding: 8px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.2); z-index: 10;}
+        .header { background: #c0392b; color: #f1c40f; padding: 8px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.2); z-index: 10;}
         .brand-nav { display: flex; align-items: center; gap: 15px; }
-        .nav-btn { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; background: #34495e; color: white; font-size: 14px; transition: 0.2s;}
-        .nav-btn:hover { background: #3f5770; }
-        .nav-btn.active { background: var(--info); box-shadow: 0 0 10px rgba(52, 152, 219, 0.6); }
+        .nav-btn { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; background: #a93226; color: #f1c40f; font-size: 14px; transition: 0.2s;}
+        .nav-btn:hover { background: #922b21; }
+        .nav-btn.active { background: #f1c40f; color: #c0392b; box-shadow: 0 0 10px rgba(241, 196, 15, 0.6); }
         
-        #network-status { font-size: 12px; background: #95a5a6; padding: 4px 10px; border-radius: 15px; font-weight: bold; color: white;}
-        #network-status.online { background: var(--success); }
-        #network-status.offline { background: var(--danger); }
+        #network-status { font-size: 12px; background: #a93226; padding: 4px 10px; border-radius: 15px; font-weight: bold; color: #f1c40f; border: 1px solid #f1c40f;}
+        #network-status.online { background: var(--success); color: white; border: none; }
+        #network-status.offline { background: #333; color: white; border: none; }
 
         .admin-input { display: flex; gap: 8px; align-items: center; }
         .admin-input input { padding: 8px; border-radius: 5px; border: none; outline: none; }
@@ -28,7 +28,7 @@
         .page-container { display: flex; flex: 1; overflow: hidden; width: 100%; }
         
         /* TRANG 1: SƠ ĐỒ BÀN (DASHBOARD) */
-        #page-dashboard { background: #e0e6ed; padding: 15px; overflow-y: auto; flex-direction: column; gap: 15px; display: flex; flex: 1; width: 100%; box-sizing: border-box;}
+        #page-dashboard { background: #fef9e7; padding: 15px; overflow-y: auto; flex-direction: column; gap: 15px; display: flex; flex: 1; width: 100%; box-sizing: border-box;}
         .dash-zone { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .dash-zone-title { margin-top: 0; padding-bottom: 8px; margin-bottom: 10px; border-bottom: 2px solid var(--info); color: var(--primary); display: flex; justify-content: space-between; align-items: center; font-size: 16px; font-weight: 900; text-transform: uppercase;}
         
@@ -94,7 +94,7 @@
         /* TRANG 2: GIAO DIỆN BÁN HÀNG (POS) */
         #page-pos { display: none; flex: 1; width: 100%; overflow: hidden; }
         .sidebar { width: 200px; background: #fff; border-right: 1px solid #ddd; padding: 15px; overflow-y: auto; }
-        .zone-header { background: #e9ecef; padding: 8px 10px; font-weight: bold; font-size: 12px; color: #2c3e50; display: flex; justify-content: space-between; align-items: center; border-radius: 5px; margin-top: 15px; margin-bottom: 10px; border-left: 4px solid var(--info);}
+        .zone-header { background: #e9ecef; padding: 8px 10px; font-weight: bold; font-size: 12px; color: #2c3e50; display: flex; justify-content: space-between; align-items: center; border-radius: 10px; margin-top: 15px; margin-bottom: 10px; border-left: 4px solid var(--info);}
         .zone-header:first-child { margin-top: 0; }
         .btn-add-table { background: var(--info); color: white; border: none; border-radius: 3px; cursor: pointer; padding: 2px 8px; font-size: 13px; font-weight: bold;}
         .table-btn { width: 100%; padding: 8px 25px 8px 8px; border: 1px solid #ddd; border-radius: 8px; cursor: pointer; font-weight: bold; text-align: left; background: #f9f9f9; transition: 0.2s; box-sizing: border-box; line-height: 1.3; position: relative; font-size: 13px;}
@@ -194,8 +194,6 @@
             .nav-btn { flex: 1; padding: 8px; font-size: 12px; text-align: center; }
             .admin-input { flex-wrap: wrap; justify-content: center; width: 100%; gap: 5px; }
             .btn-header { flex: 1; min-width: 80px; padding: 8px 4px; font-size: 11px; }
-            #admin-add-menu { width: 100%; display: flex; gap: 5px; margin-bottom: 5px; }
-            #admin-add-menu input { flex: 1; width: auto !important; }
             
             /* Bố cục Bán hàng */
             #page-pos { flex-direction: column; overflow-y: auto; }
@@ -262,24 +260,19 @@
 
 <div class="header">
     <div class="brand-nav">
-        <h2 style="margin:0; font-size: 18px;">BÁNH CANH THANH QUYÊN</h2>
+        <h2 style="margin:0; font-size: 18px; color: #f1c40f;">BÁNH CANH THANH QUYÊN</h2>
         <button class="nav-btn active" id="nav-dash" onclick="switchPage('dash')">📊 SƠ ĐỒ BÀN</button>
         <button class="nav-btn" id="nav-pos" onclick="switchPage('pos')">🛒 BÁN HÀNG</button>
         <button class="nav-btn" id="nav-kho" onclick="switchPage('kho')">📦 KHO HÀNG</button>
         <span id="network-status">Đang kết nối...</span>
     </div>
     <div class="admin-input">
-        <span id="admin-add-menu" style="display:flex; gap:8px;">
-            <input type="text" id="newFoodName" placeholder="Tên món" style="width: 100px;">
-            <input type="number" id="newFoodPrice" placeholder="Giá" style="width: 70px;">
-            <button class="btn-header" style="background: var(--success);" onclick="addMenu()">+ Thêm Món</button>
-        </span>
-        <button class="btn-header" style="background: var(--warning); color:#333;" onclick="showTransferModal()">⇄ Chuyển Bàn</button>
-        <button class="btn-header" id="btn-export" style="background: #8e44ad;" onclick="exportToExcel()">⬇ Excel</button>
-        <button class="btn-header" id="btn-history" style="background: #d35400;" onclick="showHistoryModal()">🕒 Lịch sử</button>
-        <button class="btn-header" id="btn-users" style="background: #34495e;" onclick="showUsersModal()">👥 Nhân sự</button>
-        <button class="btn-header" id="btn-settings" style="background: #7f8c8d;" onclick="showSettingsModal()">⚙ Cài đặt</button>
-        <button class="btn-header" style="background: #c0392b;" onclick="logout()">Thoát</button>
+        <button class="btn-header" style="background: rgba(255,255,255,0.1); border: 1px solid #f1c40f; color: #f1c40f;" onclick="showTransferModal()">⇄ Chuyển Bàn</button>
+        <button class="btn-header" id="btn-export" style="background: rgba(255,255,255,0.1); border: 1px solid #f1c40f; color: #f1c40f;" onclick="exportToExcel()">⬇ Excel</button>
+        <button class="btn-header" id="btn-history" style="background: rgba(255,255,255,0.1); border: 1px solid #f1c40f; color: #f1c40f;" onclick="showHistoryModal()">🕒 Lịch sử</button>
+        <button class="btn-header" id="btn-users" style="background: rgba(255,255,255,0.1); border: 1px solid #f1c40f; color: #f1c40f;" onclick="showUsersModal()">👥 Nhân sự</button>
+        <button class="btn-header" id="btn-settings" style="background: rgba(255,255,255,0.1); border: 1px solid #f1c40f; color: #f1c40f;" onclick="showSettingsModal()">⚙ Cài đặt</button>
+        <button class="btn-header" style="background: #333; color: white; border: 1px solid #333;" onclick="logout()">Thoát</button>
     </div>
 </div>
 
@@ -459,47 +452,81 @@
 </div>
 
 <!-- GIAO DIỆN CÀI ĐẶT -->
-<div class="modal" id="settings-modal" style="min-width: 400px;">
+<div class="modal" id="settings-modal" style="min-width: 800px;">
     <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #3498db; padding-bottom: 10px; margin-bottom: 15px;">
-        <h3 style="margin:0">Cài Đặt Hệ Thống</h3>
+        <div style="display:flex; align-items: center; gap: 15px;">
+            <h3 style="margin:0">Cài Đặt</h3>
+            <button class="nav-btn active" id="tab-setting-sys" onclick="switchSettingTab('sys')" style="padding: 6px 12px; font-size:12px;">Cấu hình chung</button>
+            <button class="nav-btn" id="tab-setting-menu" onclick="switchSettingTab('menu')" style="padding: 6px 12px; font-size:12px; background:#eee; color:#333; border:1px solid #ccc; display: none;">Quản lý Thực đơn</button>
+        </div>
         <button onclick="closeAllModals()" style="background:none; border:none; font-size:20px; cursor:pointer;">×</button>
     </div>
-    <div style="margin-bottom: 15px;">
-        <label style="font-weight: bold; display: block; margin-bottom: 5px;">Khổ giấy in:</label>
-        <select id="paper-size-select" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px;">
-            <option value="K80">Khổ 80mm (Máy in lớn)</option>
-            <option value="K58">Khổ 58mm (Máy in mini)</option>
-        </select>
-    </div>
-    <div style="margin-bottom: 15px;">
-        <label style="font-weight: bold; display: block; margin-bottom: 5px;">Địa chỉ IP Máy in LAN:</label>
-        <input type="text" id="printer-ip-input" placeholder="VD: 192.168.1.100" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; box-sizing: border-box;">
-    </div>
-    <div style="margin-bottom: 15px;" id="admin-bank-config">
-        <label style="font-weight: bold; display: flex; justify-content: space-between; margin-bottom: 5px;"><span>Tài khoản nhận Chuyển Khoản (VietQR):</span> <a href="#" onclick="simulateTingTing()" style="color:var(--info); font-size:12px; font-style:italic;">Thử âm báo TingTing</a></label>
-        <div style="display: flex; gap: 5px; margin-bottom: 5px;">
-            <input type="text" id="bank-id-input" placeholder="Ngân hàng (VD: MB, VCB...)" style="flex:1; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; box-sizing: border-box;">
-            <input type="text" id="bank-acc-input" placeholder="Số tài khoản" style="flex:1.5; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; box-sizing: border-box;">
+        
+    <div id="setting-sys-view">
+        <div style="margin-bottom: 15px;">
+            <label style="font-weight: bold; display: block; margin-bottom: 5px;">Khổ giấy in:</label>
+            <select id="paper-size-select" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px;">
+                <option value="K80">Khổ 80mm (Máy in lớn)</option>
+                <option value="K58">Khổ 58mm (Máy in mini)</option>
+            </select>
         </div>
-        <input type="text" id="bank-name-input" placeholder="Tên chủ tài khoản (Không dấu)" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; box-sizing: border-box;">
-    </div>
-    <div style="margin-bottom: 15px;" id="admin-notes-config">
-        <label style="font-weight: bold; display: block; margin-bottom: 5px;">Gợi ý ghi chú nhanh (Cách nhau bằng dấu phẩy):</label>
-        <textarea id="quick-notes-input" rows="3" placeholder="VD: Không hành phi, Ít cay..." style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; box-sizing: border-box;"></textarea>
-    </div>
-    <div style="margin-bottom: 15px;" id="admin-app-config">
-        <label style="font-weight: bold; display: block; margin-bottom: 5px;">Kết nối App Giao Hàng (GrabFood / ShopeeFood):</label>
-        <div style="display: flex; gap: 5px; margin-bottom: 5px;">
-            <input type="text" id="grab-id-input" placeholder="Grab Merchant ID" style="flex:1; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; box-sizing: border-box;">
-            <input type="password" id="grab-token-input" placeholder="Grab API Token" style="flex:1.5; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; box-sizing: border-box;">
+        <div style="margin-bottom: 15px;">
+            <label style="font-weight: bold; display: block; margin-bottom: 5px;">Địa chỉ IP Máy in LAN:</label>
+            <input type="text" id="printer-ip-input" placeholder="VD: 192.168.1.100" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; box-sizing: border-box;">
         </div>
-        <div style="display: flex; gap: 5px;">
-            <input type="text" id="shopee-id-input" placeholder="Shopee Merchant ID" style="flex:1; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; box-sizing: border-box;">
-            <input type="password" id="shopee-token-input" placeholder="Shopee API Token" style="flex:1.5; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; box-sizing: border-box;">
+        <div style="margin-bottom: 15px;" id="admin-bank-config">
+            <label style="font-weight: bold; display: flex; justify-content: space-between; margin-bottom: 5px;"><span>Tài khoản nhận Chuyển Khoản (VietQR):</span> <a href="#" onclick="simulateTingTing()" style="color:var(--info); font-size:12px; font-style:italic;">Thử âm báo TingTing</a></label>
+            <div style="display: flex; gap: 5px; margin-bottom: 5px;">
+                <input type="text" id="bank-id-input" placeholder="Ngân hàng (VD: MB, VCB...)" style="flex:1; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; box-sizing: border-box;">
+                <input type="text" id="bank-acc-input" placeholder="Số tài khoản" style="flex:1.5; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; box-sizing: border-box;">
+            </div>
+            <input type="text" id="bank-name-input" placeholder="Tên chủ tài khoản (Không dấu)" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; box-sizing: border-box;">
         </div>
-        <p style="font-size: 11px; color: #7f8c8d; margin-top: 5px; font-style: italic;">* Lưu ý: Bạn cần đăng ký đối tác API với Grab/Shopee để lấy mã kết nối.</p>
+        <div style="margin-bottom: 15px;" id="admin-notes-config">
+            <label style="font-weight: bold; display: block; margin-bottom: 5px;">Gợi ý ghi chú nhanh (Cách nhau bằng dấu phẩy):</label>
+            <textarea id="quick-notes-input" rows="3" placeholder="VD: Không hành phi, Ít cay..." style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; box-sizing: border-box;"></textarea>
+        </div>
+        <div style="margin-bottom: 15px;" id="admin-app-config">
+            <label style="font-weight: bold; display: block; margin-bottom: 5px;">Kết nối App Giao Hàng (GrabFood / ShopeeFood):</label>
+            <div style="display: flex; gap: 5px; margin-bottom: 5px;">
+                <input type="text" id="grab-id-input" placeholder="Grab Merchant ID" style="flex:1; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; box-sizing: border-box;">
+                <input type="password" id="grab-token-input" placeholder="Grab API Token" style="flex:1.5; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; box-sizing: border-box;">
+            </div>
+            <div style="display: flex; gap: 5px;">
+                <input type="text" id="shopee-id-input" placeholder="Shopee Merchant ID" style="flex:1; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; box-sizing: border-box;">
+                <input type="password" id="shopee-token-input" placeholder="Shopee API Token" style="flex:1.5; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; box-sizing: border-box;">
+            </div>
+            <p style="font-size: 11px; color: #7f8c8d; margin-top: 5px; font-style: italic;">* Lưu ý: Bạn cần đăng ký đối tác API với Grab/Shopee để lấy mã kết nối.</p>
+        </div>
+        <button onclick="saveSettings()" style="width: 100%; padding: 10px; background: var(--success); color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 14px; margin-top: 10px;">LƯU CÀI ĐẶT</button>
     </div>
-    <button onclick="saveSettings()" style="width: 100%; padding: 10px; background: var(--success); color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 14px;">LƯU CÀI ĐẶT</button>
+
+    <div id="setting-menu-view" style="display: none;">
+        <div id="admin-menu-config">
+            <div style="display: flex; gap: 8px; margin-bottom: 15px; align-items: center; flex-wrap: wrap;">
+                <b>Thêm món mới:</b>
+                <input type="text" id="newFoodName" placeholder="Tên món" style="padding: 8px; border: 1px solid #ccc; border-radius: 5px; flex: 1; min-width: 150px;">
+                <input type="number" id="newFoodPrice" placeholder="Giá" style="padding: 8px; border: 1px solid #ccc; border-radius: 5px; width: 80px;">
+                <input type="text" id="newFoodImage" placeholder="Link ảnh (Tùy chọn)" style="padding: 8px; border: 1px solid #ccc; border-radius: 5px; width: 140px;">
+                <select id="newFoodCategory" style="padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+                    <option value="main">Món Chính</option>
+                    <option value="sup">Chén Súp</option>
+                    <option value="them">Món Thêm</option>
+                    <option value="nuoc">Giải Khát</option>
+                    <option value="khac">Món Khác</option>
+                </select>
+                <button onclick="addMenu()" style="background: var(--success); color: white; border: none; padding: 8px 15px; border-radius: 5px; font-weight: bold; cursor: pointer;">+ Thêm Món</button>
+            </div>
+            <div style="max-height: 400px; overflow-y: auto; border: 1px solid #ccc; border-radius: 5px;">
+                <table class="history-table" style="margin-top: 0; border: none; width: 100%;">
+                    <thead style="position: sticky; top: 0; z-index: 1; background: #f4f7f6;">
+                        <tr><th style="padding: 8px;">Danh Mục</th><th style="padding: 8px;">Tên Món</th><th style="padding: 8px;">Giá</th><th style="padding: 8px;">Ảnh</th><th style="padding: 8px; text-align: center;">Tình Trạng</th><th style="padding: 8px;">Thao Tác</th></tr>
+                    </thead>
+                    <tbody id="menu-config-body"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- GIAO DIỆN GHI CHÚ -->
@@ -537,7 +564,7 @@
 
 <div id="khu-vuc-in-bep">
         <div class="bill-header"><h2>BÁNH CANH THANH QUYÊN</h2><p class="bill-title" style="font-size: 20px;">PHIẾU BÁO BẾP</p></div>
-        <div class="bill-info"><div class="row"><b>Bàn:</b> <span id="bep-table" style="font-size: 22px; font-weight: bold;"></span></div><div class="row"><b>Thời gian in:</b> <span id="bep-time"></span></div></div>
+        <div class="bill-info"><div class="row"><b>Bàn:</b> <span id="bep-table" style="font-size: 22px; font-weight: bold;"></span></div><div class="row"><b>STT Báo Bếp:</b> <span id="bep-stt" style="font-size: 22px; font-weight: bold;"></span></div><div class="row"><b>Thời gian in:</b> <span id="bep-time"></span></div></div>
         <table class="bill-table" style="font-size: 18px;">
         <thead><tr><th class="text-left" style="width:75%">TÊN MÓN</th><th class="text-center" style="width:25%">SL</th></tr></thead>
         <tbody id="bep-body"></tbody>
@@ -655,7 +682,6 @@
 
     function applyRolePermissions() {
         let isAdmin = currentUser && currentUser.role === 'admin';
-        document.getElementById('admin-add-menu').style.display = isAdmin ? 'flex' : 'none';
         document.getElementById('btn-export').style.display = isAdmin ? 'inline-block' : 'none';
         document.getElementById('btn-history').style.display = isAdmin ? 'inline-block' : 'none';
         document.getElementById('btn-users').style.display = isAdmin ? 'inline-block' : 'none';
@@ -721,6 +747,7 @@
         db.ref(PATH_MENU).on('value', snap => {
             if(snap.exists()) { menuDB = snap.val(); } else { menuDB = defaultMenuData; db.ref(PATH_MENU).set(menuDB); }
             renderMenu();
+            if (document.getElementById('settings-modal') && document.getElementById('settings-modal').style.display === 'block' && document.getElementById('setting-menu-view').style.display === 'block') renderMenuConfig();
         });
 
         db.ref(PATH_TABLES).on('value', snap => {
@@ -876,6 +903,15 @@
                         document.getElementById('total-val').innerText = '0đ';
                     }
                 }
+            } else {
+                if (tableTimes[t]) delete tableTimes[t];
+                if (tableStaffs[t]) delete tableStaffs[t];
+                if (tableKitchen[t]) delete tableKitchen[t];
+                if (tableServed[t]) delete tableServed[t];
+                updateFirebase(PATH_TIMES, tableTimes);
+                updateFirebase(PATH_STAFFS, tableStaffs);
+                updateFirebase(PATH_KITCHEN, tableKitchen);
+                updateFirebase(PATH_SERVED, tableServed);
             }
         }
     }
@@ -901,7 +937,16 @@
         
         if (!tablesDB["Mang về"]) tablesDB["Mang về"] = [];
         tablesDB["Mang về"].push(newTable);
+        
+        orders[newTable] = {};
+        tableTimes[newTable] = new Date().toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}) + " " + new Date().toLocaleDateString('vi-VN'); 
+        tableStaffs[newTable] = currentUser ? currentUser.name : "Admin";
+        
         updateFirebase(PATH_TABLES, tablesDB);
+        updateFirebase(PATH_ORDERS, orders);
+        updateFirebase(PATH_TIMES, tableTimes);
+        updateFirebase(PATH_STAFFS, tableStaffs);
+
         switchPage('pos');
         selectTable(newTable);
     }
@@ -919,12 +964,12 @@
 
         sortedZones.forEach(zone => {
             let tablesInZone = tablesDB[zone] || [];
-            let occupiedCount = tablesInZone.filter(t => orders[t] && Object.keys(orders[t]).length > 0).length;
+            let occupiedCount = tablesInZone.filter(t => (orders[t] && Object.keys(orders[t]).length > 0) || (zone === "Mang về" && tableTimes[t])).length;
             
             // Tách các bàn bị trễ món (quá 15 phút = 900000ms) lên đầu
             let delayedT = []; let normalT = [];
             tablesInZone.forEach(t => {
-                let occ = orders[t] && Object.keys(orders[t]).length > 0;
+                let occ = (orders[t] && Object.keys(orders[t]).length > 0) || (zone === "Mang về" && tableTimes[t]);
                 let isDelayed = false;
                 if (occ && tableTimes[t] && !tableServed[t]) {
                     let startMs = parseTimeStr(tableTimes[t]);
@@ -937,7 +982,7 @@
             let titleExtra = zone === "Mang về" ? `<button onclick="event.stopPropagation(); addTakeawayOrder(true)" style="background:#e67e22; color:white; border:none; padding:4px 12px; border-radius:5px; font-size:13px; cursor:pointer; font-weight:bold; margin-left:10px;">+ TÊN KHÁCH</button> <button onclick="event.stopPropagation(); addTakeawayOrder(false)" style="background:var(--info); color:white; border:none; padding:4px 12px; border-radius:5px; font-size:13px; cursor:pointer; font-weight:bold; margin-left:5px;">+ TẠO NHANH</button>` : '';
             let zoneHtml = `<div class="dash-zone"><h3 class="dash-zone-title"><span style="display:flex; align-items:center;">${zone} <span style="color:var(--danger); font-size: 14px; margin-left: 8px;">(${occupiedCount} đơn)</span></span> <div>${titleExtra}</div></h3><div class="dash-grid">`;
             sortedTables.forEach(t => {
-                let occ = orders[t] && Object.keys(orders[t]).length > 0;
+                let occ = (orders[t] && Object.keys(orders[t]).length > 0) || (zone === "Mang về" && tableTimes[t]);
                 let reqPayCls = payRequests[t] ? 'req-pay' : '';
                 let kitchenCls = tableKitchen[t] ? 'kitchen-notified' : '';
                 let servedCls = tableServed[t] ? 'served-status' : '';
@@ -946,12 +991,12 @@
                 let appCls = t.startsWith("Grab") ? 'app-grab' : (t.startsWith("Shopee") ? 'app-shopee' : '');
                 
                 let timeHtml = 'Trống';
-                if (occ && tableTimes[t]) {
+                if (tableTimes[t]) {
                     timeHtml = `⏱ <span class="live-timer" data-table="${t}">0p 0s</span>`;
                     if (tableServed[t]) timeHtml += `<br>Đã ra món: <span class="prep-timer" data-table="${t}">...</span>`;
                 }
                 
-                let icon = appCls ? '🛵' : '🍽️';
+                let icon = appCls ? '🛵' : (zone === "Mang về" ? '🛍️' : '🍽️');
                 zoneHtml += `<div class="dash-card ${occ ? 'occupied' : ''} ${appCls} ${kitchenCls} ${servedCls} ${reqPayCls} ${delayCls}" onclick="goToTableFromDash('${t}')"><div class="dash-card-title">${icon} ${t}</div><div class="dash-time">${timeHtml}</div></div>`;
             });
             zoneHtml += `</div></div>`; el.innerHTML += zoneHtml;
@@ -979,7 +1024,7 @@
             let tablesInZone = tablesDB[zone] || [];
             let delayedT = []; let normalT = [];
             tablesInZone.forEach(t => {
-                let occ = orders[t] && Object.keys(orders[t]).length > 0;
+                let occ = (orders[t] && Object.keys(orders[t]).length > 0) || (zone === "Mang về" && tableTimes[t]);
                 let isDelayed = false;
                 if (occ && tableTimes[t] && !tableServed[t]) {
                     let startMs = parseTimeStr(tableTimes[t]);
@@ -991,7 +1036,7 @@
 
             sortedTables.forEach(t => {
                 let i = tablesDB[zone].indexOf(t);
-                let occ = orders[t] && Object.keys(orders[t]).length > 0;
+                let occ = (orders[t] && Object.keys(orders[t]).length > 0) || (zone === "Mang về" && tableTimes[t]);
                 let reqPayCls = payRequests[t] ? 'req-pay' : '';
                 let kitchenCls = tableKitchen[t] ? 'kitchen-notified' : '';
                 let servedCls = tableServed[t] ? 'served-status' : '';
@@ -1004,11 +1049,11 @@
                     btnHtml += `<button class="btn-del-table" title="Xóa bàn" onclick="event.stopPropagation(); deleteTable('${zone}', ${i})">✖</button>`;
                 }
                 let sttHtml = '';
-                if (occ) {
-                    let sttText = servedCls ? 'Đã ra món' : (kitchenCls ? 'Đã báo bếp' : 'Đang ăn');
+                if (tableTimes[t]) {
+                    let sttText = servedCls ? 'Đã ra món' : (kitchenCls ? 'Đã báo bếp' : (occ && orders[t] && Object.keys(orders[t]).length > 0 ? 'Đang ăn' : 'Đang chờ'));
                     sttHtml = `<span class="stt-dang-an">(${sttText}) ⏱ <span class="live-timer" data-table="${t}">0p 0s</span></span>`;
                 }
-                let icon = appCls ? '🛵' : '🍽️';
+                let icon = appCls ? '🛵' : (zone === "Mang về" ? '🛍️' : '🍽️');
                 btnHtml += `${icon} ${t} ${sttHtml}</div>`;
                 zCon.innerHTML += btnHtml;
             });
@@ -1064,19 +1109,127 @@
         const el = document.getElementById('menu-items'); el.innerHTML = '';
         (menuDB[activeTab] || []).forEach((m, i) => {
             let p = m.price; if (activeTab === 'main' && isDryMode) p += 5000;
-            let dBtn = (activeTab === 'khac' && currentUser && currentUser.role === 'admin') ? `<button class="btn-del-menu" onclick="event.stopPropagation(); delMenu(${i})">×</button>` : '';
-            el.innerHTML += `<div class="food-card" onclick="processOrderClick('${m.name}', ${m.price})">${dBtn}<b>${m.name}</b><span>${p.toLocaleString()}đ</span></div>`;
+            let oosClass = m.outOfStock ? 'out-of-stock' : '';
+            let imgHtml = m.image ? `<img src="${m.image}" alt="${m.name}" onerror="this.style.display='none'">` : '';
+            el.innerHTML += `<div class="food-card ${oosClass}" onclick="processOrderClick('${m.name}', ${m.price}, ${!!m.outOfStock})">${imgHtml}<b>${m.name}</b><span>${p.toLocaleString()}đ</span></div>`;
+        });
+        if (activeTab === 'main') renderQuickToppings();
+    }
+
+    function renderQuickToppings() {
+        let container = document.getElementById('quick-topping-container');
+        if (!container) return;
+        container.innerHTML = '';
+        (menuDB['them'] || []).forEach((m) => {
+            if(!m.outOfStock) {
+                container.innerHTML += `<button class="mod-btn" style="background:#fef9e7; border-color:#f39c12; color:#d35400;" onclick="addQuickTopping('${m.name}', ${m.price})">+ ${m.name}</button>`;
+            }
         });
     }
 
-    function addMenu() {
-        let n = document.getElementById('newFoodName').value, p = document.getElementById('newFoodPrice').value;
-        if(!n || !p) return alert("Nhập đủ tên và giá!"); 
-        if(!menuDB.khac) menuDB.khac = []; menuDB.khac.push({name: n, price: parseInt(p)});
-        if(activeTab === 'khac') renderMenu(); else alert("Đã thêm vào MÓN KHÁC!");
-        document.getElementById('newFoodName').value = ''; document.getElementById('newFoodPrice').value = ''; updateFirebase(PATH_MENU, menuDB);
+    function addQuickTopping(name, price) {
+        if (!currentTable || !orders[currentTable]) return alert("Chọn bàn trước!");
+        if (!selectedCartItemKey || !orders[currentTable][selectedCartItemKey]) return alert("Vui lòng chọn một món trong giỏ hàng (Cột bên phải) để thêm Topping!");
+        
+        let oldKey = selectedCartItemKey;
+        let item = orders[currentTable][oldKey];
+        
+        let newExtras = item.extras ? JSON.parse(JSON.stringify(item.extras)) : [];
+        let existing = newExtras.find(e => e.name === name);
+        if (existing) { existing.qty = (existing.qty || 1) + 1; } 
+        else { newExtras.push({ name: name, price: price, qty: 1 }); }
+        
+        newExtras.sort((a,b) => a.name.localeCompare(b.name));
+        
+        let baseName = item.baseName || oldKey.split('|')[0];
+        let newKey = baseName + '|' + newExtras.map(e=>`${e.name}x${e.qty||1}`).join('|');
+        let basePrice = item.basePrice || item.price;
+        let newPrice = basePrice + newExtras.reduce((sum, e) => sum + (e.price * (e.qty || 1)), 0);
+
+        let qtyToMove = item.qty;
+        delete orders[currentTable][oldKey];
+        
+        if (orders[currentTable][newKey]) {
+            orders[currentTable][newKey].qty += qtyToMove;
+        } else {
+            orders[currentTable][newKey] = { baseName: baseName, basePrice: basePrice, price: newPrice, qty: qtyToMove, extras: newExtras };
+        }
+        selectedCartItemKey = newKey;
+        clearKitchenStatus(currentTable);
+        updateFirebase(PATH_ORDERS, orders);
     }
-    function delMenu(i) { if(confirm("Xóa?")) { menuDB.khac.splice(i, 1); updateFirebase(PATH_MENU, menuDB); } }
+
+    function addMenu() {
+        let nEl = document.getElementById('newFoodName'), pEl = document.getElementById('newFoodPrice'), imgEl = document.getElementById('newFoodImage'), catEl = document.getElementById('newFoodCategory');
+        if(!nEl || !pEl || !catEl) return;
+        let n = nEl.value.trim(), p = pEl.value, img = imgEl ? imgEl.value.trim() : "", cat = catEl.value;
+        if(!n || !p) return alert("Nhập đủ tên và giá!");
+        let priceVal = parseInt(p);
+        if(isNaN(priceVal)) return alert("Giá không hợp lệ!");
+        if(!menuDB[cat]) menuDB[cat] = []; menuDB[cat].push({name: n, price: priceVal, image: img});
+        nEl.value = ''; pEl.value = ''; if(imgEl) imgEl.value = '';
+        updateFirebase(PATH_MENU, menuDB);
+        alert("Đã thêm món mới thành công!");
+    }
+    function delMenu(tab, i) { if(confirm(`Xóa món [${menuDB[tab][i].name}]?`)) { menuDB[tab].splice(i, 1); updateFirebase(PATH_MENU, menuDB); } }
+
+    function editMenu(tab, i) {
+        let item = menuDB[tab][i];
+        let newName = prompt(`Nhập tên mới cho món:`, item.name);
+        if (newName === null || newName.trim() === "") return;
+        
+        let newPriceStr = prompt(`Nhập giá mới cho món [${newName.trim()}]:\n(Có thể gõ tắt: 35k)`, item.price);
+        if (newPriceStr === null || newPriceStr.trim() === "") return;
+        
+        let isK = newPriceStr.toLowerCase().includes('k');
+        let newPrice = parseInt(newPriceStr.replace(/\D/g, '')); // Loại bỏ các ký tự không phải số
+        if (isNaN(newPrice)) return alert("Giá không hợp lệ! Vui lòng nhập số.");
+        if (isK && newPrice < 1000) newPrice *= 1000; // Xử lý nếu người dùng nhập "35k" -> 35000
+
+        let newImage = prompt(`Nhập link hình ảnh (URL) cho món [${newName.trim()}]:\n(Để trống nếu không có ảnh)`, item.image || "");
+        if (newImage !== null) {
+            menuDB[tab][i].image = newImage.trim();
+        }
+
+        menuDB[tab][i].name = newName.trim();
+        menuDB[tab][i].price = newPrice;
+        updateFirebase(PATH_MENU, menuDB);
+    }
+
+    function toggleStock(tab, i) {
+        menuDB[tab][i].outOfStock = !menuDB[tab][i].outOfStock;
+        updateFirebase(PATH_MENU, menuDB);
+    }
+
+    function renderMenuConfig() {
+        let tb = document.getElementById('menu-config-body');
+        if (!tb) return;
+        tb.innerHTML = '';
+        let catNames = {main: "Món Chính", sup: "Chén Súp", them: "Món Thêm", nuoc: "Giải Khát", khac: "Món Khác"};
+        let order = ['main', 'sup', 'them', 'nuoc', 'khac'];
+        
+        order.forEach(tab => {
+            if (menuDB[tab]) {
+                menuDB[tab].forEach((m, i) => {
+                    let oosBtn = m.outOfStock ? 
+                        `<button onclick="toggleStock('${tab}', ${i})" style="background:var(--success); color:white; border:none; padding:4px 8px; border-radius:3px; cursor:pointer; width: 100%;">Mở Bán</button>` : 
+                        `<button onclick="toggleStock('${tab}', ${i})" style="background:#f39c12; color:white; border:none; padding:4px 8px; border-radius:3px; cursor:pointer; width: 100%;">Báo Hết</button>`;
+                    
+                    tb.innerHTML += `<tr>
+                        <td style="padding: 8px; border: 1px solid #ddd;">${catNames[tab]}</td>
+                        <td style="padding: 8px; border: 1px solid #ddd;"><b>${m.name}</b></td>
+                        <td style="padding: 8px; border: 1px solid #ddd;">${m.price.toLocaleString()}đ</td>
+                        <td style="padding: 8px; border: 1px solid #ddd;">${m.image ? '<span style="color:var(--success)">Có ảnh</span>' : '<span style="color:#95a5a6">Không</span>'}</td>
+                        <td style="padding: 8px; border: 1px solid #ddd; text-align:center;">${oosBtn}</td>
+                        <td style="padding: 8px; border: 1px solid #ddd;">
+                            <button onclick="editMenu('${tab}', ${i})" style="background:var(--info); color:white; border:none; padding:4px 8px; border-radius:3px; cursor:pointer; margin-right:4px;">Sửa (Tên/Giá/Ảnh)</button>
+                            <button onclick="delMenu('${tab}', ${i})" style="background:var(--danger); color:white; border:none; padding:4px 8px; border-radius:3px; cursor:pointer;">Xóa</button>
+                        </td>
+                    </tr>`;
+                });
+            }
+        });
+    }
 
     function selectCartItem(key) {
         if (selectedCartItemKey === key) selectedCartItemKey = null;
@@ -1084,8 +1237,10 @@
         renderCart();
     }
 
-    function processOrderClick(bName, bPrice) {
+    function processOrderClick(bName, bPrice, isOutOfStock = false) {
         if(!currentTable) return alert("Chọn bàn trước!");
+        if(isOutOfStock) return alert("❌ Món này hiện đang hết hàng!");
+        
         let fName = bName, fPrice = bPrice;
         if (activeTab === 'main') { fName = `${activeNoodle}${isDryMode ? " Khô" : " Nước"} - ${bName}`; if (isDryMode) fPrice += 5000; }
         if(!orders[currentTable]) { 
@@ -1139,6 +1294,18 @@
             orders[currentTable][newKey] = { baseName: fName, basePrice: fPrice, price: fPrice, qty: 1, extras: [] };
         }
         selectedCartItemKey = newKey;
+        
+        // YÊU CẦU GHI CHÚ BẮT BUỘC ĐỐI VỚI MÓN THẬP CẨM
+        let nLower = fName.toLowerCase();
+        if (nLower.includes("thập cẩm") || nLower.includes("thap cam")) {
+            let currentNote = orders[currentTable][newKey].note || "";
+            let promptText = currentNote ? `Món Thập Cẩm này đang có ghi chú: [${currentNote}]\nNhập ghi chú MỚI/THÊM (nếu có):` : `Vui lòng ghi chú cho món [${bName}]:\n(VD: Đổi chả lấy thêm tôm, Không lấy giò...)`;
+            let note = prompt(promptText);
+            if (note && note.trim() !== "") {
+                orders[currentTable][newKey].note = currentNote ? currentNote + " | " + note.trim().toUpperCase() : note.trim().toUpperCase();
+            }
+        }
+
         clearKitchenStatus(currentTable);
         updateFirebase(PATH_ORDERS, orders);
     }
@@ -1329,6 +1496,11 @@
         document.getElementById('admin-notes-config').style.display = isAdmin ? 'block' : 'none';
         document.getElementById('admin-app-config').style.display = isAdmin ? 'block' : 'none';
         
+        let tabMenuBtn = document.getElementById('tab-setting-menu');
+        if (tabMenuBtn) tabMenuBtn.style.display = isAdmin ? 'block' : 'none';
+        
+        switchSettingTab('sys');
+        
         document.getElementById('overlay').style.display = 'block';
         document.getElementById('settings-modal').style.display = 'block';
     }
@@ -1364,6 +1536,20 @@
 
         closeAllModals();
         alert("Đã lưu cài đặt hệ thống!");
+    }
+
+    function switchSettingTab(tab) {
+        document.getElementById('setting-sys-view').style.display = tab === 'sys' ? 'block' : 'none';
+        document.getElementById('setting-menu-view').style.display = tab === 'menu' ? 'block' : 'none';
+        let btnSys = document.getElementById('tab-setting-sys'), btnMenu = document.getElementById('tab-setting-menu');
+        if (tab === 'sys') {
+            btnSys.className = "nav-btn active"; btnSys.style.background = ""; btnSys.style.color = "";
+            btnMenu.className = "nav-btn"; btnMenu.style.background = "#eee"; btnMenu.style.color = "#333";
+        } else {
+            btnMenu.className = "nav-btn active"; btnMenu.style.background = ""; btnMenu.style.color = "";
+            btnSys.className = "nav-btn"; btnSys.style.background = "#eee"; btnSys.style.color = "#333";
+            renderMenuConfig();
+        }
     }
 
     function showUsersModal() {
@@ -1533,9 +1719,18 @@
         }
     }
 
+    function generateKitchenNumber() {
+        let t = new Date(), dStr = ("0"+t.getDate()).slice(-2)+("0"+(t.getMonth()+1)).slice(-2)+t.getFullYear();
+        let last = localStorage.getItem('last_kitchen_date'), c = parseInt(localStorage.getItem('kitchen_counter') || "0");
+        if (last !== dStr) { c = 1; localStorage.setItem('last_kitchen_date', dStr); } else c++;
+        localStorage.setItem('kitchen_counter', c); return ("00" + c).slice(-3);
+    }
+
     function printKitchen() {
         if(!currentTable || !orders[currentTable]) return alert("Chưa có món để báo bếp!");
+        let stt = generateKitchenNumber();
         document.getElementById('bep-table').innerText = currentTable; document.getElementById('bep-time').innerText = new Date().toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'});
+        document.getElementById('bep-stt').innerText = "#" + stt;
         let tb = document.getElementById('bep-body'); tb.innerHTML = ''; 
         
         let foodItems = []; let drinkItems = [];
@@ -1550,13 +1745,15 @@
         let renderItems = (items) => {
             items.forEach(obj => {
                 let i = obj.i, bName = obj.bName;
-                let extAndNote = [];
-                if (i.extras && i.extras.length > 0) extAndNote.push(`+ ` + i.extras.map(e=>`${e.name} x${e.qty||1}`).join(', '));
+                let subHtml = '';
+                if (i.extras && i.extras.length > 0) {
+                    subHtml += `<div style="font-size:15px; font-weight:normal; font-style:italic; margin-top:4px; color:#333; padding-left: 20px;">` + 
+                        i.extras.map(e => `+ ${e.name} <b>x${e.qty||1}</b>`).join('<br>') + `</div>`;
+                }
                 if (i.note) {
                     let hlNote = i.note.replace(/(tỏi|tiêu|hành lá|toi|tieu|hanh la)/gi, "<b style='font-size:18px; text-decoration:underline;'>$&</b>");
-                    extAndNote.push(`* GC: ${hlNote}`);
+                    subHtml += `<div style="font-size:15px; font-weight:normal; font-style:italic; margin-top:4px; color:#333; padding-left: 20px;">* GC: ${hlNote}</div>`;
                 }
-                let subHtml = extAndNote.length > 0 ? `<div style="font-size:15px; font-weight:normal; font-style:italic; margin-top:4px; color:#333;">${extAndNote.join(' | ')}</div>` : '';
                 tb.innerHTML += `<tr><td class="text-left" style="padding: 10px 0; border-bottom: 1px dashed #000;"><b>${bName}</b>${subHtml}</td><td class="text-center" style="font-size:22px; font-weight:bold; padding: 10px 0; border-bottom: 1px dashed #000;">${i.qty}</td></tr>`;
             });
         };
@@ -1570,7 +1767,7 @@
         tb.innerHTML += `<tr><td colspan="2" class="text-center" style="padding: 12px 0; font-size:18px; font-weight:bold;">${summaryHtml.join(' &nbsp;|&nbsp; ')}</td></tr>`;
         
         // TIẾN HÀNH GỌI API IN LAN:
-        printViaAPI('KITCHEN', { table: currentTable, items: orders[currentTable] }).then(apiSuccess => {
+        printViaAPI('KITCHEN', { table: currentTable, stt: stt, items: orders[currentTable] }).then(apiSuccess => {
             // Nếu in qua API LAN thất bại (hoặc không có IP), fallback về in qua trình duyệt window.print()
             if (!apiSuccess) {
                 if (currentPaperSize === 'K58') document.body.classList.add('paper-k58');
@@ -1759,7 +1956,7 @@
 
     function clearCurrentTable() { 
         if(!currentTable) return;
-        if(!orders[currentTable]) {
+        if(!orders[currentTable] || Object.keys(orders[currentTable]).length === 0) {
             cleanupEmptyTakeawayTables(currentTable);
             return;
         }
@@ -2164,17 +2361,19 @@
     function renderInventory() {
         let tb = document.getElementById('kho-ton-body'); tb.innerHTML = '';
         let keys = Object.keys(inventoryDB).sort();
-        if(keys.length === 0) tb.innerHTML = '<tr><td colspan="5" style="text-align:center;">Kho trống! Hãy thêm nguyên liệu.</td></tr>';
+        if(keys.length === 0) tb.innerHTML = '<tr><td colspan="6" style="text-align:center;">Kho trống! Hãy thêm nguyên liệu.</td></tr>';
         keys.forEach(k => {
             let item = inventoryDB[k];
+            let price = item.price || 0;
             tb.innerHTML += `<tr>
                 <td>${k}</td>
                 <td><b>${item.name}</b></td>
                 <td>${item.unit}</td>
+                <td><input type="number" id="price-${k}" value="${price}" class="kho-input" style="width:90px;"></td>
                 <td>
                     <div style="display:flex; gap:5px; align-items:center;">
                         <input type="number" id="stock-${k}" value="${item.stock}" step="0.1" class="kho-input">
-                        <button class="kho-action-btn" style="background:#3498db; font-size:10px; padding:4px 8px;" onclick="updateInvStock('${k}')">Lưu Số</button>
+                        <button class="kho-action-btn" style="background:#3498db; font-size:10px; padding:4px 8px;" onclick="updateInvItem('${k}')">Lưu</button>
                     </div>
                 </td>
                 <td><button class="kho-action-btn" style="background:var(--danger);" onclick="delInvItem('${k}')">Xóa</button></td>
@@ -2185,18 +2384,20 @@
     function addInvItem() {
         let name = document.getElementById('new-inv-name').value.trim();
         let unit = document.getElementById('new-inv-unit').value.trim();
+        let price = parseFloat(document.getElementById('new-inv-price').value) || 0;
         let stock = parseFloat(document.getElementById('new-inv-stock').value) || 0;
         if(!name || !unit) return alert("Nhập đủ Tên và ĐVT!");
         let id = "NL_" + new Date().getTime().toString().slice(-6);
-        inventoryDB[id] = { name: name, unit: unit, stock: stock };
+        inventoryDB[id] = { name: name, unit: unit, price: price, stock: stock };
         updateFirebase(PATH_INVENTORY, inventoryDB);
-        document.getElementById('new-inv-name').value = ''; document.getElementById('new-inv-unit').value = ''; document.getElementById('new-inv-stock').value = '';
+        document.getElementById('new-inv-name').value = ''; document.getElementById('new-inv-unit').value = ''; document.getElementById('new-inv-price').value = ''; document.getElementById('new-inv-stock').value = '';
     }
 
-    function updateInvStock(id) {
+    function updateInvItem(id) {
         let newStock = parseFloat(document.getElementById(`stock-${id}`).value);
-        if(isNaN(newStock)) return;
-        inventoryDB[id].stock = newStock;
+        let newPrice = parseFloat(document.getElementById(`price-${id}`).value);
+        if(!isNaN(newStock)) inventoryDB[id].stock = newStock;
+        if(!isNaN(newPrice)) inventoryDB[id].price = newPrice;
         updateFirebase(PATH_INVENTORY, inventoryDB);
     }
 
@@ -2210,24 +2411,45 @@
     function renderInventoryOrderForm() {
         let tb = document.getElementById('kho-dat-body'); tb.innerHTML = '';
         let keys = Object.keys(inventoryDB).sort();
-        if(keys.length === 0) tb.innerHTML = '<tr><td colspan="4" style="text-align:center;">Kho trống!</td></tr>';
+        if(keys.length === 0) tb.innerHTML = '<tr><td colspan="6" style="text-align:center;">Kho trống!</td></tr>';
         keys.forEach(k => {
             let item = inventoryDB[k];
+            let price = item.price || 0;
             tb.innerHTML += `<tr>
                 <td><b>${item.name}</b></td>
                 <td>${item.unit}</td>
+                <td>${price.toLocaleString()}đ</td>
                 <td>${item.stock}</td>
-                <td style="background:#fef9e7;"><input type="number" id="order-qty-${k}" placeholder="Nhập SL..." class="kho-input" style="width:100px;"></td>
+                <td style="background:#fef9e7;"><input type="number" id="order-qty-${k}" placeholder="Nhập SL..." class="kho-input" style="width:100px;" oninput="calcKhoOrderTotal()"></td>
+                <td style="background:#fef9e7; font-weight:bold; color:var(--danger);" id="order-sub-${k}">0đ</td>
             </tr>`;
         });
+        document.getElementById('kho-order-total').innerText = "Tổng tiền dự kiến: 0đ";
+    }
+
+    function calcKhoOrderTotal() {
+        let total = 0;
+        Object.keys(inventoryDB).forEach(k => {
+            let qty = parseFloat(document.getElementById(`order-qty-${k}`).value) || 0;
+            let price = inventoryDB[k].price || 0;
+            let sub = qty * price;
+            let subEl = document.getElementById(`order-sub-${k}`);
+            if (subEl) subEl.innerText = sub > 0 ? sub.toLocaleString() + 'đ' : '0đ';
+            total += sub;
+        });
+        document.getElementById('kho-order-total').innerText = "Tổng tiền dự kiến: " + total.toLocaleString() + "đ";
     }
 
     function submitDailyOrder() {
         let orderItems = [];
+        let totalAmt = 0;
         Object.keys(inventoryDB).forEach(k => {
             let reqQty = parseFloat(document.getElementById(`order-qty-${k}`).value);
             if(reqQty > 0) {
-                orderItems.push(`${inventoryDB[k].name}: ${reqQty} ${inventoryDB[k].unit}`);
+                let price = inventoryDB[k].price || 0;
+                let sub = reqQty * price;
+                orderItems.push(`${inventoryDB[k].name}: ${reqQty} ${inventoryDB[k].unit} (${sub.toLocaleString()}đ)`);
+                totalAmt += sub;
             }
         });
         
@@ -2238,7 +2460,7 @@
         let dateStr = new Date().toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}) + " " + new Date().toLocaleDateString('vi-VN');
         let staff = currentUser ? currentUser.name : "Nhân viên kho";
         
-        invOrdersDB[orderId] = { date: dateStr, staff: staff, items: orderItems, status: "Đã chốt" };
+        invOrdersDB[orderId] = { date: dateStr, staff: staff, items: orderItems, total: totalAmt, status: "Đã chốt" };
         updateFirebase(PATH_INV_ORDERS, invOrdersDB);
         
         alert("Đã lập phiếu đặt hàng thành công!");
@@ -2247,10 +2469,24 @@
 
     function renderInventoryOrdersHistory() {
         let tb = document.getElementById('kho-ls-body'); tb.innerHTML = '';
-        let keys = Object.keys(invOrdersDB).sort().reverse(); // Đơn mới nhất lên đầu
+        let dateVal = document.getElementById('kho-history-date') ? document.getElementById('kho-history-date').value : '';
+        
+        let keys = Object.keys(invOrdersDB).sort().reverse(); 
+        
+        if (dateVal) {
+            let [y, m, d] = dateVal.split('-'); 
+            let dNum = parseInt(d, 10), mNum = parseInt(m, 10);
+            let dateStr1 = `${d}/${m}/${y}`;
+            let dateStr2 = `${dNum}/${mNum}/${y}`;
+            keys = keys.filter(k => invOrdersDB[k].date.includes(dateStr1) || invOrdersDB[k].date.includes(dateStr2));
+        }
+
+        if(keys.length === 0) tb.innerHTML = '<tr><td colspan="5" style="text-align:center;">Không có lịch sử đặt hàng.</td></tr>';
+
         keys.forEach(k => {
             let o = invOrdersDB[k];
-            tb.innerHTML += `<tr><td>${o.date}</td><td>${o.staff}</td><td>${o.items.join('<br>')}</td><td><span style="color:var(--success); font-weight:bold;">${o.status}</span></td></tr>`;
+            let totalStr = o.total ? o.total.toLocaleString() + 'đ' : '0đ';
+            tb.innerHTML += `<tr><td>${o.date}</td><td>${o.staff}</td><td>${o.items.join('<br>')}</td><td style="font-weight:bold; color:var(--danger);">${totalStr}</td><td><span style="color:var(--success); font-weight:bold;">${o.status}</span></td></tr>`;
         });
     }
 
@@ -2263,15 +2499,25 @@
     }
 
     function exportKhoExcel() {
-        let csv = "\uFEFFBÁO CÁO TỒN KHO HIỆN TẠI\nNgày xuất:," + new Date().toLocaleDateString('vi-VN') + "\n\nTên Nguyên Liệu,Đơn Vị Tính,Tồn Hiện Tại\n";
+        let csv = "\uFEFFBÁO CÁO TỒN KHO HIỆN TẠI\nNgày xuất:," + new Date().toLocaleDateString('vi-VN') + "\n\nTên Nguyên Liệu,Đơn Vị Tính,Giá Nhập,Tồn Hiện Tại\n";
         Object.keys(inventoryDB).forEach(k => {
-            csv += `${inventoryDB[k].name},${inventoryDB[k].unit},${inventoryDB[k].stock}\n`;
+            let price = inventoryDB[k].price || 0;
+            csv += `${inventoryDB[k].name},${inventoryDB[k].unit},${price},${inventoryDB[k].stock}\n`;
         });
         
-        csv += `\n\nLỊCH SỬ ĐẶT HÀNG\nNgày Đặt,Người Đặt,Chi Tiết Hàng Nhập\n`;
-        Object.keys(invOrdersDB).sort().reverse().forEach(k => {
+        csv += `\n\nLỊCH SỬ ĐẶT HÀNG\nNgày Đặt,Người Đặt,Chi Tiết Hàng Nhập,Tổng Tiền\n`;
+        let keys = Object.keys(invOrdersDB).sort().reverse();
+        let dateVal = document.getElementById('kho-history-date') ? document.getElementById('kho-history-date').value : '';
+        if (dateVal) {
+            let [y, m, d] = dateVal.split('-'); let dNum = parseInt(d, 10), mNum = parseInt(m, 10);
+            let dateStr1 = `${d}/${m}/${y}`, dateStr2 = `${dNum}/${mNum}/${y}`;
+            keys = keys.filter(k => invOrdersDB[k].date.includes(dateStr1) || invOrdersDB[k].date.includes(dateStr2));
+        }
+
+        keys.forEach(k => {
             let itemsStr = invOrdersDB[k].items.join(" | ");
-            csv += `${invOrdersDB[k].date},${invOrdersDB[k].staff},"${itemsStr}"\n`;
+            let total = invOrdersDB[k].total || 0;
+            csv += `${invOrdersDB[k].date},${invOrdersDB[k].staff},"${itemsStr}",${total}\n`;
         });
         
         let b = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
