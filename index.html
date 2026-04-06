@@ -41,6 +41,17 @@
         .dash-time { font-size: 11px; color: #7f8c8d; font-weight: bold; margin-top: 8px; display: inline-block; padding: 3px 8px; background: #eee; border-radius: 15px;}
         .dash-card.occupied .dash-time { background: #fadbd8; color: var(--danger); }
 
+        /* --- TRẠNG THÁI ĐÃ BÁO BẾP --- */
+        .dash-card.occupied.kitchen-notified { border-color: #e67e22; background: #fdf2e9; box-shadow: 0 4px 10px rgba(230, 126, 34, 0.2); }
+        .dash-card.occupied.kitchen-notified .dash-card-title { color: #d35400; }
+        .dash-card.occupied.kitchen-notified .dash-time { background: #fdebd0; color: #d35400; }
+        .table-btn.occupied.kitchen-notified { border-color: #e67e22; background: #fdf2e9; }
+        .table-btn.occupied.kitchen-notified .stt-dang-an { color: #d35400; }
+
+        @keyframes blinkPay { 0% { background-color: #fff; } 50% { background-color: #fef9e7; border-color: #f39c12; box-shadow: 0 0 15px rgba(243, 156, 18, 0.5);} 100% { background-color: #fff; } }
+        .dash-card.req-pay, .table-btn.req-pay { animation: blinkPay 1s infinite; border: 2px solid var(--warning) !important; }
+        .dash-card.req-pay .dash-card-title { color: #d35400; }
+
         /* TRANG 2: GIAO DIỆN BÁN HÀNG (POS) */
         #page-pos { display: none; flex: 1; width: 100%; overflow: hidden; }
         .sidebar { width: 200px; background: #fff; border-right: 1px solid #ddd; padding: 15px; overflow-y: auto; }
@@ -90,7 +101,7 @@
         .method-btn { flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 5px; cursor: pointer; text-align: center; font-size: 12px; font-weight: bold; }
         .method-btn.selected { background: var(--info); color: white; border-color: var(--info); }
         .footer-cart { border-top: 2px solid #eee; padding-top: 10px; }
-        .total-box { font-size: 20px; font-weight: bold; display: flex; justify-content: space-between; margin-bottom: 10px; }
+        .total-box { font-size: 18px; font-weight: bold; display: flex; justify-content: space-between; margin-bottom: 10px; }
         
         .btn-group-cart { display: flex; gap: 8px; margin-bottom: 8px; }
         .btn { flex: 1; padding: 10px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; color: white; font-size: 12px;}
@@ -128,6 +139,12 @@
             .bill-footer { border-top: 1px dashed #000; padding-top: 10px; }
             .total-row { display: flex; justify-content: space-between; font-weight: bold; font-size: 15px; margin-bottom: 10px; }
             .thank-you { text-align: center; font-size: 12px; font-style: italic; margin: 0; }
+            
+            /* --- Tùy chỉnh khổ in K58 (Máy in mini) --- */
+            body.paper-k58 #khu-vuc-in-bill, body.paper-k58 #khu-vuc-in-bep { width: 48mm; }
+            body.paper-k58 .bill-table { font-size: 11px; }
+            body.paper-k58 .bill-header h2 { font-size: 15px; }
+            body.paper-k58 .bill-info, body.paper-k58 .thank-you { font-size: 10px; }
         }
     </style>
 </head>
@@ -139,6 +156,16 @@
         <h3 style="color:#2c3e50; margin-top:0;">ĐĂNG NHẬP</h3>
         <input type="password" id="login-pin" placeholder="Nhập mã PIN..." style="padding:12px; font-size:20px; text-align:center; border-radius:5px; border:1px solid #ccc; margin-bottom:15px; width:200px; display:block; outline:none;" onkeyup="if(event.key==='Enter') login()">
         <button onclick="login()" style="padding:12px; font-size:16px; font-weight:bold; background:var(--success); color:white; border:none; border-radius:5px; cursor:pointer; width:100%;">VÀO HỆ THỐNG</button>
+    </div>
+</div>
+
+<!-- TOAST THÔNG BÁO TING TING -->
+<div id="tingting-toast" style="display:none; position:fixed; top:80px; right:20px; background:var(--success); color:white; padding:15px 25px; border-radius:8px; box-shadow:0 4px 15px rgba(0,0,0,0.3); z-index:9999; font-size:16px; font-weight:bold; align-items:center; gap:15px; transform: translateX(120%); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+    <span style="font-size:32px;">💰</span>
+    <div>
+        <div style="font-size:12px; opacity:0.9;">BIẾN ĐỘNG SỐ DƯ</div>
+        <div id="tingting-amt" style="font-size:22px;">+0đ</div>
+        <div id="tingting-msg" style="font-size:13px; font-weight:normal; max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"></div>
     </div>
 </div>
 
@@ -159,6 +186,7 @@
         <button class="btn-header" id="btn-export" style="background: #8e44ad;" onclick="exportToExcel()">⬇ Excel</button>
         <button class="btn-header" id="btn-history" style="background: #d35400;" onclick="showHistoryModal()">🕒 Lịch sử</button>
         <button class="btn-header" id="btn-users" style="background: #34495e;" onclick="showUsersModal()">👥 Nhân sự</button>
+        <button class="btn-header" id="btn-settings" style="background: #7f8c8d;" onclick="showSettingsModal()">⚙ Cài đặt</button>
         <button class="btn-header" style="background: #c0392b;" onclick="logout()">Thoát</button>
     </div>
 </div>
@@ -201,7 +229,16 @@
                 <div id="m-bank" class="method-btn" onclick="setPayment('BANK')">CK CHUYỂN KHOẢN</div>
             </div>
             <div class="footer-cart">
-                <div class="total-box"><span>TỔNG:</span><span id="total-val" style="color:var(--danger)">0đ</span></div>
+                <div class="total-box" style="font-weight:normal; font-size:15px; margin-bottom: 5px;"><span>TỔNG TIỀN MÓN:</span><span id="total-val">0đ</span></div>
+                <div id="discount-area" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 14px;">
+                    <span style="font-weight:bold; color: #34495e;">Chiết khấu:</span>
+                    <div style="display: flex; gap: 5px;">
+                        <input type="number" id="discount-percent" placeholder="%" min="0" max="100" style="width: 45px; text-align: center; padding: 6px; border: 1px solid #ccc; border-radius: 4px; font-weight:bold; background:#fef9e7;" oninput="applyDiscount('percent')">
+                        <input type="text" id="discount-amount" placeholder="VNĐ" style="width: 80px; text-align: right; padding: 6px; border: 1px solid #ccc; border-radius: 4px; font-weight:bold; background:#fef9e7;" oninput="applyDiscount('amount')">
+                    </div>
+                </div>
+                <div class="total-box" style="font-size: 18px; border-top: 1px dashed #ccc; padding-top: 8px; margin-bottom: 10px;"><span>CẦN TT:</span><span id="final-total-val" style="color:var(--danger)">0đ</span></div>
+                
                 <div id="cash-calc-area" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; font-size: 14px;">
                         <span>Khách đưa:</span>
@@ -217,7 +254,7 @@
                     <button class="btn" style="background:#8e44ad;" onclick="printProvisional()">🖨 TẠM TÍNH</button>
                     <button class="btn" style="background:#95a5a6;" onclick="clearCurrentTable()">HỦY ĐƠN</button>
                 </div>
-                <button class="btn" style="background:var(--success); width:100%; padding: 15px; font-size: 16px;" onclick="processPayment()">THANH TOÁN & IN BILL</button>
+                <button class="btn" id="btn-pay" style="background:var(--success); width:100%; padding: 15px; font-size: 16px;" onclick="processPayment()">THANH TOÁN & IN BILL</button>
             </div>
         </div>
     </div>
@@ -236,16 +273,30 @@
 
 <div class="modal" id="history-modal" style="min-width: 900px;">
     <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #3498db; padding-bottom: 10px;">
-        <h3 style="margin:0">Lịch Sử Đơn Hàng</h3>
+        <div style="display:flex; align-items: center; gap: 15px;">
+            <h3 style="margin:0">Lịch Sử</h3>
+            <button class="nav-btn active" id="tab-hist-list" onclick="switchHistTab('list')" style="padding: 6px 12px; font-size:12px;">Đơn Hàng</button>
+            <button class="nav-btn" id="tab-hist-report" onclick="switchHistTab('report')" style="padding: 6px 12px; font-size:12px; background:#eee; color:#333; border:1px solid #ccc;">Báo Cáo</button>
+        </div>
         <div style="display: flex; gap: 15px; align-items: center;">
-            <input type="date" id="history-date" onchange="renderHistory()" style="padding: 5px 10px; border: 1px solid #ccc; border-radius: 4px; font-weight: bold; cursor: pointer;">
+            <select id="history-filter-method" onchange="renderHistory()" style="padding: 5px 10px; border: 1px solid #ccc; border-radius: 4px; font-weight: bold; cursor: pointer;">
+                <option value="ALL">Tất cả đơn</option>
+                <option value="CASH">Tiền mặt</option>
+                <option value="BANK">Chuyển khoản</option>
+                <option value="CANCEL">Đơn Hủy</option>
+            </select>
+            <input type="date" id="history-date" onchange="renderHistory(); if(document.getElementById('history-report-view').style.display==='block') renderReport();" style="padding: 5px 10px; border: 1px solid #ccc; border-radius: 4px; font-weight: bold; cursor: pointer;">
+            <button onclick="sendSelectedToCukCuk()" style="background:var(--info); color:white; border:none; padding:6px 12px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:12px;">📤 Gửi CukCuk</button>
             <button onclick="closeAllModals()" style="background:none; border:none; font-size:20px; cursor:pointer;">×</button>
         </div>
     </div>
-    <table class="history-table">
-        <thead><tr><th>Mã Bill</th><th>Bàn</th><th>Giờ Ra</th><th>Chi Tiết</th><th>Tổng Tiền</th><th>PTTT</th><th>Thao Tác</th></tr></thead>
-        <tbody id="history-body"></tbody>
-    </table>
+    <div id="history-list-view">
+        <table class="history-table">
+            <thead><tr><th style="width:30px; text-align:center;"><input type="checkbox" id="check-all-cukcuk" onchange="toggleAllCukCuk(this)"></th><th>Mã Bill</th><th>Bàn</th><th>Giờ Ra</th><th>Chi Tiết</th><th>Tổng Tiền</th><th>PTTT</th><th>Thao Tác</th></tr></thead>
+            <tbody id="history-body"></tbody>
+        </table>
+    </div>
+    <div id="history-report-view" style="display:none; padding-top: 10px;"></div>
 </div>
 
 <div class="modal" id="users-modal" style="min-width: 500px;">
@@ -265,6 +316,49 @@
     </table>
 </div>
 
+<!-- GIAO DIỆN CÀI ĐẶT -->
+<div class="modal" id="settings-modal" style="min-width: 400px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #3498db; padding-bottom: 10px; margin-bottom: 15px;">
+        <h3 style="margin:0">Cài Đặt Hệ Thống</h3>
+        <button onclick="closeAllModals()" style="background:none; border:none; font-size:20px; cursor:pointer;">×</button>
+    </div>
+    <div style="margin-bottom: 15px;">
+        <label style="font-weight: bold; display: block; margin-bottom: 5px;">Khổ giấy in:</label>
+        <select id="paper-size-select" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px;">
+            <option value="K80">Khổ 80mm (Máy in lớn)</option>
+            <option value="K58">Khổ 58mm (Máy in mini)</option>
+        </select>
+    </div>
+    <div style="margin-bottom: 15px;">
+        <label style="font-weight: bold; display: block; margin-bottom: 5px;">Địa chỉ IP Máy in LAN:</label>
+        <input type="text" id="printer-ip-input" placeholder="VD: 192.168.1.100" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; box-sizing: border-box;">
+    </div>
+    <div style="margin-bottom: 15px;" id="admin-bank-config">
+        <label style="font-weight: bold; display: flex; justify-content: space-between; margin-bottom: 5px;"><span>Tài khoản nhận Chuyển Khoản (VietQR):</span> <a href="#" onclick="simulateTingTing()" style="color:var(--info); font-size:12px; font-style:italic;">Thử âm báo TingTing</a></label>
+        <div style="display: flex; gap: 5px; margin-bottom: 5px;">
+            <input type="text" id="bank-id-input" placeholder="Ngân hàng (VD: MB, VCB...)" style="flex:1; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; box-sizing: border-box;">
+            <input type="text" id="bank-acc-input" placeholder="Số tài khoản" style="flex:1.5; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; box-sizing: border-box;">
+        </div>
+        <input type="text" id="bank-name-input" placeholder="Tên chủ tài khoản (Không dấu)" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; box-sizing: border-box;">
+    </div>
+    <div style="margin-bottom: 15px;" id="admin-notes-config">
+        <label style="font-weight: bold; display: block; margin-bottom: 5px;">Gợi ý ghi chú nhanh (Cách nhau bằng dấu phẩy):</label>
+        <textarea id="quick-notes-input" rows="3" placeholder="VD: Không hành phi, Ít cay..." style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; box-sizing: border-box;"></textarea>
+    </div>
+    <button onclick="saveSettings()" style="width: 100%; padding: 10px; background: var(--success); color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 14px;">LƯU CÀI ĐẶT</button>
+</div>
+
+<!-- GIAO DIỆN GHI CHÚ -->
+<div class="modal" id="note-modal" style="min-width: 350px; max-width: 400px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #3498db; padding-bottom: 10px; margin-bottom: 15px;">
+        <h3 style="margin:0">Thêm Ghi Chú</h3>
+        <button onclick="closeAllModals()" style="background:none; border:none; font-size:20px; cursor:pointer;">×</button>
+    </div>
+    <input type="text" id="note-input" placeholder="Nhập ghi chú hoặc chọn gợi ý..." style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; box-sizing: border-box; margin-bottom: 15px;" onkeyup="if(event.key==='Enter') saveNote()">
+    <div id="quick-notes-container" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px;"></div>
+    <button onclick="saveNote()" style="width: 100%; padding: 10px; background: var(--success); color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 14px;">LƯU GHI CHÚ</button>
+</div>
+
 <div id="khu-vuc-in-bill">
     <div class="bill-header"><h2>BÁNH CANH THANH QUYÊN</h2><p>ĐC: 428 Nguyễn Tri Phương, TP.HCM</p>
         <p style="font-weight: bold; font-size: 13px;">Hotline góp ý: 0907.622.772</p>
@@ -276,9 +370,12 @@
         <tbody id="bill-body"></tbody>
     </table>
     <div class="bill-footer">
-        <div class="total-row" style="margin-bottom: 5px;"><span>Tổng cộng:</span><span id="bill-total-price">0đ</span></div>
+        <div class="total-row" style="margin-bottom: 5px; font-weight: normal;"><span>Tổng tiền món:</span><span id="bill-subtotal-price">0đ</span></div>
+        <div class="total-row" id="bill-discount-row" style="margin-bottom: 5px; font-weight: normal; display: none;"><span>Chiết khấu:</span><span id="bill-discount-price">0đ</span></div>
+        <div class="total-row" style="margin-bottom: 5px;"><span>KHÁCH CẦN TRẢ:</span><span id="bill-total-price">0đ</span></div>
         <div class="total-row" id="bill-given-row" style="font-size: 13px; font-weight: normal; margin-bottom: 5px; display: none;"><span>Khách đưa:</span><span id="bill-given">0đ</span></div>
         <div class="total-row" id="bill-change-row" style="font-size: 13px; font-weight: normal; margin-bottom: 10px; display: none;"><span>Tiền thối:</span><span id="bill-change">0đ</span></div>
+        <div id="bill-qr-code"></div>
         <p class="thank-you" style="margin-bottom: 5px;">Xin đánh giá 5 sao trên Google để quán phục vụ tốt hơn!</p>
         <p class="thank-you">Cảm ơn quý khách & Hẹn gặp lại!</p>
     </div>
@@ -324,6 +421,12 @@
     const PATH_HISTORY = 'pos_thanhquyen/history';
     const PATH_USERS = 'pos_thanhquyen/users';
     const PATH_STAFFS = 'pos_thanhquyen/staffs';
+    const PATH_PAY_REQ = 'pos_thanhquyen/pay_req';
+    const PATH_APP_ORDERS = 'pos_thanhquyen/app_orders';
+    const PATH_NOTES = 'pos_thanhquyen/notes';
+    const PATH_DISCOUNTS = 'pos_thanhquyen/discounts';
+    const PATH_BANK_TRANS = 'pos_thanhquyen/bank_trans';
+    const PATH_KITCHEN = 'pos_thanhquyen/kitchen';
 
     // DỮ LIỆU MẶC ĐỊNH
     const defaultMenuData = {
@@ -348,11 +451,20 @@
         "Mang về": ["MV 1", "MV 2", "MV 3", "MV 4", "MV 5", "MV 6"]
     };
 
-    let menuDB = {}; let tablesDB = {}; let orders = {}; let tableTimes = {}; let orderHistory = []; let tableStaffs = {};
+    let menuDB = {}; let tablesDB = {}; let orders = {}; let tableTimes = {}; let orderHistory = []; let tableStaffs = {}; let payRequests = {}; let appOrdersDB = {}; let lastAppOrderCount = 0;
     let usersDB = {}; let currentUser = null;
+    let quickNotesDB = [];
+    const defaultNotesData = ["Không hành phi", "Không hành lá", "Không tỏi phi", "Không huyết", "Không tiêu", "Rau trụng", "Ít bánh", "Trộn nhạt"];
+    let tableDiscounts = {};
+    let tableKitchen = {};
     let currentTable = null; let paymentMethod = 'CASH'; let activeTab = 'main'; let activeNoodle = 'Bánh Canh'; let isDryMode = false;
-    let currentPage = 'dash'; let currentTotal = 0;
+    let currentPage = 'dash'; let currentTotal = 0; let currentFinalTotal = 0;
     let selectedCartItemKey = null;
+    let currentPaperSize = localStorage.getItem('paperSize') || 'K80';
+    let printerIP = localStorage.getItem('printerIP') || '';
+    let bankID = localStorage.getItem('bankID') || '';
+    let bankAcc = localStorage.getItem('bankAcc') || '';
+    let bankName = localStorage.getItem('bankName') || '';
 
     function verifyPIN() { 
         if (currentUser && currentUser.role === 'admin') return true;
@@ -381,6 +493,25 @@
         document.getElementById('btn-export').style.display = isAdmin ? 'inline-block' : 'none';
         document.getElementById('btn-history').style.display = isAdmin ? 'inline-block' : 'none';
         document.getElementById('btn-users').style.display = isAdmin ? 'inline-block' : 'none';
+        if(document.getElementById('btn-settings')) document.getElementById('btn-settings').style.display = isAdmin ? 'inline-block' : 'none';
+        
+        let btnPay = document.getElementById('btn-pay');
+        if (isAdmin) {
+            btnPay.innerText = "THANH TOÁN & IN BILL";
+            btnPay.onclick = processPayment;
+            btnPay.style.background = "var(--success)";
+        } else {
+            btnPay.innerText = "🛎️ BÁO THU NGÂN";
+            btnPay.onclick = requestPayment;
+            btnPay.style.background = "#e67e22";
+        }
+        
+        let pEl = document.getElementById('discount-percent'); let aEl = document.getElementById('discount-amount');
+        if (pEl && aEl) {
+            pEl.disabled = !isAdmin; pEl.style.background = isAdmin ? '#fef9e7' : '#e0e0e0';
+            aEl.disabled = !isAdmin; aEl.style.background = isAdmin ? '#fef9e7' : '#e0e0e0';
+        }
+        
         renderTables(); renderMenu();
     }
 
@@ -426,10 +557,97 @@
             if (document.getElementById('users-modal').style.display === 'block') renderUsers();
         });
         db.ref(PATH_STAFFS).on('value', snap => { tableStaffs = snap.val() || {}; });
+        db.ref(PATH_PAY_REQ).on('value', snap => { 
+            payRequests = snap.val() || {}; 
+            renderTables(); if(currentPage === 'dash') renderDashboard();
+        });
+        db.ref(PATH_APP_ORDERS).on('value', snap => {
+            appOrdersDB = snap.val() || {};
+            updateAppBadge();
+            if (document.getElementById('app-modal').style.display === 'block') renderAppOrders();
+        });
+        db.ref(PATH_NOTES).on('value', snap => {
+            if(snap.exists()) { quickNotesDB = snap.val(); } 
+            else { quickNotesDB = defaultNotesData; db.ref(PATH_NOTES).set(quickNotesDB); }
+            renderQuickNotes();
+        });
+        db.ref(PATH_DISCOUNTS).on('value', snap => {
+            tableDiscounts = snap.val() || {};
+            updateDiscountUI(); if(currentPage === 'pos') renderCart();
+        });
+
+        db.ref(PATH_KITCHEN).on('value', snap => {
+            tableKitchen = snap.val() || {};
+            renderTables(); if(currentPage === 'dash') renderDashboard();
+        });
+
+        let isFirstLoadTrans = true;
+        db.ref(PATH_BANK_TRANS).limitToLast(1).on('child_added', snap => {
+            if (isFirstLoadTrans) { 
+                // Đợi 2 giây sau khi tải trang mới lắng nghe đơn mới, tránh thông báo lại giao dịch cũ lúc vừa F5
+                setTimeout(() => { isFirstLoadTrans = false; }, 2000); 
+                return; 
+            }
+            let tx = snap.val();
+            if (tx && tx.amount) showTingTingToast(tx.amount, tx.content);
+        });
     }
 
     initFirebaseListeners();
     function updateFirebase(path, data) { if(db) db.ref(path).set(data); }
+
+    function renderQuickNotes() {
+        let container = document.getElementById('quick-notes-container');
+        if(!container) return;
+        container.innerHTML = '';
+        quickNotesDB.forEach(note => {
+            container.innerHTML += `<button class="mod-btn" onclick="appendQuickNote('${note}')">${note}</button>`;
+        });
+    }
+
+    function updateDiscountUI() {
+        let pEl = document.getElementById('discount-percent'); let aEl = document.getElementById('discount-amount');
+        if(!pEl || !aEl) return;
+        if(!currentTable || !tableDiscounts[currentTable]) { pEl.value = ''; aEl.value = ''; return; }
+        let d = tableDiscounts[currentTable];
+        if (d.type === 'percent') {
+            pEl.value = d.value || ''; aEl.value = '';
+        } else {
+            pEl.value = ''; aEl.value = d.value ? d.value.toLocaleString() : '';
+        }
+    }
+
+    function applyDiscount(type) {
+        if(!currentTable) return;
+        let isAdmin = currentUser && currentUser.role === 'admin';
+        if (!isAdmin) {
+            alert("Chỉ Quản lý mới được áp dụng chiết khấu!");
+            updateDiscountUI();
+            return;
+        }
+        let pEl = document.getElementById('discount-percent'); let aEl = document.getElementById('discount-amount');
+        if (!tableDiscounts[currentTable]) tableDiscounts[currentTable] = { type: 'amount', value: 0 };
+        
+        if (type === 'percent') {
+            let val = parseFloat(pEl.value) || 0;
+            if(val > 100) val = 100; if(val < 0) val = 0;
+            tableDiscounts[currentTable] = { type: 'percent', value: val };
+            aEl.value = '';
+        } else {
+            let val = parseInt(aEl.value.replace(/\D/g, '')) || 0;
+            tableDiscounts[currentTable] = { type: 'amount', value: val };
+            aEl.value = val > 0 ? val.toLocaleString() : '';
+            pEl.value = '';
+        }
+        updateFirebase(PATH_DISCOUNTS, tableDiscounts);
+    }
+
+    function clearKitchenStatus(t) {
+        if(tableKitchen[t]) {
+            delete tableKitchen[t];
+            updateFirebase(PATH_KITCHEN, tableKitchen);
+        }
+    }
 
     function renderDashboard() {
         const el = document.getElementById('page-dashboard'); el.innerHTML = '';
@@ -447,7 +665,9 @@
             tablesInZone.forEach(t => {
                 let occ = orders[t] && Object.keys(orders[t]).length > 0;
                 let timeInStr = occ && tableTimes[t] ? tableTimes[t].split(" ")[0] : ""; 
-                zoneHtml += `<div class="dash-card ${occ ? 'occupied' : ''}" onclick="goToTableFromDash('${t}')"><div class="dash-card-title">🍽️ ${t}</div><div class="dash-time">${occ ? '⏳ ' + timeInStr : 'Trống'}</div></div>`;
+                let reqPayCls = payRequests[t] ? 'req-pay' : '';
+                let kitchenCls = tableKitchen[t] ? 'kitchen-notified' : '';
+                zoneHtml += `<div class="dash-card ${occ ? 'occupied' : ''} ${kitchenCls} ${reqPayCls}" onclick="goToTableFromDash('${t}')"><div class="dash-card-title">🍽️ ${t}</div><div class="dash-time">${occ ? '⏳ ' + timeInStr : 'Trống'}</div></div>`;
             });
             zoneHtml += `</div></div>`; el.innerHTML += zoneHtml;
         });
@@ -469,12 +689,14 @@
             let zCon = document.createElement('div'); zCon.style.display = 'flex'; zCon.style.flexDirection = 'column'; zCon.style.gap = '6px';
             (tablesDB[zone] || []).forEach((t, i) => {
                 let occ = orders[t] && Object.keys(orders[t]).length > 0;
-                let btnHtml = `<div class="table-btn ${currentTable === t ? 'active' : ''} ${occ ? 'occupied' : ''}" onclick="selectTable('${t}')">`;
+                let reqPayCls = payRequests[t] ? 'req-pay' : '';
+                let kitchenCls = tableKitchen[t] ? 'kitchen-notified' : '';
+                let btnHtml = `<div class="table-btn ${currentTable === t ? 'active' : ''} ${occ ? 'occupied' : ''} ${kitchenCls} ${reqPayCls}" onclick="selectTable('${t}')">`;
                 if(!occ && currentUser && currentUser.role === 'admin') {
                     btnHtml += `<button class="btn-edit-table" title="Đổi tên bàn" onclick="event.stopPropagation(); editTablePrompt('${zone}', ${i})">✎</button>`;
                     btnHtml += `<button class="btn-del-table" title="Xóa bàn" onclick="event.stopPropagation(); deleteTable('${zone}', ${i})">✖</button>`;
                 }
-                btnHtml += `🍽️ ${t} ${occ ? '<span class="stt-dang-an">(Đang ăn)</span>' : ''}</div>`;
+                btnHtml += `🍽️ ${t} ${occ ? `<span class="stt-dang-an">${kitchenCls ? '(Đã báo bếp)' : '(Đang ăn)'}</span>` : ''}</div>`;
                 zCon.innerHTML += btnHtml;
             });
             el.appendChild(zCon);
@@ -497,6 +719,7 @@
         tablesDB[zone][i] = newName;
         if (orders[oldName]) { orders[newName] = orders[oldName]; delete orders[oldName]; updateFirebase(PATH_ORDERS, orders); }
         if (tableTimes[oldName]) { tableTimes[newName] = tableTimes[oldName]; delete tableTimes[oldName]; updateFirebase(PATH_TIMES, tableTimes); }
+        if (tableKitchen[oldName]) { tableKitchen[newName] = tableKitchen[oldName]; delete tableKitchen[oldName]; updateFirebase(PATH_KITCHEN, tableKitchen); }
         if (currentTable === oldName) { currentTable = newName; document.getElementById('target-table').innerText = "Đơn: " + newName; }
         updateFirebase(PATH_TABLES, tablesDB);
     }
@@ -514,6 +737,7 @@
         document.getElementById('target-table').innerText = "Đơn: " + t; 
         document.getElementById('cus-given').value = ''; 
         selectedCartItemKey = null;
+        updateDiscountUI();
         renderTables(); 
         renderCart(); 
     }
@@ -589,6 +813,7 @@
                 };
             }
             selectedCartItemKey = newKey;
+            clearKitchenStatus(currentTable);
             updateFirebase(PATH_ORDERS, orders);
             return;
         }
@@ -600,15 +825,16 @@
             orders[currentTable][newKey] = { baseName: fName, basePrice: fPrice, price: fPrice, qty: 1, extras: [] };
         }
         selectedCartItemKey = newKey;
+        clearKitchenStatus(currentTable);
         updateFirebase(PATH_ORDERS, orders);
     }
 
-    function increaseQty(n) { orders[currentTable][n].qty++; updateFirebase(PATH_ORDERS, orders); }
-    function decreaseQty(n) { if(orders[currentTable][n].qty > 1) { orders[currentTable][n].qty--; updateFirebase(PATH_ORDERS, orders); } else removeCartItem(n); }
+    function increaseQty(n) { orders[currentTable][n].qty++; clearKitchenStatus(currentTable); updateFirebase(PATH_ORDERS, orders); }
+    function decreaseQty(n) { if(orders[currentTable][n].qty > 1) { orders[currentTable][n].qty--; clearKitchenStatus(currentTable); updateFirebase(PATH_ORDERS, orders); } else removeCartItem(n); }
     function removeCartItem(n) { 
         delete orders[currentTable][n]; 
         if (selectedCartItemKey === n) selectedCartItemKey = null;
-        if(Object.keys(orders[currentTable]).length === 0) { delete orders[currentTable]; delete tableTimes[currentTable]; delete tableStaffs[currentTable]; updateFirebase(PATH_TIMES, tableTimes); updateFirebase(PATH_STAFFS, tableStaffs); } 
+        if(Object.keys(orders[currentTable]).length === 0) { delete orders[currentTable]; delete tableTimes[currentTable]; delete tableStaffs[currentTable]; delete tableDiscounts[currentTable]; delete tableKitchen[currentTable]; updateFirebase(PATH_TIMES, tableTimes); updateFirebase(PATH_STAFFS, tableStaffs); updateFirebase(PATH_DISCOUNTS, tableDiscounts); updateFirebase(PATH_KITCHEN, tableKitchen); } else { clearKitchenStatus(currentTable); }
         updateFirebase(PATH_ORDERS, orders); 
     }
 
@@ -637,7 +863,38 @@
             orders[currentTable][newKey] = { baseName: baseName, basePrice: basePrice, price: newPrice, qty: qtyToMove, extras: newExtras };
         }
         if (selectedCartItemKey === itemKey) selectedCartItemKey = newKey;
+        clearKitchenStatus(currentTable);
         updateFirebase(PATH_ORDERS, orders);
+    }
+
+    let currentNoteItemKey = null;
+    function addNoteToItem(itemKey) {
+        if (!currentTable || !orders[currentTable] || !orders[currentTable][itemKey]) return;
+        currentNoteItemKey = itemKey;
+        let currentNote = orders[currentTable][itemKey].note || "";
+        document.getElementById('note-input').value = currentNote;
+        document.getElementById('overlay').style.display = 'block';
+        document.getElementById('note-modal').style.display = 'block';
+        setTimeout(() => document.getElementById('note-input').focus(), 100);
+    }
+
+    function appendQuickNote(text) {
+        let input = document.getElementById('note-input');
+        let parts = input.value.split(',').map(s => s.trim()).filter(s => s !== "");
+        if(!parts.includes(text)) { // Không thêm nếu đã có sẵn
+            parts.push(text);
+            input.value = parts.join(", ");
+        }
+        input.focus();
+    }
+
+    function saveNote() {
+        if (!currentTable || !orders[currentTable] || !currentNoteItemKey || !orders[currentTable][currentNoteItemKey]) { closeAllModals(); return; }
+        let note = document.getElementById('note-input').value.trim();
+        orders[currentTable][currentNoteItemKey].note = note;
+        clearKitchenStatus(currentTable);
+        updateFirebase(PATH_ORDERS, orders);
+        closeAllModals();
     }
 
     function renderCart() {
@@ -647,10 +904,11 @@
                 let i = orders[currentTable][n]; let sub = i.price * i.qty; t += sub;
                 
                 let extHtml = (i.extras && i.extras.length > 0) ? i.extras.map((e, idx) => `<br><small style="font-style:italic; color:#7f8c8d; display:inline-flex; align-items:center; margin-top:2px;">+ ${e.name} x${e.qty||1} (+${(e.price*(e.qty||1))/1000}k) <span onclick="event.stopPropagation(); removeExtraItem('${n}', ${idx})" style="color:var(--danger); cursor:pointer; margin-left:5px; font-weight:bold; padding:0 5px; border-radius:3px; background:#ffebee;">✖</span></small>`).join('') : '';
+                let noteHtml = i.note ? `<br><small style="color:#e67e22; font-weight:bold; font-style:italic;">* ${i.note}</small>` : '';
                 let isSelected = (n === selectedCartItemKey);
 
                 el.innerHTML += `<div class="item-row ${isSelected ? 'selected-cart-item' : ''}" onclick="selectCartItem('${n}')">
-                    <div class="item-info"><b>${i.baseName || n}</b>${extHtml}<br><small>${i.price.toLocaleString()}đ/phần</small>
+                    <div class="item-info"><b>${i.baseName || n}</b> <span onclick="event.stopPropagation(); addNoteToItem('${n}')" style="cursor:pointer; font-size:12px; margin-left:5px;" title="Thêm ghi chú">📝</span>${extHtml}${noteHtml}<br><small>${i.price.toLocaleString()}đ/phần</small>
                     <div class="qty-controls" onclick="event.stopPropagation()">
                         <button class="btn-qty" onclick="decreaseQty('${n}')">-</button><span class="qty-number">${i.qty}</span><button class="btn-qty" onclick="increaseQty('${n}')">+</button>
                     </div></div>
@@ -661,6 +919,18 @@
         }
         currentTotal = t;
         document.getElementById('total-val').innerText = t.toLocaleString() + "đ";
+        
+        let discountAmt = 0;
+        if (currentTable && tableDiscounts[currentTable]) {
+            let d = tableDiscounts[currentTable];
+            if (d.type === 'percent') discountAmt = Math.round(t * d.value / 100); else discountAmt = d.value;
+        }
+        if (discountAmt > t) discountAmt = t;
+        currentFinalTotal = t - discountAmt;
+        
+        let finalEl = document.getElementById('final-total-val');
+        if (finalEl) finalEl.innerText = currentFinalTotal.toLocaleString() + "đ";
+        
         calculateChange();
     }
 
@@ -685,7 +955,7 @@
     function calculateChange() {
         let givenInput = document.getElementById('cus-given').value.replace(/\D/g, '');
         let given = parseInt(givenInput) || 0;
-        let change = given - currentTotal;
+        let change = given - currentFinalTotal;
         document.getElementById('cus-change').innerText = change >= 0 ? change.toLocaleString() + "đ" : "0đ";
     }
 
@@ -703,11 +973,63 @@
         let toT = document.getElementById('to-t-select').value;
         if(orders[toT]) { if(!confirm("Gộp đơn?")) return; for(let n in orders[currentTable]) { if(orders[toT][n]) orders[toT][n].qty += orders[currentTable][n].qty; else orders[toT][n] = orders[currentTable][n]; } } 
         else { orders[toT] = orders[currentTable]; tableTimes[toT] = tableTimes[currentTable]; tableStaffs[toT] = tableStaffs[currentTable]; }
-        delete orders[currentTable]; delete tableTimes[currentTable]; delete tableStaffs[currentTable];
-        updateFirebase(PATH_ORDERS, orders); updateFirebase(PATH_TIMES, tableTimes); updateFirebase(PATH_STAFFS, tableStaffs); closeAllModals(); selectTable(toT);
+        
+        if (tableDiscounts[currentTable]) tableDiscounts[toT] = tableDiscounts[currentTable];
+        if (tableKitchen[currentTable]) delete tableKitchen[currentTable];
+        if (tableKitchen[toT]) delete tableKitchen[toT];
+
+        delete orders[currentTable]; delete tableTimes[currentTable]; delete tableStaffs[currentTable]; delete tableDiscounts[currentTable];
+        updateFirebase(PATH_ORDERS, orders); updateFirebase(PATH_TIMES, tableTimes); updateFirebase(PATH_STAFFS, tableStaffs); updateFirebase(PATH_DISCOUNTS, tableDiscounts); updateFirebase(PATH_KITCHEN, tableKitchen); closeAllModals(); selectTable(toT);
+    }
+
+    function requestPayment() {
+        if(!currentTable || !orders[currentTable]) return alert("Giỏ hàng trống!");
+        if(confirm("Gửi yêu cầu tính tiền đến Quản lý và in Tạm tính?")) {
+            payRequests[currentTable] = true;
+            updateFirebase(PATH_PAY_REQ, payRequests);
+            printProvisional();
+        }
     }
     
-    function closeAllModals() { document.getElementById('overlay').style.display = 'none'; document.getElementById('transfer-modal').style.display = 'none'; document.getElementById('history-modal').style.display = 'none'; document.getElementById('users-modal').style.display = 'none'; }
+    function closeAllModals() { document.getElementById('overlay').style.display = 'none'; document.getElementById('transfer-modal').style.display = 'none'; document.getElementById('history-modal').style.display = 'none'; document.getElementById('users-modal').style.display = 'none'; if(document.getElementById('app-modal')) document.getElementById('app-modal').style.display='none'; if(document.getElementById('settings-modal')) document.getElementById('settings-modal').style.display='none'; if(document.getElementById('note-modal')) document.getElementById('note-modal').style.display='none'; }
+
+    function showSettingsModal() {
+        document.getElementById('paper-size-select').value = currentPaperSize;
+        document.getElementById('printer-ip-input').value = printerIP;
+        document.getElementById('bank-id-input').value = bankID;
+        document.getElementById('bank-acc-input').value = bankAcc;
+        document.getElementById('bank-name-input').value = bankName;
+        document.getElementById('quick-notes-input').value = quickNotesDB.join(', ');
+        
+        let isAdmin = currentUser && currentUser.role === 'admin';
+        document.getElementById('admin-notes-config').style.display = isAdmin ? 'block' : 'none';
+        
+        document.getElementById('overlay').style.display = 'block';
+        document.getElementById('settings-modal').style.display = 'block';
+    }
+
+    function saveSettings() {
+        currentPaperSize = document.getElementById('paper-size-select').value;
+        printerIP = document.getElementById('printer-ip-input').value.trim();
+        bankID = document.getElementById('bank-id-input').value.trim();
+        bankAcc = document.getElementById('bank-acc-input').value.trim();
+        bankName = document.getElementById('bank-name-input').value.trim();
+        localStorage.setItem('paperSize', currentPaperSize);
+        localStorage.setItem('printerIP', printerIP);
+        localStorage.setItem('bankID', bankID);
+        localStorage.setItem('bankAcc', bankAcc);
+        localStorage.setItem('bankName', bankName);
+        
+        let isAdmin = currentUser && currentUser.role === 'admin';
+        if (isAdmin) {
+            let notesStr = document.getElementById('quick-notes-input').value;
+            quickNotesDB = notesStr.split(',').map(s => s.trim()).filter(s => s !== "");
+            updateFirebase(PATH_NOTES, quickNotesDB);
+        }
+
+        closeAllModals();
+        alert("Đã lưu cài đặt hệ thống!");
+    }
 
     function showUsersModal() {
         if(!verifyPIN()) return;
@@ -735,33 +1057,248 @@
         if(confirm(`Xóa nhân viên ${usersDB[pin].name}?`)) { delete usersDB[pin]; updateFirebase(PATH_USERS, usersDB); }
     }
 
+    function playRingSound() {
+        try {
+            let ctx = new (window.AudioContext || window.webkitAudioContext)();
+            let osc = ctx.createOscillator();
+            osc.type = 'sine'; osc.frequency.setValueAtTime(880, ctx.currentTime);
+            osc.connect(ctx.destination); osc.start(); osc.stop(ctx.currentTime + 0.2);
+            setTimeout(() => {
+                let osc2 = ctx.createOscillator(); osc2.type = 'sine'; osc2.frequency.setValueAtTime(1046.50, ctx.currentTime);
+                osc2.connect(ctx.destination); osc2.start(); osc2.stop(ctx.currentTime + 0.3);
+            }, 250);
+        } catch(e) {}
+    }
+
+    function playTingTing() {
+        try {
+            let ctx = new (window.AudioContext || window.webkitAudioContext)();
+            let osc1 = ctx.createOscillator(); let gain1 = ctx.createGain();
+            osc1.type = 'sine'; osc1.frequency.setValueAtTime(1200, ctx.currentTime);
+            gain1.gain.setValueAtTime(1, ctx.currentTime); gain1.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+            osc1.connect(gain1); gain1.connect(ctx.destination); osc1.start(); osc1.stop(ctx.currentTime + 0.5);
+
+            setTimeout(() => {
+                let osc2 = ctx.createOscillator(); let gain2 = ctx.createGain();
+                osc2.type = 'sine'; osc2.frequency.setValueAtTime(1600, ctx.currentTime);
+                gain2.gain.setValueAtTime(1, ctx.currentTime); gain2.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.8);
+                osc2.connect(gain2); gain2.connect(ctx.destination); osc2.start(); osc2.stop(ctx.currentTime + 0.8);
+            }, 150);
+        } catch(e) {}
+    }
+
+    function showTingTingToast(amount, msg) {
+        playTingTing();
+        document.getElementById('tingting-amt').innerText = "+" + parseInt(amount).toLocaleString() + "đ";
+        document.getElementById('tingting-msg').innerText = "ND: " + msg;
+        let toast = document.getElementById('tingting-toast');
+        toast.style.display = 'flex';
+        // Hiệu ứng trượt ra trượt vào
+        setTimeout(() => { toast.style.transform = 'translateX(0)'; }, 50);
+        setTimeout(() => { 
+            toast.style.transform = 'translateX(120%)'; 
+            setTimeout(() => { toast.style.display = 'none'; }, 400);
+        }, 8000);
+    }
+
+    function simulateTingTing() {
+        db.ref(PATH_BANK_TRANS).push({ amount: Math.floor(Math.random() * 200) * 1000 + 15000, content: "NGUYEN VAN A CK Thanh Quyen" });
+    }
+
+    function updateAppBadge() {
+        let count = Object.keys(appOrdersDB).length;
+        let badge = document.getElementById('app-badge');
+        let icon = document.getElementById('bell-icon');
+        if (badge && icon) {
+            if (count > 0) {
+                badge.innerText = count; badge.style.display = 'inline-block';
+                if (count > lastAppOrderCount) { playRingSound(); icon.className = 'bell-ringing'; setTimeout(() => icon.className='', 500); }
+            } else { badge.style.display = 'none'; }
+            lastAppOrderCount = count;
+        }
+    }
+
+    function showAppOrders() { renderAppOrders(); document.getElementById('overlay').style.display = 'block'; document.getElementById('app-modal').style.display = 'block'; }
+
+    function renderAppOrders() {
+        let tb = document.getElementById('app-body'); tb.innerHTML = '';
+        if (Object.keys(appOrdersDB).length === 0) { tb.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:15px;">Chưa có đơn hàng nào từ App!</td></tr>'; return; }
+        for (let id in appOrdersDB) {
+            let o = appOrdersDB[id];
+            let itemsStr = o.items.map(i => `• ${i.name} <b>x${i.qty}</b>`).join('<br>');
+            let pColor = o.platform === 'Grab' ? '#00b14f' : '#ee4d2d';
+            tb.innerHTML += `<tr>
+                <td style="color:${pColor}; font-weight:bold; font-size:16px;">${o.platform}</td>
+                <td><b>${id}</b><br><small style="color:#7f8c8d;">TX: ${o.driver || 'Đang tìm...'}</small></td>
+                <td>${itemsStr}</td>
+                <td style="color:var(--danger); font-weight:bold; font-size:16px;">${o.total.toLocaleString()}đ</td>
+                <td>
+                    <button onclick="acceptAppOrder('${id}')" style="background:var(--success); color:white; border:none; padding:6px 10px; border-radius:4px; font-weight:bold; cursor:pointer; margin-bottom:4px; width:100%;">Nhận Đơn</button>
+                    <button onclick="rejectAppOrder('${id}')" style="background:#bdc3c7; color:#333; border:none; padding:4px 10px; border-radius:4px; cursor:pointer; width:100%;">Bỏ qua</button>
+                </td>
+            </tr>`;
+        }
+    }
+
+    function acceptAppOrder(id) {
+        let o = appOrdersDB[id], tableName = `${o.platform} ${id.slice(-4)}`;
+        if (!tablesDB["Mang về"].includes(tableName)) { tablesDB["Mang về"].push(tableName); updateFirebase(PATH_TABLES, tablesDB); }
+        let newOrder = {};
+        o.items.forEach(item => { newOrder[item.name] = { baseName: item.name, basePrice: item.price, price: item.price, qty: item.qty, extras: [] }; });
+        orders[tableName] = newOrder; tableTimes[tableName] = new Date().toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}) + " " + new Date().toLocaleDateString('vi-VN');
+        tableStaffs[tableName] = "App " + o.platform;
+        updateFirebase(PATH_ORDERS, orders); updateFirebase(PATH_TIMES, tableTimes); updateFirebase(PATH_STAFFS, tableStaffs);
+        delete appOrdersDB[id]; updateFirebase(PATH_APP_ORDERS, appOrdersDB);
+        closeAllModals(); switchPage('pos'); selectTable(tableName);
+    }
+
+    function rejectAppOrder(id) { if(confirm("Xóa đơn này khỏi danh sách chờ?")) { delete appOrdersDB[id]; updateFirebase(PATH_APP_ORDERS, appOrdersDB); } }
+
+    function simulateAppOrder() {
+        let isGrab = Math.random() > 0.5, id = (isGrab ? "GF-" : "SP-") + Math.floor(1000 + Math.random() * 9000);
+        appOrdersDB[id] = {
+            platform: isGrab ? 'Grab' : 'Shopee', driver: 'Nguyễn Văn ' + ['A','B','C','D'][Math.floor(Math.random()*4)],
+            items: [ { name: 'Bánh Canh Nước - Thịt Nạc Heo', price: 33000, qty: 1 }, { name: 'NC Trà Đá', price: 3000, qty: 1 } ],
+            total: 36000
+        };
+        updateFirebase(PATH_APP_ORDERS, appOrdersDB);
+    }
+
+    // ==========================================
+    // HÀM GỌI API IN LAN TRỰC TIẾP TỪ TRÌNH DUYỆT
+    // ==========================================
+    async function printViaAPI(printType, payloadData) {
+        if (!printerIP) return false; // Trả về false nếu chưa nhập IP
+        
+        try {
+            // Gọi tới Print Server trung gian bằng Node.js (cài trên máy tính thu ngân)
+            const API_URL = `http://localhost:8080/api/print`; 
+            
+            let response = await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    printerIP: printerIP, // Truyền IP cấu hình trên POS xuống cho Print Server
+                    type: printType, // Ví dụ: 'KITCHEN', 'BILL'
+                    paperSize: currentPaperSize,
+                    data: payloadData
+                })
+            });
+            
+            if (response.ok) {
+                console.log(`Đã gửi lệnh in [${printType}] qua mạng LAN thành công!`);
+                return true; // Báo thành công
+            } else {
+                console.error("Lỗi từ API máy in LAN:", response.statusText);
+                return false;
+            }
+        } catch (error) {
+            console.error("Không thể kết nối máy in mạng LAN:", error);
+            return false;
+        }
+    }
+
     function printKitchen() {
         if(!currentTable || !orders[currentTable]) return alert("Chưa có món để báo bếp!");
         document.getElementById('bep-table').innerText = currentTable; document.getElementById('bep-time').innerText = new Date().toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'});
         let tb = document.getElementById('bep-body'); tb.innerHTML = ''; 
+        
+        let foodItems = []; let drinkItems = [];
+        let totalFood = 0; let totalDrink = 0;
+
         for(let n in orders[currentTable]) {
             let i = orders[currentTable][n], bName = i.baseName || n;
-            let extHtml = (i.extras && i.extras.length > 0) ? `<br><span style="font-style:italic; font-size:16px; font-weight:normal;">+ ${i.extras.map(e=>`${e.name} x${e.qty||1}`).join('<br>+ ')}</span>` : '';
-            tb.innerHTML += `<tr><td class="text-left" style="padding: 10px 0; border-bottom: 1px dashed #000;"><b>${bName}</b>${extHtml}</td><td class="text-center" style="font-size:22px; font-weight:bold; padding: 10px 0; border-bottom: 1px dashed #000;">${i.qty}</td></tr>`;
+            if (bName.startsWith("NC ")) { drinkItems.push({n, i, bName}); totalDrink += i.qty; }
+            else { foodItems.push({n, i, bName}); totalFood += i.qty; }
         }
-        document.body.classList.add('print-bep'); window.print(); document.body.classList.remove('print-bep'); 
+
+        let renderItems = (items) => {
+            items.forEach(obj => {
+                let i = obj.i, bName = obj.bName;
+                let extAndNote = [];
+                if (i.extras && i.extras.length > 0) extAndNote.push(`+ ` + i.extras.map(e=>`${e.name} x${e.qty||1}`).join(', '));
+                if (i.note) extAndNote.push(`* GC: ${i.note}`);
+                let subHtml = extAndNote.length > 0 ? `<div style="font-size:15px; font-weight:normal; font-style:italic; margin-top:4px; color:#333;">${extAndNote.join(' | ')}</div>` : '';
+                tb.innerHTML += `<tr><td class="text-left" style="padding: 10px 0; border-bottom: 1px dashed #000;"><b>${bName}</b>${subHtml}</td><td class="text-center" style="font-size:22px; font-weight:bold; padding: 10px 0; border-bottom: 1px dashed #000;">${i.qty}</td></tr>`;
+            });
+        };
+
+        if (foodItems.length > 0) { tb.innerHTML += `<tr><td colspan="2" class="text-center" style="padding: 8px 0; font-size:15px; font-weight:bold; border-bottom: 1px solid #000;">--- PHẦN THỨC ĂN ---</td></tr>`; renderItems(foodItems); }
+        if (drinkItems.length > 0) { tb.innerHTML += `<tr><td colspan="2" class="text-center" style="padding: 8px 0; font-size:15px; font-weight:bold; border-bottom: 1px solid #000;">--- PHẦN THỨC UỐNG ---</td></tr>`; renderItems(drinkItems); }
+        
+        let summaryHtml = [];
+        if (totalFood > 0) summaryHtml.push(`Tổng món: ${totalFood}`);
+        if (totalDrink > 0) summaryHtml.push(`Tổng nước: ${totalDrink}`);
+        tb.innerHTML += `<tr><td colspan="2" class="text-center" style="padding: 12px 0; font-size:18px; font-weight:bold;">${summaryHtml.join(' &nbsp;|&nbsp; ')}</td></tr>`;
+        
+        // TIẾN HÀNH GỌI API IN LAN:
+        printViaAPI('KITCHEN', { table: currentTable, items: orders[currentTable] }).then(apiSuccess => {
+            // Nếu in qua API LAN thất bại (hoặc không có IP), fallback về in qua trình duyệt window.print()
+            if (!apiSuccess) {
+                if (currentPaperSize === 'K58') document.body.classList.add('paper-k58');
+                document.body.classList.add('print-bep'); 
+                window.print();
+                document.body.classList.remove('print-bep', 'paper-k58');
+            }
+        });
+        
+        tableKitchen[currentTable] = true;
+        updateFirebase(PATH_KITCHEN, tableKitchen);
     }
 
-    function printProvisional() {
+    async function printProvisional() {
         if(!currentTable || !orders[currentTable]) return alert("Giỏ hàng trống!");
         let now = new Date(); let timeOutStr = now.toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}) + " " + now.toLocaleDateString('vi-VN');
         let timeInStr = tableTimes[currentTable] || timeOutStr; let total = 0; let staffName = tableStaffs[currentTable] || (currentUser ? currentUser.name : "Admin");
         let tbody = document.getElementById('bill-body'); tbody.innerHTML = ''; 
+        let rawItemsData = {};
         for(let n in orders[currentTable]) { 
             let i = orders[currentTable][n], tTien = i.price * i.qty; total += tTien; 
             let bName = i.baseName || n;
-            let extHtml = (i.extras && i.extras.length > 0) ? `<br><span style="font-style:italic; font-size:11px; color:#555;">+ ${i.extras.map(e=>`${e.name} x${e.qty||1} (+${(e.price*(e.qty||1))/1000}k)`).join('<br>+ ')}</span>` : '';
-            tbody.innerHTML += `<tr><td class="text-left">${bName}${extHtml}</td><td class="text-center">${i.qty}</td><td class="text-right">${i.price/1000}k</td><td class="text-right">${tTien.toLocaleString()}</td></tr>`; 
+            rawItemsData[n] = i;
+            let extraTotal = (i.extras && i.extras.length > 0) ? i.extras.reduce((sum, e) => sum + e.price * (e.qty || 1), 0) : 0;
+            let extHtml = (i.extras && i.extras.length > 0) ? `<div style="font-style:italic; font-size:11px; color:#555; margin-top:3px;">+ ${i.extras.map(e=>`${e.name} x${e.qty||1} (+${(e.price*(e.qty||1))/1000}k)`).join(', ')} <b style="color:#333;">[Cộng: +${extraTotal/1000}k]</b></div>` : '';
+            tbody.innerHTML += `<tr><td class="text-left"><b>${bName}</b>${extHtml}</td><td class="text-center">${i.qty}</td><td class="text-right">${i.price/1000}k</td><td class="text-right">${tTien.toLocaleString()}</td></tr>`; 
         }
-        document.getElementById('bill-type-title').innerText = "PHIẾU TẠM TÍNH"; document.getElementById('bill-no').innerText = "---"; document.getElementById('bill-table').innerText = currentTable; document.getElementById('bill-time-in').innerText = timeInStr; document.getElementById('bill-time-out').innerText = timeOutStr; document.getElementById('bill-staff').innerText = staffName; document.getElementById('bill-method').innerText = "Chưa thanh toán"; document.getElementById('bill-total-price').innerText = total.toLocaleString() + "đ";
+        
+        let discountAmt = 0;
+        if (tableDiscounts[currentTable]) {
+            let d = tableDiscounts[currentTable];
+            if (d.type === 'percent') discountAmt = Math.round(total * d.value / 100); else discountAmt = d.value;
+        }
+        if (discountAmt > total) discountAmt = total;
+        let finalTotal = total - discountAmt;
+
+        let qrString = null; let qrImgHtml = '';
+        if (paymentMethod === 'BANK' && bankID && bankAcc) {
+            try {
+                let addInfo = currentTable.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').replace(/[^a-zA-Z0-9]/g, '');
+                let res = await fetch("https://api.vietqr.io/v2/generate", {
+                    method: "POST", headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ accountNo: bankAcc, accountName: bankName, acqId: bankID, amount: finalTotal, addInfo: "TT " + addInfo, format: "text" })
+                });
+                let json = await res.json();
+                if (json.code === "00") qrString = json.data.qrCode;
+                let qrUrl = `https://img.vietqr.io/image/${bankID}-${bankAcc}-compact2.png?amount=${finalTotal}&addInfo=${encodeURIComponent("TT " + addInfo)}&accountName=${encodeURIComponent(bankName)}`;
+                qrImgHtml = `<div style="text-align:center; margin-top:10px;"><img src="${qrUrl}" style="width:150px; max-width:100%;"><p style="font-size:11px; margin:5px 0; font-weight:bold;">Quét mã QR để thanh toán</p></div>`;
+            } catch(e) { console.error("Lỗi API VietQR", e); }
+        }
+        document.getElementById('bill-qr-code').innerHTML = qrImgHtml;
+
+        document.getElementById('bill-subtotal-price').innerText = total.toLocaleString() + "đ";
+        if (discountAmt > 0) {
+            document.getElementById('bill-discount-row').style.display = 'flex';
+            let dText = tableDiscounts[currentTable].type === 'percent' ? `(${tableDiscounts[currentTable].value}%)` : '';
+            document.getElementById('bill-discount-price').innerText = `-${discountAmt.toLocaleString()}đ ${dText}`;
+        } else { document.getElementById('bill-discount-row').style.display = 'none'; }
+        
+        document.getElementById('bill-type-title').innerText = "PHIẾU TẠM TÍNH"; document.getElementById('bill-no').innerText = "---"; document.getElementById('bill-table').innerText = currentTable; document.getElementById('bill-time-in').innerText = timeInStr; document.getElementById('bill-time-out').innerText = timeOutStr; document.getElementById('bill-staff').innerText = staffName; document.getElementById('bill-method').innerText = "Chưa thanh toán"; document.getElementById('bill-total-price').innerText = finalTotal.toLocaleString() + "đ";
         document.getElementById('bill-given-row').style.display = 'none';
         document.getElementById('bill-change-row').style.display = 'none';
-        document.body.classList.add('print-bill'); window.print(); document.body.classList.remove('print-bill');
+        if (currentPaperSize === 'K58') document.body.classList.add('paper-k58');
+        document.body.classList.add('print-bill'); 
+        window.print();
+        document.body.classList.remove('print-bill', 'paper-k58');
     }
 
     function generateBillNumber() {
@@ -783,17 +1320,38 @@
         for(let n in orders[currentTable]) {
             let i = orders[currentTable][n], tTien = i.price * i.qty; total += tTien; 
             let bName = i.baseName || n, extraStr = (i.extras && i.extras.length > 0) ? ` (+${i.extras.map(e=>`${e.name} x${e.qty||1}`).join(', ')})` : '';
-            excelItems.push(`${bName}${extraStr} x${i.qty}`); rawItemsData[n] = { price: i.price, qty: i.qty, baseName: i.baseName, extras: i.extras || [] };
-            let extHtml = (i.extras && i.extras.length > 0) ? `<br><span style="font-style:italic; font-size:11px; color:#555;">+ ${i.extras.map(e=>`${e.name} x${e.qty||1} (+${(e.price*(e.qty||1))/1000}k)`).join('<br>+ ')}</span>` : '';
-            tbody.innerHTML += `<tr><td class="text-left">${bName}${extHtml}</td><td class="text-center">${i.qty}</td><td class="text-right">${i.price/1000}k</td><td class="text-right">${tTien.toLocaleString()}</td></tr>`;
+            excelItems.push(`${bName}${extraStr}${i.note ? ' ['+i.note+']' : ''} x${i.qty}`); rawItemsData[n] = i;
+            let extraTotal = (i.extras && i.extras.length > 0) ? i.extras.reduce((sum, e) => sum + e.price * (e.qty || 1), 0) : 0;
+            let extHtml = (i.extras && i.extras.length > 0) ? `<div style="font-style:italic; font-size:11px; color:#555; margin-top:3px;">+ ${i.extras.map(e=>`${e.name} x${e.qty||1} (+${(e.price*(e.qty||1))/1000}k)`).join(', ')} <b style="color:#333;">[Cộng: +${extraTotal/1000}k]</b></div>` : '';
+            tbody.innerHTML += `<tr><td class="text-left"><b>${bName}</b>${extHtml}</td><td class="text-center">${i.qty}</td><td class="text-right">${i.price/1000}k</td><td class="text-right">${tTien.toLocaleString()}</td></tr>`;
         }
+
+        let discountAmt = 0;
+        if (tableDiscounts[currentTable]) {
+            let d = tableDiscounts[currentTable];
+            if (d.type === 'percent') discountAmt = Math.round(total * d.value / 100); else discountAmt = d.value;
+        }
+        if (discountAmt > total) discountAmt = total;
+        let finalTotal = total - discountAmt;
+        
+        if (discountAmt > 0) excelItems.push(`[Chiết khấu: -${discountAmt.toLocaleString()}đ]`);
 
         let pMethodText = paymentMethod === 'CASH' ? 'TM TIỀN MẶT' : 'CK CHUYỂN KHOẢN';
         
-        if (paymentMethod === 'BANK') {
-            await syncToCukCuk(billNo, total, excelItems, timeInStr, timeOutStr);
-            alert("✅ Đã gửi dữ liệu thành công sang hệ thống CukCuk!");
+        let qrString = null; let qrImgHtml = '';
+        if (paymentMethod === 'BANK' && bankID && bankAcc) {
+            try {
+                let res = await fetch("https://api.vietqr.io/v2/generate", {
+                    method: "POST", headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ accountNo: bankAcc, accountName: bankName, acqId: bankID, amount: finalTotal, addInfo: billNo, format: "text" })
+                });
+                let json = await res.json();
+                if (json.code === "00") qrString = json.data.qrCode;
+            } catch(e) { console.error("Lỗi API VietQR", e); }
+            let qrUrl = `https://img.vietqr.io/image/${bankID}-${bankAcc}-compact2.png?amount=${finalTotal}&addInfo=${billNo}&accountName=${encodeURIComponent(bankName)}`;
+            qrImgHtml = `<div style="text-align:center; margin-top:10px;"><img src="${qrUrl}" style="width:150px; max-width:100%;"><p style="font-size:11px; margin:5px 0; font-weight:bold;">Quét mã QR để thanh toán</p></div>`;
         }
+        document.getElementById('bill-qr-code').innerHTML = qrImgHtml;
 
         // Đẩy lên Google Sheets
         if (GOOGLE_SHEET_URL.trim() !== "") {
@@ -801,16 +1359,23 @@
                 method: 'POST',
                 mode: 'no-cors',
                 headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: JSON.stringify({ billNo: billNo, table: currentTable, timeIn: timeInStr, timeOut: timeOutStr, itemsText: excelItems.join(", "), total: total, method: pMethodText + " (NV: " + staffName + ")", status: "Thanh toán", cancelReason: "", cancelTime: "" })
+                body: JSON.stringify({ billNo: billNo, table: currentTable, timeIn: timeInStr, timeOut: timeOutStr, itemsText: excelItems.join(", "), total: finalTotal, method: pMethodText + " (NV: " + staffName + ")", status: "Thanh toán", cancelReason: "", cancelTime: "" })
             }).catch(e => console.log("Lỗi gửi Sheets"));
         }
 
-        document.getElementById('bill-type-title').innerText = "HÓA ĐƠN THANH TOÁN"; document.getElementById('bill-no').innerText = billNo; document.getElementById('bill-table').innerText = currentTable; document.getElementById('bill-time-in').innerText = timeInStr; document.getElementById('bill-time-out').innerText = timeOutStr; document.getElementById('bill-staff').innerText = staffName; document.getElementById('bill-method').innerText = pMethodText; document.getElementById('bill-total-price').innerText = total.toLocaleString() + "đ";
+        document.getElementById('bill-subtotal-price').innerText = total.toLocaleString() + "đ";
+        if (discountAmt > 0) {
+            document.getElementById('bill-discount-row').style.display = 'flex';
+            let dText = tableDiscounts[currentTable].type === 'percent' ? `(${tableDiscounts[currentTable].value}%)` : '';
+            document.getElementById('bill-discount-price').innerText = `-${discountAmt.toLocaleString()}đ ${dText}`;
+        } else { document.getElementById('bill-discount-row').style.display = 'none'; }
+
+        document.getElementById('bill-type-title').innerText = "HÓA ĐƠN THANH TOÁN"; document.getElementById('bill-no').innerText = billNo; document.getElementById('bill-table').innerText = currentTable; document.getElementById('bill-time-in').innerText = timeInStr; document.getElementById('bill-time-out').innerText = timeOutStr; document.getElementById('bill-staff').innerText = staffName; document.getElementById('bill-method').innerText = pMethodText; document.getElementById('bill-total-price').innerText = finalTotal.toLocaleString() + "đ";
         
         if (paymentMethod === 'CASH') {
             let givenInput = document.getElementById('cus-given').value.replace(/\D/g, '');
             let given = parseInt(givenInput) || 0;
-            let change = given - total;
+            let change = given - finalTotal;
             document.getElementById('bill-given-row').style.display = 'flex';
             document.getElementById('bill-change-row').style.display = 'flex';
             document.getElementById('bill-given').innerText = given.toLocaleString() + "đ";
@@ -820,16 +1385,32 @@
             document.getElementById('bill-change-row').style.display = 'none';
         }
 
-        orderHistory.unshift({ billNo: billNo, table: currentTable, timeIn: timeInStr, timeOut: timeOutStr, itemsText: excelItems.join(", "), rawItems: rawItemsData, total: total, method: pMethodText, staff: staffName });
+        orderHistory.unshift({ billNo: billNo, table: currentTable, timeIn: timeInStr, timeOut: timeOutStr, itemsText: excelItems.join(", "), rawItems: rawItemsData, total: finalTotal, subTotal: total, discount: discountAmt, method: pMethodText, staff: staffName });
         updateFirebase(PATH_HISTORY, orderHistory);
 
-        document.body.classList.add('print-bill'); window.print(); document.body.classList.remove('print-bill');
+        let payload = {
+            isCopy: false, billNo: billNo, table: currentTable, timeIn: timeInStr, timeOut: timeOutStr,
+            staff: staffName, method: pMethodText, items: rawItemsData, subTotal: total, discount: discountAmt,
+            finalTotal: finalTotal, qrString: qrString
+        };
+
+        printViaAPI('BILL', payload).then(apiSuccess => {
+            if (!apiSuccess) {
+                // Fallback In bằng trình duyệt
+                if (currentPaperSize === 'K58') document.body.classList.add('paper-k58');
+                document.body.classList.add('print-bill'); 
+                window.print();
+                document.body.classList.remove('print-bill', 'paper-k58');
+            }
+        });
         
         setTimeout(() => { 
-            delete orders[currentTable]; delete tableTimes[currentTable]; delete tableStaffs[currentTable];
-            updateFirebase(PATH_ORDERS, orders); updateFirebase(PATH_TIMES, tableTimes); updateFirebase(PATH_STAFFS, tableStaffs);
+            delete orders[currentTable]; delete tableTimes[currentTable]; delete tableStaffs[currentTable]; delete tableDiscounts[currentTable]; delete tableKitchen[currentTable];
+            if(payRequests[currentTable]) { delete payRequests[currentTable]; updateFirebase(PATH_PAY_REQ, payRequests); }
+            updateFirebase(PATH_ORDERS, orders); updateFirebase(PATH_TIMES, tableTimes); updateFirebase(PATH_STAFFS, tableStaffs); updateFirebase(PATH_DISCOUNTS, tableDiscounts); updateFirebase(PATH_KITCHEN, tableKitchen);
             document.getElementById('cus-given').value = '';
             calculateChange();
+            updateDiscountUI();
         }, 500); 
     }
 
@@ -846,8 +1427,8 @@
         for(let n in orders[currentTable]) {
             let i = orders[currentTable][n], bName = i.baseName || n;
             let extraStr = (i.extras && i.extras.length > 0) ? ` (+${i.extras.map(e=>`${e.name} x${e.qty||1}`).join(', ')})` : '';
-            excelItems.push(`${bName}${extraStr} x${i.qty}`); total += i.price * i.qty;
-            rawItemsData[n] = { price: i.price, qty: i.qty, baseName: i.baseName, extras: i.extras || [] };
+            excelItems.push(`${bName}${extraStr}${i.note ? ' ['+i.note+']' : ''} x${i.qty}`); total += i.price * i.qty;
+            rawItemsData[n] = i;
         }
         if (GOOGLE_SHEET_URL.trim() !== "") {
             fetch(GOOGLE_SHEET_URL, {
@@ -861,10 +1442,26 @@
         orderHistory.unshift({ billNo: "HỦY BÀN", table: currentTable, timeIn: tableTimes[currentTable] || cancelTime, timeOut: cancelTime, itemsText: excelItems.join(", "), rawItems: rawItemsData, total: total, method: "HỦY: " + (reason || "Không có lý do"), isCanceled: true, staff: staffName });
         updateFirebase(PATH_HISTORY, orderHistory);
 
-        delete orders[currentTable]; delete tableTimes[currentTable]; delete tableStaffs[currentTable];
-        updateFirebase(PATH_ORDERS, orders); updateFirebase(PATH_TIMES, tableTimes); updateFirebase(PATH_STAFFS, tableStaffs);
+        delete orders[currentTable]; delete tableTimes[currentTable]; delete tableStaffs[currentTable]; delete tableDiscounts[currentTable]; delete tableKitchen[currentTable];
+        if(payRequests[currentTable]) { delete payRequests[currentTable]; updateFirebase(PATH_PAY_REQ, payRequests); }
+        updateFirebase(PATH_ORDERS, orders); updateFirebase(PATH_TIMES, tableTimes); updateFirebase(PATH_STAFFS, tableStaffs); updateFirebase(PATH_DISCOUNTS, tableDiscounts); updateFirebase(PATH_KITCHEN, tableKitchen);
         document.getElementById('cus-given').value = '';
         calculateChange();
+        updateDiscountUI();
+    }
+
+    function switchHistTab(tab) {
+        document.getElementById('history-list-view').style.display = tab === 'list' ? 'block' : 'none';
+        document.getElementById('history-report-view').style.display = tab === 'report' ? 'block' : 'none';
+        let btnList = document.getElementById('tab-hist-list'), btnRep = document.getElementById('tab-hist-report');
+        if (tab === 'list') {
+            btnList.className = "nav-btn active"; btnList.style.background = ""; btnList.style.color = "";
+            btnRep.className = "nav-btn"; btnRep.style.background = "#eee"; btnRep.style.color = "#333";
+        } else {
+            btnRep.className = "nav-btn active"; btnRep.style.background = ""; btnRep.style.color = "";
+            btnList.className = "nav-btn"; btnList.style.background = "#eee"; btnList.style.color = "#333";
+            renderReport();
+        }
     }
 
     function showHistoryModal() {
@@ -872,6 +1469,8 @@
         let today = new Date();
         let yyyy = today.getFullYear(), mm = ('0'+(today.getMonth()+1)).slice(-2), dd = ('0'+today.getDate()).slice(-2);
         document.getElementById('history-date').value = `${yyyy}-${mm}-${dd}`;
+        if (document.getElementById('history-filter-method')) document.getElementById('history-filter-method').value = 'ALL';
+        switchHistTab('list');
         renderHistory();
         document.getElementById('overlay').style.display = 'block'; document.getElementById('history-modal').style.display = 'block';
     }
@@ -879,15 +1478,193 @@
     function renderHistory() {
         let tb = document.getElementById('history-body'); tb.innerHTML = '';
         let dateVal = document.getElementById('history-date').value;
+        let filterMethod = document.getElementById('history-filter-method') ? document.getElementById('history-filter-method').value : 'ALL';
         if (!dateVal) return; let [y, m, d] = dateVal.split('-'); let dNum = parseInt(d, 10), mNum = parseInt(m, 10);
         let dateStr1 = `${d}/${m}/${y}`, dateStr2 = `${dNum}/${mNum}/${y}`;
         let filtered = orderHistory.map((r, i) => ({...r, originalIndex: i})).filter(r => r.timeOut.includes(dateStr1) || r.timeOut.includes(dateStr2));
 
-        if(filtered.length === 0) tb.innerHTML = '<tr><td colspan="7" style="text-align:center;">Không có đơn hàng nào trong ngày này!</td></tr>';
+        if (filterMethod === 'CASH') filtered = filtered.filter(r => !r.isCanceled && r.method.includes('TIỀN MẶT'));
+        else if (filterMethod === 'BANK') filtered = filtered.filter(r => !r.isCanceled && r.method.includes('CHUYỂN KHOẢN'));
+        else if (filterMethod === 'CANCEL') filtered = filtered.filter(r => r.isCanceled);
+
+        let checkAllEl = document.getElementById('check-all-cukcuk');
+        if(checkAllEl) checkAllEl.checked = false;
+
+        if(filtered.length === 0) tb.innerHTML = '<tr><td colspan="8" style="text-align:center;">Không có đơn hàng nào!</td></tr>';
         else filtered.forEach(r => {
             let i = r.originalIndex;
-            let btnHtml = r.isCanceled ? '<span style="color:#e74c3c; font-weight:bold;">Đã Hủy</span>' : `<button class="action-btn" style="background:var(--info)" onclick="editHistory(${i})">Sửa</button> <button class="action-btn" style="background:var(--warning); color:#333;" onclick="copyHistory(${i})">Copy</button> <button class="action-btn" style="background:var(--danger)" onclick="deleteHistory(${i})">Hủy</button>`;
-            tb.innerHTML += `<tr ${r.isCanceled ? 'style="background:#ffebee; color:#c0392b;"' : ''}><td><b>${r.billNo}</b></td><td>${r.table}<br><small style="color:#7f8c8d;">(${r.staff || 'Admin'})</small></td><td>${r.timeOut}</td><td>${r.itemsText}</td><td style="color:var(--danger); font-weight:bold;">${r.total.toLocaleString()}đ</td><td>${r.method}</td><td>${btnHtml}</td></tr>`;
+            let btnHtml = r.isCanceled ? '<span style="color:#e74c3c; font-weight:bold;">Đã Hủy</span>' : `<button class="action-btn" style="background:#8e44ad" onclick="reprintBill(${i})">In Lại</button> <button class="action-btn" style="background:var(--info)" onclick="editHistory(${i})">Sửa</button> <button class="action-btn" style="background:var(--warning); color:#333;" onclick="copyHistory(${i})">Copy</button> <button class="action-btn" style="background:var(--danger)" onclick="deleteHistory(${i})">Hủy</button>`;
+            let cbHtml = r.isCanceled ? '' : `<input type="checkbox" class="cukcuk-cb" value="${i}" ${r.cukcukSynced ? 'checked disabled title="Đã gửi CukCuk"' : ''}>`;
+            let cukcukStatus = r.cukcukSynced ? '<br><small style="color:var(--success); font-weight:bold;">✓ CukCuk</small>' : '';
+            let rowStyle = r.isCanceled ? 'background:#ffebee; color:#c0392b;' : (r.cukcukSynced ? 'background:#eafaf1;' : '');
+            tb.innerHTML += `<tr style="${rowStyle}"><td style="text-align:center;">${cbHtml}</td><td><b>${r.billNo}</b>${cukcukStatus}</td><td>${r.table}<br><small style="color:#7f8c8d;">(${r.staff || 'Admin'})</small></td><td>${r.timeOut}</td><td>${r.itemsText}</td><td style="color:var(--danger); font-weight:bold;">${r.total.toLocaleString()}đ</td><td>${r.method}</td><td>${btnHtml}</td></tr>`;
+        });
+    }
+
+    function toggleAllCukCuk(el) {
+        document.querySelectorAll('.cukcuk-cb:not([disabled])').forEach(cb => cb.checked = el.checked);
+    }
+
+    async function sendSelectedToCukCuk() {
+        let checkboxes = document.querySelectorAll('.cukcuk-cb:checked:not([disabled])');
+        if (checkboxes.length === 0) return alert("Vui lòng chọn ít nhất 1 đơn hàng chưa gửi để gửi sang CukCuk!");
+        if (!confirm(`Xác nhận gửi ${checkboxes.length} đơn hàng sang CukCuk?`)) return;
+
+        let syncCount = 0;
+        for (let cb of checkboxes) {
+            let idx = cb.value;
+            let r = orderHistory[idx];
+            try {
+                let itemsList = r.itemsText.split(", ");
+                await syncToCukCuk(r.billNo, r.total, itemsList, r.timeIn, r.timeOut);
+                orderHistory[idx].cukcukSynced = true;
+                syncCount++;
+            } catch (e) {
+                console.error("Lỗi gửi CukCuk", e);
+            }
+        }
+        
+        if (syncCount > 0) {
+            updateFirebase(PATH_HISTORY, orderHistory);
+            renderHistory();
+            alert(`✅ Đã gửi thành công ${syncCount} đơn hàng sang hệ thống CukCuk!`);
+        }
+    }
+
+    function renderReport() {
+        let dateVal = document.getElementById('history-date').value;
+        if (!dateVal) return; let [y, m, d] = dateVal.split('-'); let dNum = parseInt(d, 10), mNum = parseInt(m, 10);
+        let dateStr1 = `${d}/${m}/${y}`, dateStr2 = `${dNum}/${mNum}/${y}`;
+        let filtered = orderHistory.filter(r => r.timeOut.includes(dateStr1) || r.timeOut.includes(dateStr2));
+        let stats = {}; let revCash = 0, revBank = 0, revCancel = 0, revCukCuk = 0;
+
+        filtered.forEach(r => {
+            if (r.isCanceled) revCancel += r.total;
+            else {
+                if (r.method.includes('TIỀN MẶT')) revCash += r.total;
+                else if (r.method.includes('CHUYỂN KHOẢN')) revBank += r.total;
+                if (r.cukcukSynced) revCukCuk += r.total;
+            }
+            
+            if (r.rawItems) {
+                for(let key in r.rawItems) {
+                    let item = r.rawItems[key]; let bName = item.baseName || key;
+                    if (!stats[bName]) stats[bName] = { in: 0, out: 0, cancel: 0 };
+                    if (r.isCanceled) stats[bName].cancel += item.qty; else stats[bName].out += item.qty;
+
+                    if (item.extras) {
+                        item.extras.forEach(e => {
+                            if (!stats[e.name]) stats[e.name] = { in: 0, out: 0, cancel: 0 };
+                            let eQty = (e.qty || 1) * item.qty;
+                            if (r.isCanceled) stats[e.name].cancel += eQty; else stats[e.name].out += eQty;
+                        });
+                    }
+                }
+            }
+        });
+
+        let html = `<div style="display:flex; gap:20px; margin-top:5px; flex-wrap:wrap;">
+            <div style="flex:1; min-width:250px; background:#f9f9f9; padding:15px; border-radius:8px; border:1px solid #ddd; height: fit-content;">
+                <h4 style="margin-top:0; border-bottom:1px solid #ccc; padding-bottom:5px;">💰 TÀI CHÍNH</h4>
+                <div style="display:flex; justify-content:space-between; margin-bottom:8px;"><span>Tiền mặt (Nhập):</span> <b style="color:var(--success)">${revCash.toLocaleString()}đ</b></div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:8px;"><span>Chuyển khoản (Nhập):</span> <b style="color:var(--info)">${revBank.toLocaleString()}đ</b></div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:8px; padding-bottom:8px; border-bottom:1px dashed #eee;"><span>Doanh thu CukCuk:</span> <b style="color:var(--success)">${revCukCuk.toLocaleString()}đ</b></div>
+                <hr style="border:0; border-top:1px dashed #ccc; margin:10px 0;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:16px;"><span>Tổng Thực Thu:</span> <b style="color:var(--primary)">${(revCash+revBank).toLocaleString()}đ</b></div>
+                <div style="display:flex; justify-content:space-between; margin-top:15px;"><span>Tiền Hóa Đơn Hủy:</span> <b style="color:var(--danger)">${revCancel.toLocaleString()}đ</b></div>
+            </div>
+            <div style="flex:2; min-width:400px; background:#f9f9f9; padding:15px; border-radius:8px; border:1px solid #ddd; max-height:400px; overflow-y:auto;">
+                <h4 style="margin-top:0; border-bottom:1px solid #ccc; padding-bottom:5px;">📦 SẢN PHẨM (Số Lượng)</h4>
+                <table style="width:100%; text-align:left; border-collapse:collapse; font-size:13px;">
+                    <tr><th style="border-bottom:1px solid #ddd; padding:5px;">Tên Món / Topping</th><th style="border-bottom:1px solid #ddd; padding:5px; text-align:center;">Bán Ra</th><th style="border-bottom:1px solid #ddd; padding:5px; text-align:center;">Xuất Hủy</th></tr>`;
+        let hasItems = false;
+        for(let name in stats) {
+            if (stats[name].out > 0 || stats[name].cancel > 0) {
+                hasItems = true;
+                html += `<tr><td style="border-bottom:1px solid #eee; padding:8px 5px;">${name}</td><td style="border-bottom:1px solid #eee; padding:8px 5px; text-align:center; font-weight:bold; color:var(--success);">${stats[name].out}</td><td style="border-bottom:1px solid #eee; padding:8px 5px; text-align:center; color:var(--danger);">${stats[name].cancel}</td></tr>`;
+            }
+        }
+        if (!hasItems) html += `<tr><td colspan="3" style="text-align:center; padding: 10px;">Không có dữ liệu món ăn</td></tr>`;
+        html += `</table></div></div>`; document.getElementById('history-report-view').innerHTML = html;
+    }
+
+    async function reprintBill(i) {
+        let r = orderHistory[i];
+        if (!r) return;
+        
+        let total = 0;
+        let tbody = document.getElementById('bill-body'); tbody.innerHTML = '';
+        
+        for(let key in r.rawItems) {
+            let item = r.rawItems[key];
+            let tTien = item.price * item.qty; total += tTien;
+            let bName = item.baseName || key;
+            let extraTotal = (item.extras && item.extras.length > 0) ? item.extras.reduce((sum, e) => sum + e.price * (e.qty || 1), 0) : 0;
+            let extHtml = (item.extras && item.extras.length > 0) ? `<div style="font-style:italic; font-size:11px; color:#555; margin-top:3px;">+ ${item.extras.map(e=>`${e.name} x${e.qty||1} (+${(e.price*(e.qty||1))/1000}k)`).join(', ')} <b style="color:#333;">[Cộng: +${extraTotal/1000}k]</b></div>` : '';
+            tbody.innerHTML += `<tr><td class="text-left"><b>${bName}</b>${extHtml}</td><td class="text-center">${item.qty}</td><td class="text-right">${item.price/1000}k</td><td class="text-right">${tTien.toLocaleString()}</td></tr>`;
+        }
+
+        let subTotal = r.subTotal || total;
+        let discountAmt = r.discount || 0;
+        let finalTotal = r.total || (subTotal - discountAmt);
+
+        let qrString = null; let qrImgHtml = '';
+        if (r.method.includes('CHUYỂN KHOẢN') && bankID && bankAcc) {
+            try {
+                let res = await fetch("https://api.vietqr.io/v2/generate", {
+                    method: "POST", headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ accountNo: bankAcc, accountName: bankName, acqId: bankID, amount: finalTotal, addInfo: r.billNo, format: "text" })
+                });
+                let json = await res.json();
+                if (json.code === "00") qrString = json.data.qrCode;
+            } catch(e) { console.error("Lỗi API VietQR", e); }
+            let qrUrl = `https://img.vietqr.io/image/${bankID}-${bankAcc}-compact2.png?amount=${finalTotal}&addInfo=${r.billNo}&accountName=${encodeURIComponent(bankName)}`;
+            qrImgHtml = `<div style="text-align:center; margin-top:10px;"><img src="${qrUrl}" style="width:150px; max-width:100%;"><p style="font-size:11px; margin:5px 0; font-weight:bold;">Quét mã QR để thanh toán</p></div>`;
+        }
+
+        let payload = {
+            isCopy: true,
+            billNo: r.billNo,
+            table: r.table,
+            timeIn: r.timeIn,
+            timeOut: r.timeOut,
+            staff: r.staff || "Admin",
+            method: r.method,
+            items: r.rawItems,
+            subTotal: subTotal,
+            discount: discountAmt,
+            finalTotal: finalTotal,
+            qrString: qrString
+        };
+
+        // GỌI API IN LAN TRƯỚC
+        printViaAPI('BILL', payload).then(apiSuccess => {
+            if (!apiSuccess) {
+                // FALLBACK TRÌNH DUYỆT NẾU LỖI
+                document.getElementById('bill-qr-code').innerHTML = qrImgHtml;
+                document.getElementById('bill-subtotal-price').innerText = subTotal.toLocaleString() + "đ";
+                if (discountAmt > 0) {
+                    document.getElementById('bill-discount-row').style.display = 'flex';
+                    document.getElementById('bill-discount-price').innerText = `-${discountAmt.toLocaleString()}đ`;
+                } else { document.getElementById('bill-discount-row').style.display = 'none'; }
+
+                document.getElementById('bill-type-title').innerText = "HÓA ĐƠN THANH TOÁN (BẢN SAO)"; 
+                document.getElementById('bill-no').innerText = r.billNo; 
+                document.getElementById('bill-table').innerText = r.table; 
+                document.getElementById('bill-time-in').innerText = r.timeIn; 
+                document.getElementById('bill-time-out').innerText = r.timeOut; 
+                document.getElementById('bill-staff').innerText = r.staff || "Admin"; 
+                document.getElementById('bill-method').innerText = r.method; 
+                document.getElementById('bill-total-price').innerText = finalTotal.toLocaleString() + "đ";
+                
+                document.getElementById('bill-given-row').style.display = 'none';
+                document.getElementById('bill-change-row').style.display = 'none';
+
+                if (currentPaperSize === 'K58') document.body.classList.add('paper-k58');
+                document.body.classList.add('print-bill'); 
+                window.print();
+                document.body.classList.remove('print-bill', 'paper-k58');
+            }
         });
     }
 
