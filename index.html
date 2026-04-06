@@ -41,6 +41,19 @@
         .dash-time { font-size: 11px; color: #7f8c8d; font-weight: bold; margin-top: 8px; display: inline-block; padding: 3px 8px; background: #eee; border-radius: 15px;}
         .dash-card.occupied .dash-time { background: #fadbd8; color: var(--danger); }
 
+        /* --- ĐƠN APP (GRAB / SHOPEE) --- */
+        .dash-card.occupied.app-grab { border-color: #00b14f; background: #e8f8ee; box-shadow: 0 4px 10px rgba(0, 177, 79, 0.2); }
+        .dash-card.occupied.app-grab .dash-card-title { color: #00b14f; }
+        .dash-card.occupied.app-grab .dash-time { background: #c1f0d5; color: #00b14f; }
+        .table-btn.occupied.app-grab { border-color: #00b14f; background: #e8f8ee; }
+        .table-btn.occupied.app-grab .stt-dang-an { color: #00b14f; }
+
+        .dash-card.occupied.app-shopee { border-color: #ee4d2d; background: #fdf0ed; box-shadow: 0 4px 10px rgba(238, 77, 45, 0.2); }
+        .dash-card.occupied.app-shopee .dash-card-title { color: #ee4d2d; }
+        .dash-card.occupied.app-shopee .dash-time { background: #fad8d1; color: #ee4d2d; }
+        .table-btn.occupied.app-shopee { border-color: #ee4d2d; background: #fdf0ed; }
+        .table-btn.occupied.app-shopee .stt-dang-an { color: #ee4d2d; }
+
         /* --- TRẠNG THÁI ĐÃ BÁO BẾP --- */
         .dash-card.occupied.kitchen-notified { border-color: #e67e22; background: #fdf2e9; box-shadow: 0 4px 10px rgba(230, 126, 34, 0.2); }
         .dash-card.occupied.kitchen-notified .dash-card-title { color: #d35400; }
@@ -48,10 +61,36 @@
         .table-btn.occupied.kitchen-notified { border-color: #e67e22; background: #fdf2e9; }
         .table-btn.occupied.kitchen-notified .stt-dang-an { color: #d35400; }
 
+        /* --- TRẠNG THÁI ĐÃ RA MÓN --- */
+        .dash-card.occupied.served-status { border-color: var(--success); background: #eafaf1; box-shadow: 0 4px 10px rgba(39, 174, 96, 0.2); }
+        .dash-card.occupied.served-status .dash-card-title { color: #27ae60; }
+        .dash-card.occupied.served-status .dash-time { background: #d5f5e3; color: #27ae60; }
+        .table-btn.occupied.served-status { border-color: var(--success); background: #eafaf1; }
+        .table-btn.occupied.served-status .stt-dang-an { color: #27ae60 !important; }
+
         @keyframes blinkPay { 0% { background-color: #fff; } 50% { background-color: #fef9e7; border-color: #f39c12; box-shadow: 0 0 15px rgba(243, 156, 18, 0.5);} 100% { background-color: #fff; } }
+        @keyframes blinkDanger { 0% { background-color: #fff; } 50% { background-color: #fadbd8; border-color: var(--danger); box-shadow: 0 0 15px rgba(231, 76, 60, 0.6);} 100% { background-color: #fff; } }
+        
+        .dash-card.warning-delay, .table-btn.warning-delay { animation: blinkDanger 1s infinite !important; border: 2px solid var(--danger) !important; z-index: 1; }
+        .dash-card.warning-delay .dash-card-title { color: var(--danger) !important; }
+        .dash-card.warning-delay .dash-time { background: var(--danger) !important; color: white !important; }
+
         .dash-card.req-pay, .table-btn.req-pay { animation: blinkPay 1s infinite; border: 2px solid var(--warning) !important; }
         .dash-card.req-pay .dash-card-title { color: #d35400; }
 
+        /* --- TRANG KHO HÀNG --- */
+        #page-kho { display: none; flex: 1; padding: 20px; overflow-y: auto; background: #fff; flex-direction: column; }
+        .kho-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--info); padding-bottom: 10px; margin-bottom: 20px; }
+        .kho-tabs { display: flex; gap: 10px; }
+        .kho-tab-btn { padding: 8px 15px; border: 1px solid #ccc; border-radius: 5px; cursor: pointer; font-weight: bold; background: #eee; color: #555; }
+        .kho-tab-btn.active { background: var(--info); color: white; border-color: var(--info); }
+        .kho-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 14px; }
+        .kho-table th, .kho-table td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        .kho-table th { background: #f4f7f6; position: sticky; top: 0; }
+        .kho-input { padding: 6px; border: 1px solid #ccc; border-radius: 4px; width: 80px; text-align: center; font-weight: bold; }
+        .kho-action-btn { padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; color: white; font-weight: bold; font-size: 12px; }
+        .kho-panel { background: #f9f9f9; padding: 15px; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 20px; }
+        
         /* TRANG 2: GIAO DIỆN BÁN HÀNG (POS) */
         #page-pos { display: none; flex: 1; width: 100%; overflow: hidden; }
         .sidebar { width: 200px; background: #fff; border-right: 1px solid #ddd; padding: 15px; overflow-y: auto; }
@@ -174,6 +213,7 @@
         <h2 style="margin:0; font-size: 18px;">BÁNH CANH THANH QUYÊN</h2>
         <button class="nav-btn active" id="nav-dash" onclick="switchPage('dash')">📊 SƠ ĐỒ BÀN</button>
         <button class="nav-btn" id="nav-pos" onclick="switchPage('pos')">🛒 BÁN HÀNG</button>
+        <button class="nav-btn" id="nav-kho" onclick="switchPage('kho')">📦 KHO HÀNG</button>
         <span id="network-status">Đang kết nối...</span>
     </div>
     <div class="admin-input">
@@ -249,14 +289,64 @@
                         <span id="cus-change">0đ</span>
                     </div>
                 </div>
-                <div class="btn-group-cart">
-                    <button class="btn" style="background:#e67e22;" onclick="printKitchen()">👨‍🍳 BÁO BẾP</button>
-                    <button class="btn" style="background:#8e44ad;" onclick="printProvisional()">🖨 TẠM TÍNH</button>
-                    <button class="btn" style="background:#95a5a6;" onclick="clearCurrentTable()">HỦY ĐƠN</button>
+                <div class="btn-group-cart" style="flex-wrap: wrap;">
+                    <button class="btn" style="background:#e67e22; flex-basis: calc(50% - 4px);" onclick="printKitchen()">👨‍🍳 BÁO BẾP</button>
+                    <button class="btn" style="background:var(--success); flex-basis: calc(50% - 4px);" onclick="markAsServed()">✔️ ĐÃ RA MÓN</button>
+                    <button class="btn" style="background:#8e44ad; flex-basis: calc(50% - 4px);" onclick="printProvisional()">🖨 TẠM TÍNH</button>
+                    <button class="btn" style="background:#95a5a6; flex-basis: calc(50% - 4px);" onclick="clearCurrentTable()">HỦY ĐƠN</button>
                 </div>
                 <button class="btn" id="btn-pay" style="background:var(--success); width:100%; padding: 15px; font-size: 16px;" onclick="processPayment()">THANH TOÁN & IN BILL</button>
             </div>
         </div>
+    </div>
+</div>
+
+<!-- TRANG KHO HÀNG -->
+<div id="page-kho">
+    <div class="kho-header">
+        <div class="kho-tabs">
+            <button class="kho-tab-btn active" id="tab-kho-ton" onclick="switchKhoTab('ton')">📋 Quản Lý Tồn Kho</button>
+            <button class="kho-tab-btn" id="tab-kho-dat" onclick="switchKhoTab('dat')">🛒 Lên Đơn Nhập Hàng</button>
+            <button class="kho-tab-btn" id="tab-kho-ls" onclick="switchKhoTab('ls')">🕒 Lịch Sử Đặt Hàng</button>
+        </div>
+        <div>
+            <button class="kho-action-btn" style="background:var(--success);" onclick="exportKhoExcel()">⬇ Xuất Excel Báo Cáo Kho</button>
+        </div>
+    </div>
+
+    <div id="kho-ton-view">
+        <div class="kho-panel" style="display: flex; gap: 10px; align-items: center;">
+            <b>Thêm nguyên liệu mới:</b>
+            <input type="text" id="new-inv-name" placeholder="Tên (VD: Bánh canh, Thịt...)" style="padding:8px; border:1px solid #ccc; border-radius:4px; flex:1;">
+            <input type="text" id="new-inv-unit" placeholder="ĐVT (kg, bó, cái...)" style="padding:8px; border:1px solid #ccc; border-radius:4px; width:120px;">
+            <input type="number" id="new-inv-stock" placeholder="Tồn đầu kỳ" style="padding:8px; border:1px solid #ccc; border-radius:4px; width:120px;">
+            <button class="kho-action-btn" style="background:var(--info);" onclick="addInvItem()">+ THÊM</button>
+        </div>
+        <table class="kho-table">
+            <thead><tr><th>Mã NL</th><th>Tên Nguyên Liệu</th><th>Đơn Vị Tính</th><th>Tồn Hiện Tại</th><th>Thao Tác</th></tr></thead>
+            <tbody id="kho-ton-body"></tbody>
+        </table>
+    </div>
+
+    <div id="kho-dat-view" style="display: none;">
+        <div class="kho-panel" style="background: #eafaf1; border-color: #a2d9ce;">
+            <h3 style="margin-top:0; color:#27ae60;">LẬP PHIẾU ĐẶT HÀNG CHO NGÀY MAI</h3>
+            <p style="font-size: 13px; color: #555; margin-bottom: 15px;">Nhân viên điền số lượng cần mua vào cột bên dưới, các nguyên liệu không điền sẽ được bỏ qua. Sau đó bấm CHỐT ĐƠN.</p>
+            <table class="kho-table" style="background: white;">
+                <thead><tr><th>Tên Nguyên Liệu</th><th>Đơn Vị Tính</th><th>Tồn Hiện Tại</th><th style="background:#fef9e7;">Số Lượng Cần Mua Nhập</th></tr></thead>
+                <tbody id="kho-dat-body"></tbody>
+            </table>
+            <div style="text-align: right; margin-top: 15px;">
+                <button class="kho-action-btn" style="background:#e67e22; padding: 10px 20px; font-size: 15px;" onclick="submitDailyOrder()">📝 CHỐT ĐƠN ĐẶT HÀNG</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="kho-ls-view" style="display: none;">
+        <table class="kho-table">
+            <thead><tr><th>Ngày Đặt</th><th>Người Đặt</th><th>Chi Tiết Hàng Cần Nhập</th><th>Trạng Thái</th></tr></thead>
+            <tbody id="kho-ls-body"></tbody>
+        </table>
     </div>
 </div>
 
@@ -345,6 +435,18 @@
         <label style="font-weight: bold; display: block; margin-bottom: 5px;">Gợi ý ghi chú nhanh (Cách nhau bằng dấu phẩy):</label>
         <textarea id="quick-notes-input" rows="3" placeholder="VD: Không hành phi, Ít cay..." style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; box-sizing: border-box;"></textarea>
     </div>
+    <div style="margin-bottom: 15px;" id="admin-app-config">
+        <label style="font-weight: bold; display: block; margin-bottom: 5px;">Kết nối App Giao Hàng (GrabFood / ShopeeFood):</label>
+        <div style="display: flex; gap: 5px; margin-bottom: 5px;">
+            <input type="text" id="grab-id-input" placeholder="Grab Merchant ID" style="flex:1; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; box-sizing: border-box;">
+            <input type="password" id="grab-token-input" placeholder="Grab API Token" style="flex:1.5; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; box-sizing: border-box;">
+        </div>
+        <div style="display: flex; gap: 5px;">
+            <input type="text" id="shopee-id-input" placeholder="Shopee Merchant ID" style="flex:1; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; box-sizing: border-box;">
+            <input type="password" id="shopee-token-input" placeholder="Shopee API Token" style="flex:1.5; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; box-sizing: border-box;">
+        </div>
+        <p style="font-size: 11px; color: #7f8c8d; margin-top: 5px; font-style: italic;">* Lưu ý: Bạn cần đăng ký đối tác API với Grab/Shopee để lấy mã kết nối.</p>
+    </div>
     <button onclick="saveSettings()" style="width: 100%; padding: 10px; background: var(--success); color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 14px;">LƯU CÀI ĐẶT</button>
 </div>
 
@@ -427,6 +529,9 @@
     const PATH_DISCOUNTS = 'pos_thanhquyen/discounts';
     const PATH_BANK_TRANS = 'pos_thanhquyen/bank_trans';
     const PATH_KITCHEN = 'pos_thanhquyen/kitchen';
+    const PATH_SERVED = 'pos_thanhquyen/served';
+    const PATH_INVENTORY = 'pos_thanhquyen/inventory';
+    const PATH_INV_ORDERS = 'pos_thanhquyen/inv_orders';
 
     // DỮ LIỆU MẶC ĐỊNH
     const defaultMenuData = {
@@ -457,6 +562,9 @@
     const defaultNotesData = ["Không hành phi", "Không hành lá", "Không tỏi phi", "Không huyết", "Không tiêu", "Rau trụng", "Ít bánh", "Trộn nhạt"];
     let tableDiscounts = {};
     let tableKitchen = {};
+    let tableServed = {};
+    let inventoryDB = {};
+    let invOrdersDB = {};
     let currentTable = null; let paymentMethod = 'CASH'; let activeTab = 'main'; let activeNoodle = 'Bánh Canh'; let isDryMode = false;
     let currentPage = 'dash'; let currentTotal = 0; let currentFinalTotal = 0;
     let selectedCartItemKey = null;
@@ -465,6 +573,10 @@
     let bankID = localStorage.getItem('bankID') || '';
     let bankAcc = localStorage.getItem('bankAcc') || '';
     let bankName = localStorage.getItem('bankName') || '';
+    let grabStoreID = localStorage.getItem('grabStoreID') || '';
+    let grabToken = localStorage.getItem('grabToken') || '';
+    let shopeeStoreID = localStorage.getItem('shopeeStoreID') || '';
+    let shopeeToken = localStorage.getItem('shopeeToken') || '';
 
     function verifyPIN() { 
         if (currentUser && currentUser.role === 'admin') return true;
@@ -495,16 +607,7 @@
         document.getElementById('btn-users').style.display = isAdmin ? 'inline-block' : 'none';
         if(document.getElementById('btn-settings')) document.getElementById('btn-settings').style.display = isAdmin ? 'inline-block' : 'none';
         
-        let btnPay = document.getElementById('btn-pay');
-        if (isAdmin) {
-            btnPay.innerText = "THANH TOÁN & IN BILL";
-            btnPay.onclick = processPayment;
-            btnPay.style.background = "var(--success)";
-        } else {
-            btnPay.innerText = "🛎️ BÁO THU NGÂN";
-            btnPay.onclick = requestPayment;
-            btnPay.style.background = "#e67e22";
-        }
+        updatePayButtonUI();
         
         let pEl = document.getElementById('discount-percent'); let aEl = document.getElementById('discount-amount');
         if (pEl && aEl) {
@@ -515,13 +618,42 @@
         renderTables(); renderMenu();
     }
 
+    function updatePayButtonUI() {
+        let btnPay = document.getElementById('btn-pay');
+        if (!btnPay) return;
+        let isAdmin = currentUser && currentUser.role === 'admin';
+        if (isAdmin) {
+            if (currentTable && (currentTable.startsWith("Grab") || currentTable.startsWith("Shopee"))) {
+                btnPay.innerText = "✔️ HOÀN THÀNH ĐƠN APP";
+            } else {
+                btnPay.innerText = "THANH TOÁN & IN BILL";
+            }
+            btnPay.onclick = processPayment;
+            btnPay.style.background = "var(--success)";
+        } else {
+            btnPay.innerText = "🛎️ BÁO THU NGÂN";
+            btnPay.onclick = requestPayment;
+            btnPay.style.background = "#e67e22";
+        }
+    }
+
     function switchPage(page) {
         currentPage = page;
         document.getElementById('page-pos').style.display = (page === 'pos') ? 'flex' : 'none';
         document.getElementById('page-dashboard').style.display = (page === 'dash') ? 'flex' : 'none';
+        document.getElementById('page-kho').style.display = (page === 'kho') ? 'flex' : 'none';
+        
         document.getElementById('nav-pos').classList.toggle('active', page === 'pos');
         document.getElementById('nav-dash').classList.toggle('active', page === 'dash');
+        document.getElementById('nav-kho').classList.toggle('active', page === 'kho');
+        
         if(page === 'dash') renderDashboard();
+        if(page === 'kho') {
+            // Yêu cầu quyền khi vào kho (Admin hoặc Nhân viên kho đều được, tạm thời mở cho mọi người, nếu muốn khóa thì thêm code verifyPIN)
+            renderInventory();
+            renderInventoryOrderForm();
+            renderInventoryOrdersHistory();
+        }
     }
 
     function initFirebaseListeners() {
@@ -581,6 +713,11 @@
             renderTables(); if(currentPage === 'dash') renderDashboard();
         });
 
+        db.ref(PATH_SERVED).on('value', snap => {
+            tableServed = snap.val() || {};
+            renderTables(); if(currentPage === 'dash') renderDashboard();
+        });
+
         let isFirstLoadTrans = true;
         db.ref(PATH_BANK_TRANS).limitToLast(1).on('child_added', snap => {
             if (isFirstLoadTrans) { 
@@ -590,6 +727,16 @@
             }
             let tx = snap.val();
             if (tx && tx.amount) showTingTingToast(tx.amount, tx.content);
+        });
+
+        db.ref(PATH_INVENTORY).on('value', snap => {
+            inventoryDB = snap.val() || {};
+            if(currentPage === 'kho') { renderInventory(); renderInventoryOrderForm(); }
+        });
+        
+        db.ref(PATH_INV_ORDERS).on('value', snap => {
+            invOrdersDB = snap.val() || {};
+            if(currentPage === 'kho') renderInventoryOrdersHistory();
         });
     }
 
@@ -643,10 +790,66 @@
     }
 
     function clearKitchenStatus(t) {
-        if(tableKitchen[t]) {
-            delete tableKitchen[t];
-            updateFirebase(PATH_KITCHEN, tableKitchen);
+        let changedKit = false, changedServ = false;
+        if(tableKitchen[t]) { delete tableKitchen[t]; changedKit = true; }
+        if(tableServed[t]) { delete tableServed[t]; changedServ = true; }
+        if (changedKit) updateFirebase(PATH_KITCHEN, tableKitchen);
+        if (changedServ) updateFirebase(PATH_SERVED, tableServed);
+    }
+
+    function markAsServed() {
+        if(!currentTable || !orders[currentTable]) return alert("Bàn trống!");
+        if(!tableKitchen[currentTable] && !tableServed[currentTable]) return alert("Bàn chưa được báo bếp!");
+        if(tableServed[currentTable]) return alert("Bàn này đã xác nhận ra món rồi!");
+        tableServed[currentTable] = new Date().toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}) + " " + new Date().toLocaleDateString('vi-VN');
+        updateFirebase(PATH_SERVED, tableServed);
+    }
+
+    function cleanupEmptyTakeawayTables(t) {
+        if (!tablesDB["Mang về"]) return;
+        if (tablesDB["Mang về"].includes(t)) {
+            let keepList = ["MV 1", "MV 2", "MV 3", "MV 4", "MV 5", "MV 6"];
+            // Tự động xóa các bàn Mang Về/App phát sinh sau khi trống
+            if (!keepList.includes(t)) {
+                let idx = tablesDB["Mang về"].indexOf(t);
+                if (idx > -1) {
+                    tablesDB["Mang về"].splice(idx, 1);
+                    updateFirebase(PATH_TABLES, tablesDB);
+                    if (currentTable === t) {
+                        currentTable = null; 
+                        document.getElementById('target-table').innerText = "Chọn bàn..."; 
+                        document.getElementById('cart-details').innerHTML = ''; 
+                        document.getElementById('total-val').innerText = '0đ';
+                    }
+                }
+            }
         }
+    }
+
+    function addTakeawayOrder(promptForName = false) {
+        let newTable = "";
+        if (promptForName) {
+            newTable = prompt("Nhập tên khách hàng / Tên đơn:");
+            if (!newTable || newTable.trim() === "") return;
+            newTable = newTable.trim();
+        } else {
+            if (!tablesDB["Mang về"]) tablesDB["Mang về"] = [];
+            let num = 1;
+            while (tablesDB["Mang về"].includes("MV " + num) || orders["MV " + num]) {
+                num++;
+            }
+            newTable = "MV " + num;
+        }
+        
+        if (Object.values(tablesDB).flat().includes(newTable)) {
+            switchPage('pos'); selectTable(newTable); return; 
+        }
+        
+        if (!tablesDB["Mang về"]) tablesDB["Mang về"] = [];
+        tablesDB["Mang về"].push(newTable);
+        updateFirebase(PATH_TABLES, tablesDB);
+        switchPage('pos');
+        selectTable(newTable);
     }
 
     function renderDashboard() {
@@ -658,16 +861,44 @@
             if(idxA === -1) idxA = 99; if(idxB === -1) idxB = 99; return idxA - idxB;
         });
 
+        let now = Date.now();
+
         sortedZones.forEach(zone => {
             let tablesInZone = tablesDB[zone] || [];
             let occupiedCount = tablesInZone.filter(t => orders[t] && Object.keys(orders[t]).length > 0).length;
-            let zoneHtml = `<div class="dash-zone"><h3 class="dash-zone-title">${zone} <span style="color:var(--danger); font-size: 14px;">(${occupiedCount} bàn đang ăn)</span></h3><div class="dash-grid">`;
+            
+            // Tách các bàn bị trễ món (quá 15 phút = 900000ms) lên đầu
+            let delayedT = []; let normalT = [];
             tablesInZone.forEach(t => {
                 let occ = orders[t] && Object.keys(orders[t]).length > 0;
-                let timeInStr = occ && tableTimes[t] ? tableTimes[t].split(" ")[0] : ""; 
+                let isDelayed = false;
+                if (occ && tableTimes[t] && !tableServed[t]) {
+                    let startMs = parseTimeStr(tableTimes[t]);
+                    if (startMs > 0 && (now - startMs) > 900000) isDelayed = true;
+                }
+                if (isDelayed) delayedT.push(t); else normalT.push(t);
+            });
+            let sortedTables = [...delayedT, ...normalT];
+
+            let titleExtra = zone === "Mang về" ? `<button onclick="event.stopPropagation(); addTakeawayOrder(true)" style="background:#e67e22; color:white; border:none; padding:4px 12px; border-radius:5px; font-size:13px; cursor:pointer; font-weight:bold; margin-left:10px;">+ TÊN KHÁCH</button> <button onclick="event.stopPropagation(); addTakeawayOrder(false)" style="background:var(--info); color:white; border:none; padding:4px 12px; border-radius:5px; font-size:13px; cursor:pointer; font-weight:bold; margin-left:5px;">+ TẠO NHANH</button>` : '';
+            let zoneHtml = `<div class="dash-zone"><h3 class="dash-zone-title"><span style="display:flex; align-items:center;">${zone} <span style="color:var(--danger); font-size: 14px; margin-left: 8px;">(${occupiedCount} đơn)</span></span> <div>${titleExtra}</div></h3><div class="dash-grid">`;
+            sortedTables.forEach(t => {
+                let occ = orders[t] && Object.keys(orders[t]).length > 0;
                 let reqPayCls = payRequests[t] ? 'req-pay' : '';
                 let kitchenCls = tableKitchen[t] ? 'kitchen-notified' : '';
-                zoneHtml += `<div class="dash-card ${occ ? 'occupied' : ''} ${kitchenCls} ${reqPayCls}" onclick="goToTableFromDash('${t}')"><div class="dash-card-title">🍽️ ${t}</div><div class="dash-time">${occ ? '⏳ ' + timeInStr : 'Trống'}</div></div>`;
+                let servedCls = tableServed[t] ? 'served-status' : '';
+                let delayCls = delayedT.includes(t) ? 'warning-delay' : '';
+                
+                let appCls = t.startsWith("Grab") ? 'app-grab' : (t.startsWith("Shopee") ? 'app-shopee' : '');
+                
+                let timeHtml = 'Trống';
+                if (occ && tableTimes[t]) {
+                    timeHtml = `⏱ <span class="live-timer" data-table="${t}">0p 0s</span>`;
+                    if (tableServed[t]) timeHtml += `<br>Đã ra món: <span class="prep-timer" data-table="${t}">...</span>`;
+                }
+                
+                let icon = appCls ? '🛵' : '🍽️';
+                zoneHtml += `<div class="dash-card ${occ ? 'occupied' : ''} ${appCls} ${kitchenCls} ${servedCls} ${reqPayCls} ${delayCls}" onclick="goToTableFromDash('${t}')"><div class="dash-card-title">${icon} ${t}</div><div class="dash-time">${timeHtml}</div></div>`;
             });
             zoneHtml += `</div></div>`; el.innerHTML += zoneHtml;
         });
@@ -684,19 +915,47 @@
             if(idxA === -1) idxA = 99; if(idxB === -1) idxB = 99; return idxA - idxB;
         });
 
+        let now = Date.now();
+
         sortedZones.forEach(zone => {
-            el.innerHTML += `<div class="zone-header">${zone.toUpperCase()} <button class="btn-add-table" onclick="addTablePrompt('${zone}')">+</button></div>`;
+            let titleExtra = zone === "Mang về" ? `<button class="btn-add-table" style="background:#e67e22; margin-right:4px;" onclick="addTakeawayOrder(true)" title="Tên khách">📝 Tên</button><button class="btn-add-table" style="margin-right:4px;" onclick="addTakeawayOrder(false)" title="Tạo nhanh">⚡ Nhanh</button>` : '';
+            el.innerHTML += `<div class="zone-header"><span>${zone.toUpperCase()}</span> <span style="display:flex;">${titleExtra}<button class="btn-add-table" onclick="addTablePrompt('${zone}')" title="Thêm bàn thủ công">+</button></span></div>`;
             let zCon = document.createElement('div'); zCon.style.display = 'flex'; zCon.style.flexDirection = 'column'; zCon.style.gap = '6px';
-            (tablesDB[zone] || []).forEach((t, i) => {
+            
+            let tablesInZone = tablesDB[zone] || [];
+            let delayedT = []; let normalT = [];
+            tablesInZone.forEach(t => {
+                let occ = orders[t] && Object.keys(orders[t]).length > 0;
+                let isDelayed = false;
+                if (occ && tableTimes[t] && !tableServed[t]) {
+                    let startMs = parseTimeStr(tableTimes[t]);
+                    if (startMs > 0 && (now - startMs) > 900000) isDelayed = true;
+                }
+                if (isDelayed) delayedT.push(t); else normalT.push(t);
+            });
+            let sortedTables = [...delayedT, ...normalT];
+
+            sortedTables.forEach(t => {
+                let i = tablesDB[zone].indexOf(t);
                 let occ = orders[t] && Object.keys(orders[t]).length > 0;
                 let reqPayCls = payRequests[t] ? 'req-pay' : '';
                 let kitchenCls = tableKitchen[t] ? 'kitchen-notified' : '';
-                let btnHtml = `<div class="table-btn ${currentTable === t ? 'active' : ''} ${occ ? 'occupied' : ''} ${kitchenCls} ${reqPayCls}" onclick="selectTable('${t}')">`;
+                let servedCls = tableServed[t] ? 'served-status' : '';
+                let delayCls = delayedT.includes(t) ? 'warning-delay' : '';
+                let appCls = t.startsWith("Grab") ? 'app-grab' : (t.startsWith("Shopee") ? 'app-shopee' : '');
+
+                let btnHtml = `<div class="table-btn ${currentTable === t ? 'active' : ''} ${occ ? 'occupied' : ''} ${appCls} ${kitchenCls} ${servedCls} ${reqPayCls} ${delayCls}" onclick="selectTable('${t}')">`;
                 if(!occ && currentUser && currentUser.role === 'admin') {
                     btnHtml += `<button class="btn-edit-table" title="Đổi tên bàn" onclick="event.stopPropagation(); editTablePrompt('${zone}', ${i})">✎</button>`;
                     btnHtml += `<button class="btn-del-table" title="Xóa bàn" onclick="event.stopPropagation(); deleteTable('${zone}', ${i})">✖</button>`;
                 }
-                btnHtml += `🍽️ ${t} ${occ ? `<span class="stt-dang-an">${kitchenCls ? '(Đã báo bếp)' : '(Đang ăn)'}</span>` : ''}</div>`;
+                let sttHtml = '';
+                if (occ) {
+                    let sttText = servedCls ? 'Đã ra món' : (kitchenCls ? 'Đã báo bếp' : 'Đang ăn');
+                    sttHtml = `<span class="stt-dang-an">(${sttText}) ⏱ <span class="live-timer" data-table="${t}">0p 0s</span></span>`;
+                }
+                let icon = appCls ? '🛵' : '🍽️';
+                btnHtml += `${icon} ${t} ${sttHtml}</div>`;
                 zCon.innerHTML += btnHtml;
             });
             el.appendChild(zCon);
@@ -720,6 +979,7 @@
         if (orders[oldName]) { orders[newName] = orders[oldName]; delete orders[oldName]; updateFirebase(PATH_ORDERS, orders); }
         if (tableTimes[oldName]) { tableTimes[newName] = tableTimes[oldName]; delete tableTimes[oldName]; updateFirebase(PATH_TIMES, tableTimes); }
         if (tableKitchen[oldName]) { tableKitchen[newName] = tableKitchen[oldName]; delete tableKitchen[oldName]; updateFirebase(PATH_KITCHEN, tableKitchen); }
+        if (tableServed[oldName]) { tableServed[newName] = tableServed[oldName]; delete tableServed[oldName]; updateFirebase(PATH_SERVED, tableServed); }
         if (currentTable === oldName) { currentTable = newName; document.getElementById('target-table').innerText = "Đơn: " + newName; }
         updateFirebase(PATH_TABLES, tablesDB);
     }
@@ -834,7 +1094,7 @@
     function removeCartItem(n) { 
         delete orders[currentTable][n]; 
         if (selectedCartItemKey === n) selectedCartItemKey = null;
-        if(Object.keys(orders[currentTable]).length === 0) { delete orders[currentTable]; delete tableTimes[currentTable]; delete tableStaffs[currentTable]; delete tableDiscounts[currentTable]; delete tableKitchen[currentTable]; updateFirebase(PATH_TIMES, tableTimes); updateFirebase(PATH_STAFFS, tableStaffs); updateFirebase(PATH_DISCOUNTS, tableDiscounts); updateFirebase(PATH_KITCHEN, tableKitchen); } else { clearKitchenStatus(currentTable); }
+        if(Object.keys(orders[currentTable]).length === 0) { delete orders[currentTable]; delete tableTimes[currentTable]; delete tableStaffs[currentTable]; delete tableDiscounts[currentTable]; delete tableKitchen[currentTable]; delete tableServed[currentTable]; updateFirebase(PATH_TIMES, tableTimes); updateFirebase(PATH_STAFFS, tableStaffs); updateFirebase(PATH_DISCOUNTS, tableDiscounts); updateFirebase(PATH_KITCHEN, tableKitchen); updateFirebase(PATH_SERVED, tableServed); } else { clearKitchenStatus(currentTable); }
         updateFirebase(PATH_ORDERS, orders); 
     }
 
@@ -904,7 +1164,8 @@
                 let i = orders[currentTable][n]; let sub = i.price * i.qty; t += sub;
                 
                 let extHtml = (i.extras && i.extras.length > 0) ? i.extras.map((e, idx) => `<br><small style="font-style:italic; color:#7f8c8d; display:inline-flex; align-items:center; margin-top:2px;">+ ${e.name} x${e.qty||1} (+${(e.price*(e.qty||1))/1000}k) <span onclick="event.stopPropagation(); removeExtraItem('${n}', ${idx})" style="color:var(--danger); cursor:pointer; margin-left:5px; font-weight:bold; padding:0 5px; border-radius:3px; background:#ffebee;">✖</span></small>`).join('') : '';
-                let noteHtml = i.note ? `<br><small style="color:#e67e22; font-weight:bold; font-style:italic;">* ${i.note}</small>` : '';
+                let hlNoteCart = i.note ? i.note.replace(/(tỏi|tiêu|hành lá|toi|tieu|hanh la)/gi, "<u style='font-size:13px;'>$&</u>") : '';
+                let noteHtml = i.note ? `<br><small style="color:#e67e22; font-weight:bold; font-style:italic;">* ${hlNoteCart}</small>` : '';
                 let isSelected = (n === selectedCartItemKey);
 
                 el.innerHTML += `<div class="item-row ${isSelected ? 'selected-cart-item' : ''}" onclick="selectCartItem('${n}')">
@@ -932,6 +1193,7 @@
         if (finalEl) finalEl.innerText = currentFinalTotal.toLocaleString() + "đ";
         
         calculateChange();
+        updatePayButtonUI();
     }
 
     function setPayment(m) { 
@@ -977,9 +1239,12 @@
         if (tableDiscounts[currentTable]) tableDiscounts[toT] = tableDiscounts[currentTable];
         if (tableKitchen[currentTable]) delete tableKitchen[currentTable];
         if (tableKitchen[toT]) delete tableKitchen[toT];
+        if (tableServed[currentTable]) { tableServed[toT] = tableServed[currentTable]; delete tableServed[currentTable]; }
 
-        delete orders[currentTable]; delete tableTimes[currentTable]; delete tableStaffs[currentTable]; delete tableDiscounts[currentTable];
-        updateFirebase(PATH_ORDERS, orders); updateFirebase(PATH_TIMES, tableTimes); updateFirebase(PATH_STAFFS, tableStaffs); updateFirebase(PATH_DISCOUNTS, tableDiscounts); updateFirebase(PATH_KITCHEN, tableKitchen); closeAllModals(); selectTable(toT);
+        let oldTable = currentTable;
+        delete orders[currentTable]; delete tableTimes[currentTable]; delete tableStaffs[currentTable]; delete tableDiscounts[currentTable]; delete tableKitchen[currentTable];
+        updateFirebase(PATH_ORDERS, orders); updateFirebase(PATH_TIMES, tableTimes); updateFirebase(PATH_STAFFS, tableStaffs); updateFirebase(PATH_DISCOUNTS, tableDiscounts); updateFirebase(PATH_KITCHEN, tableKitchen); updateFirebase(PATH_SERVED, tableServed); closeAllModals(); selectTable(toT);
+        cleanupEmptyTakeawayTables(oldTable);
     }
 
     function requestPayment() {
@@ -1001,8 +1266,14 @@
         document.getElementById('bank-name-input').value = bankName;
         document.getElementById('quick-notes-input').value = quickNotesDB.join(', ');
         
+        document.getElementById('grab-id-input').value = grabStoreID;
+        document.getElementById('grab-token-input').value = grabToken;
+        document.getElementById('shopee-id-input').value = shopeeStoreID;
+        document.getElementById('shopee-token-input').value = shopeeToken;
+        
         let isAdmin = currentUser && currentUser.role === 'admin';
         document.getElementById('admin-notes-config').style.display = isAdmin ? 'block' : 'none';
+        document.getElementById('admin-app-config').style.display = isAdmin ? 'block' : 'none';
         
         document.getElementById('overlay').style.display = 'block';
         document.getElementById('settings-modal').style.display = 'block';
@@ -1020,6 +1291,16 @@
         localStorage.setItem('bankAcc', bankAcc);
         localStorage.setItem('bankName', bankName);
         
+        grabStoreID = document.getElementById('grab-id-input').value.trim();
+        grabToken = document.getElementById('grab-token-input').value.trim();
+        shopeeStoreID = document.getElementById('shopee-id-input').value.trim();
+        shopeeToken = document.getElementById('shopee-token-input').value.trim();
+        
+        localStorage.setItem('grabStoreID', grabStoreID);
+        localStorage.setItem('grabToken', grabToken);
+        localStorage.setItem('shopeeStoreID', shopeeStoreID);
+        localStorage.setItem('shopeeToken', shopeeToken);
+
         let isAdmin = currentUser && currentUser.role === 'admin';
         if (isAdmin) {
             let notesStr = document.getElementById('quick-notes-input').value;
@@ -1217,7 +1498,10 @@
                 let i = obj.i, bName = obj.bName;
                 let extAndNote = [];
                 if (i.extras && i.extras.length > 0) extAndNote.push(`+ ` + i.extras.map(e=>`${e.name} x${e.qty||1}`).join(', '));
-                if (i.note) extAndNote.push(`* GC: ${i.note}`);
+                if (i.note) {
+                    let hlNote = i.note.replace(/(tỏi|tiêu|hành lá|toi|tieu|hanh la)/gi, "<b style='font-size:18px; text-decoration:underline;'>$&</b>");
+                    extAndNote.push(`* GC: ${hlNote}`);
+                }
                 let subHtml = extAndNote.length > 0 ? `<div style="font-size:15px; font-weight:normal; font-style:italic; margin-top:4px; color:#333;">${extAndNote.join(' | ')}</div>` : '';
                 tb.innerHTML += `<tr><td class="text-left" style="padding: 10px 0; border-bottom: 1px dashed #000;"><b>${bName}</b>${subHtml}</td><td class="text-center" style="font-size:22px; font-weight:bold; padding: 10px 0; border-bottom: 1px dashed #000;">${i.qty}</td></tr>`;
             });
@@ -1388,6 +1672,9 @@
         orderHistory.unshift({ billNo: billNo, table: currentTable, timeIn: timeInStr, timeOut: timeOutStr, itemsText: excelItems.join(", "), rawItems: rawItemsData, total: finalTotal, subTotal: total, discount: discountAmt, method: pMethodText, staff: staffName });
         updateFirebase(PATH_HISTORY, orderHistory);
 
+        // TRỪ KHO TỰ ĐỘNG SAU KHI THANH TOÁN
+        autoDeductInventory(rawItemsData);
+
         let payload = {
             isCopy: false, billNo: billNo, table: currentTable, timeIn: timeInStr, timeOut: timeOutStr,
             staff: staffName, method: pMethodText, items: rawItemsData, subTotal: total, discount: discountAmt,
@@ -1405,9 +1692,11 @@
         });
         
         setTimeout(() => { 
-            delete orders[currentTable]; delete tableTimes[currentTable]; delete tableStaffs[currentTable]; delete tableDiscounts[currentTable]; delete tableKitchen[currentTable];
+            let oldTable = currentTable;
+            delete orders[currentTable]; delete tableTimes[currentTable]; delete tableStaffs[currentTable]; delete tableDiscounts[currentTable]; delete tableKitchen[currentTable]; delete tableServed[currentTable];
             if(payRequests[currentTable]) { delete payRequests[currentTable]; updateFirebase(PATH_PAY_REQ, payRequests); }
-            updateFirebase(PATH_ORDERS, orders); updateFirebase(PATH_TIMES, tableTimes); updateFirebase(PATH_STAFFS, tableStaffs); updateFirebase(PATH_DISCOUNTS, tableDiscounts); updateFirebase(PATH_KITCHEN, tableKitchen);
+            updateFirebase(PATH_ORDERS, orders); updateFirebase(PATH_TIMES, tableTimes); updateFirebase(PATH_STAFFS, tableStaffs); updateFirebase(PATH_DISCOUNTS, tableDiscounts); updateFirebase(PATH_KITCHEN, tableKitchen); updateFirebase(PATH_SERVED, tableServed);
+            cleanupEmptyTakeawayTables(oldTable);
             document.getElementById('cus-given').value = '';
             calculateChange();
             updateDiscountUI();
@@ -1415,7 +1704,11 @@
     }
 
     function clearCurrentTable() { 
-        if(!currentTable || !orders[currentTable]) return;
+        if(!currentTable) return;
+        if(!orders[currentTable]) {
+            cleanupEmptyTakeawayTables(currentTable);
+            return;
+        }
         if(!confirm(`Hủy toàn bộ đơn hàng của [${currentTable}]?`)) return; 
         if(!verifyPIN()) return alert("Sai mã bảo mật! Không thể hủy đơn hàng.");
 
@@ -1442,9 +1735,11 @@
         orderHistory.unshift({ billNo: "HỦY BÀN", table: currentTable, timeIn: tableTimes[currentTable] || cancelTime, timeOut: cancelTime, itemsText: excelItems.join(", "), rawItems: rawItemsData, total: total, method: "HỦY: " + (reason || "Không có lý do"), isCanceled: true, staff: staffName });
         updateFirebase(PATH_HISTORY, orderHistory);
 
-        delete orders[currentTable]; delete tableTimes[currentTable]; delete tableStaffs[currentTable]; delete tableDiscounts[currentTable]; delete tableKitchen[currentTable];
+        let oldTable = currentTable;
+        delete orders[currentTable]; delete tableTimes[currentTable]; delete tableStaffs[currentTable]; delete tableDiscounts[currentTable]; delete tableKitchen[currentTable]; delete tableServed[currentTable];
         if(payRequests[currentTable]) { delete payRequests[currentTable]; updateFirebase(PATH_PAY_REQ, payRequests); }
-        updateFirebase(PATH_ORDERS, orders); updateFirebase(PATH_TIMES, tableTimes); updateFirebase(PATH_STAFFS, tableStaffs); updateFirebase(PATH_DISCOUNTS, tableDiscounts); updateFirebase(PATH_KITCHEN, tableKitchen);
+        updateFirebase(PATH_ORDERS, orders); updateFirebase(PATH_TIMES, tableTimes); updateFirebase(PATH_STAFFS, tableStaffs); updateFirebase(PATH_DISCOUNTS, tableDiscounts); updateFirebase(PATH_KITCHEN, tableKitchen); updateFirebase(PATH_SERVED, tableServed);
+        cleanupEmptyTakeawayTables(oldTable);
         document.getElementById('cus-given').value = '';
         calculateChange();
         updateDiscountUI();
@@ -1737,6 +2032,198 @@
         });
         csv += `\n,,,,\n,,,BÁO CÁO DOANH THU,\n,,,TM TIỀN MẶT:,${tC},VND\n,,,CK CHUYỂN KHOẢN:,${tB},VND\n,,,TỔNG DOANH THU:,${tC + tB},VND\n`;
         let b = new Blob([csv], { type: 'text/csv;charset=utf-8;' }), l = document.createElement("a"); l.setAttribute("href", URL.createObjectURL(b)); l.setAttribute("download", `DoanhThu_BanhCanh_${new Date().toLocaleDateString('vi-VN').replace(/\//g,'-')}.csv`); document.body.appendChild(l); l.click(); document.body.removeChild(l);
+    }
+
+    // ==========================================
+    // ĐỒNG HỒ ĐẾM THỜI GIAN KHÁCH ĂN VÀ LÊN MÓN
+    // ==========================================
+    function parseTimeStr(str) {
+        if(!str) return 0;
+        let parts = str.split(" ");
+        if(parts.length < 2) return 0;
+        let timeP = parts[0].split(":"); let dateP = parts[1].split("/");
+        if(timeP.length < 2 || dateP.length < 3) return 0;
+        return new Date(dateP[2], dateP[1]-1, dateP[0], timeP[0], timeP[1]).getTime();
+    }
+    function formatDuration(ms) {
+        if (ms < 0) return "0p";
+        let totalSecs = Math.floor(ms / 1000);
+        let mins = Math.floor(totalSecs / 60);
+        let secs = totalSecs % 60;
+        if (mins >= 60) {
+            let hrs = Math.floor(mins / 60);
+            mins = mins % 60;
+            return `${hrs}h ${mins}p`;
+        }
+        return `${mins}p ${secs}s`;
+    }
+
+    let alertedDelayedTables = {};
+    setInterval(() => {
+        let now = Date.now();
+        document.querySelectorAll('.live-timer').forEach(el => {
+            let t = el.getAttribute('data-table');
+            if (tableTimes[t]) { 
+                let startMs = parseTimeStr(tableTimes[t]); 
+                if (startMs > 0) { 
+                    let elapsed = now - startMs;
+                    el.innerText = formatDuration(elapsed); 
+                    
+                    // Cảnh báo nhấp nháy đỏ nếu quá 15 phút (15 * 60 * 1000 = 900,000 ms) và chưa ra món
+                    let isDelayed = elapsed > 900000 && !tableServed[t];
+                    let dashCard = el.closest('.dash-card');
+                    let tableBtn = el.closest('.table-btn');
+                    
+                    if (isDelayed) { if (dashCard) dashCard.classList.add('warning-delay'); if (tableBtn) tableBtn.classList.add('warning-delay'); } 
+                    else { if (dashCard) dashCard.classList.remove('warning-delay'); if (tableBtn) tableBtn.classList.remove('warning-delay'); }
+
+                    // Cảnh báo Popup nếu quá 20 phút (20 * 60 * 1000 = 1,200,000 ms) và chưa ra món
+                    let is20MinDelayed = elapsed > 1200000 && !tableServed[t];
+                    if (is20MinDelayed && alertedDelayedTables[t] !== startMs) {
+                        alert(`CẢNH BÁO TRỄ MÓN: [${t}] đã chờ quá 20 phút mà chưa được lên món!\nVui lòng kiểm tra lại với nhà bếp ngay!`);
+                        alertedDelayedTables[t] = startMs; // Đánh dấu đã cảnh báo để không bị lặp lại popup liên tục
+                    }
+                } 
+            }
+        });
+        document.querySelectorAll('.prep-timer').forEach(el => {
+            let t = el.getAttribute('data-table');
+            if (tableTimes[t] && tableServed[t]) {
+                let startMs = parseTimeStr(tableTimes[t]); let servedMs = parseTimeStr(tableServed[t]);
+                if (startMs > 0 && servedMs >= startMs) { el.innerText = formatDuration(servedMs - startMs); el.style.display = 'inline-block'; }
+            } else { el.style.display = 'none'; }
+        });
+    }, 1000);
+
+    // ==========================================
+    // KHO HÀNG & ĐẶT HÀNG
+    // ==========================================
+    function switchKhoTab(tab) {
+        document.getElementById('kho-ton-view').style.display = tab === 'ton' ? 'block' : 'none';
+        document.getElementById('kho-dat-view').style.display = tab === 'dat' ? 'block' : 'none';
+        document.getElementById('kho-ls-view').style.display = tab === 'ls' ? 'block' : 'none';
+        document.getElementById('tab-kho-ton').className = tab === 'ton' ? 'kho-tab-btn active' : 'kho-tab-btn';
+        document.getElementById('tab-kho-dat').className = tab === 'dat' ? 'kho-tab-btn active' : 'kho-tab-btn';
+        document.getElementById('tab-kho-ls').className = tab === 'ls' ? 'kho-tab-btn active' : 'kho-tab-btn';
+    }
+
+    function renderInventory() {
+        let tb = document.getElementById('kho-ton-body'); tb.innerHTML = '';
+        let keys = Object.keys(inventoryDB).sort();
+        if(keys.length === 0) tb.innerHTML = '<tr><td colspan="5" style="text-align:center;">Kho trống! Hãy thêm nguyên liệu.</td></tr>';
+        keys.forEach(k => {
+            let item = inventoryDB[k];
+            tb.innerHTML += `<tr>
+                <td>${k}</td>
+                <td><b>${item.name}</b></td>
+                <td>${item.unit}</td>
+                <td>
+                    <div style="display:flex; gap:5px; align-items:center;">
+                        <input type="number" id="stock-${k}" value="${item.stock}" step="0.1" class="kho-input">
+                        <button class="kho-action-btn" style="background:#3498db; font-size:10px; padding:4px 8px;" onclick="updateInvStock('${k}')">Lưu Số</button>
+                    </div>
+                </td>
+                <td><button class="kho-action-btn" style="background:var(--danger);" onclick="delInvItem('${k}')">Xóa</button></td>
+            </tr>`;
+        });
+    }
+
+    function addInvItem() {
+        let name = document.getElementById('new-inv-name').value.trim();
+        let unit = document.getElementById('new-inv-unit').value.trim();
+        let stock = parseFloat(document.getElementById('new-inv-stock').value) || 0;
+        if(!name || !unit) return alert("Nhập đủ Tên và ĐVT!");
+        let id = "NL_" + new Date().getTime().toString().slice(-6);
+        inventoryDB[id] = { name: name, unit: unit, stock: stock };
+        updateFirebase(PATH_INVENTORY, inventoryDB);
+        document.getElementById('new-inv-name').value = ''; document.getElementById('new-inv-unit').value = ''; document.getElementById('new-inv-stock').value = '';
+    }
+
+    function updateInvStock(id) {
+        let newStock = parseFloat(document.getElementById(`stock-${id}`).value);
+        if(isNaN(newStock)) return;
+        inventoryDB[id].stock = newStock;
+        updateFirebase(PATH_INVENTORY, inventoryDB);
+    }
+
+    function delInvItem(id) {
+        if(confirm(`Xóa nguyên liệu [${inventoryDB[id].name}] khỏi kho?`)) {
+            delete inventoryDB[id];
+            updateFirebase(PATH_INVENTORY, inventoryDB);
+        }
+    }
+
+    function renderInventoryOrderForm() {
+        let tb = document.getElementById('kho-dat-body'); tb.innerHTML = '';
+        let keys = Object.keys(inventoryDB).sort();
+        if(keys.length === 0) tb.innerHTML = '<tr><td colspan="4" style="text-align:center;">Kho trống!</td></tr>';
+        keys.forEach(k => {
+            let item = inventoryDB[k];
+            tb.innerHTML += `<tr>
+                <td><b>${item.name}</b></td>
+                <td>${item.unit}</td>
+                <td>${item.stock}</td>
+                <td style="background:#fef9e7;"><input type="number" id="order-qty-${k}" placeholder="Nhập SL..." class="kho-input" style="width:100px;"></td>
+            </tr>`;
+        });
+    }
+
+    function submitDailyOrder() {
+        let orderItems = [];
+        Object.keys(inventoryDB).forEach(k => {
+            let reqQty = parseFloat(document.getElementById(`order-qty-${k}`).value);
+            if(reqQty > 0) {
+                orderItems.push(`${inventoryDB[k].name}: ${reqQty} ${inventoryDB[k].unit}`);
+            }
+        });
+        
+        if(orderItems.length === 0) return alert("Chưa nhập số lượng nguyên liệu nào cần mua!");
+        if(!confirm("Chốt gửi phiếu đặt hàng này?")) return;
+
+        let orderId = "DH_" + new Date().getTime();
+        let dateStr = new Date().toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}) + " " + new Date().toLocaleDateString('vi-VN');
+        let staff = currentUser ? currentUser.name : "Nhân viên kho";
+        
+        invOrdersDB[orderId] = { date: dateStr, staff: staff, items: orderItems, status: "Đã chốt" };
+        updateFirebase(PATH_INV_ORDERS, invOrdersDB);
+        
+        alert("Đã lập phiếu đặt hàng thành công!");
+        switchKhoTab('ls');
+    }
+
+    function renderInventoryOrdersHistory() {
+        let tb = document.getElementById('kho-ls-body'); tb.innerHTML = '';
+        let keys = Object.keys(invOrdersDB).sort().reverse(); // Đơn mới nhất lên đầu
+        keys.forEach(k => {
+            let o = invOrdersDB[k];
+            tb.innerHTML += `<tr><td>${o.date}</td><td>${o.staff}</td><td>${o.items.join('<br>')}</td><td><span style="color:var(--success); font-weight:bold;">${o.status}</span></td></tr>`;
+        });
+    }
+
+    function autoDeductInventory(rawOrderItems) {
+        // HÀM CHỜ: BẠN SẼ CUNG CẤP CÔNG THỨC Ở ĐÂY
+        // Ví dụ: Nhận vào list món đã bán (rawOrderItems), lặp qua từng món, xem món đó tốn bao nhiêu kg Bánh Canh, bao nhiêu kg Thịt.
+        // Sau đó tự động lấy inventoryDB[id].stock trừ đi lượng tương ứng và updateFirebase(PATH_INVENTORY, inventoryDB).
+        // Mình đang tạo sẵn "khung xương" vững chắc này để chờ bảng công thức của bạn!
+        console.log("Đã kích hoạt hàm autoDeductInventory. Chờ công thức định mức...");
+    }
+
+    function exportKhoExcel() {
+        let csv = "\uFEFFBÁO CÁO TỒN KHO HIỆN TẠI\nNgày xuất:," + new Date().toLocaleDateString('vi-VN') + "\n\nTên Nguyên Liệu,Đơn Vị Tính,Tồn Hiện Tại\n";
+        Object.keys(inventoryDB).forEach(k => {
+            csv += `${inventoryDB[k].name},${inventoryDB[k].unit},${inventoryDB[k].stock}\n`;
+        });
+        
+        csv += `\n\nLỊCH SỬ ĐẶT HÀNG\nNgày Đặt,Người Đặt,Chi Tiết Hàng Nhập\n`;
+        Object.keys(invOrdersDB).sort().reverse().forEach(k => {
+            let itemsStr = invOrdersDB[k].items.join(" | ");
+            csv += `${invOrdersDB[k].date},${invOrdersDB[k].staff},"${itemsStr}"\n`;
+        });
+        
+        let b = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        let l = document.createElement("a"); l.setAttribute("href", URL.createObjectURL(b)); 
+        l.setAttribute("download", `BaoCaoKho_${new Date().toLocaleDateString('vi-VN').replace(/\//g,'-')}.csv`); 
+        document.body.appendChild(l); l.click(); document.body.removeChild(l);
     }
 </script>
 </body>
