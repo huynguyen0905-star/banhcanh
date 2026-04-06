@@ -185,6 +185,57 @@
             body.paper-k58 .bill-header h2 { font-size: 15px; }
             body.paper-k58 .bill-info, body.paper-k58 .thank-you { font-size: 10px; }
         }
+
+        /* --- GIAO DIỆN ĐIỆN THOẠI (MOBILE RESPONSIVE) --- */
+        @media (max-width: 768px) {
+            /* Thanh Header */
+            .header { flex-direction: column; padding: 10px; gap: 10px; }
+            .brand-nav { flex-wrap: wrap; justify-content: center; width: 100%; gap: 5px; }
+            .nav-btn { flex: 1; padding: 8px; font-size: 12px; text-align: center; }
+            .admin-input { flex-wrap: wrap; justify-content: center; width: 100%; gap: 5px; }
+            .btn-header { flex: 1; min-width: 80px; padding: 8px 4px; font-size: 11px; }
+            #admin-add-menu { width: 100%; display: flex; gap: 5px; margin-bottom: 5px; }
+            #admin-add-menu input { flex: 1; width: auto !important; }
+            
+            /* Bố cục Bán hàng */
+            #page-pos { flex-direction: column; overflow-y: auto; }
+            .sidebar { width: 100%; border-right: none; border-bottom: 2px solid var(--info); max-height: 250px; }
+            .menu-area { width: 100%; flex: none; height: 450px; }
+            .content { justify-content: center; }
+            .category-tabs { overflow-x: auto; white-space: nowrap; padding: 10px 10px 0; }
+            .tab-btn { padding: 8px 12px; font-size: 12px; white-space: nowrap; }
+            .mod-row { flex-wrap: wrap; gap: 5px; }
+            .mod-btn { padding: 5px 10px; font-size: 11px; }
+            .cart-panel { width: 100%; border-left: none; border-top: 2px solid var(--info); flex: none; height: auto; }
+            
+            /* Bố cục Sơ đồ bàn & Thông báo */
+            .dash-grid { grid-template-columns: repeat(2, 1fr); }
+            #tingting-toast { top: 10px; right: 10px; left: 10px; padding: 10px 15px; font-size: 14px; }
+            #tingting-toast span { font-size: 24px; }
+            
+            /* Các cửa sổ Modal (Lịch sử, Cài đặt...) */
+            .modal { min-width: 90% !important; max-width: 95%; padding: 15px; }
+            .history-table { display: block; overflow-x: auto; white-space: nowrap; }
+            
+            /* Bố cục Kho Hàng */
+            .kho-header { flex-direction: column; align-items: stretch; gap: 10px; }
+            .kho-tabs { flex-wrap: wrap; }
+            .kho-tab-btn { flex: 1; min-width: 100px; padding: 8px; font-size: 12px; text-align: center; }
+            .kho-panel { flex-direction: column; align-items: stretch !important; gap: 8px !important; }
+            .kho-panel input, .kho-panel button { width: 100% !important; }
+            .kho-table { display: block; overflow-x: auto; white-space: nowrap; }
+
+            /* --- TRƯỢT CỐ ĐỊNH PHẦN THANH TOÁN (MOBILE) --- */
+            .footer-cart {
+                position: sticky;
+                bottom: 0;
+                background: white;
+                z-index: 100;
+                margin: 0 -15px -15px -15px; /* Kéo giãn ra sát viền màn hình */
+                padding: 10px 15px 15px 15px;
+                box-shadow: 0 -4px 15px rgba(0,0,0,0.15); /* Đổ bóng lên trên tạo cảm giác nổi */
+            }
+        }
     </style>
 </head>
 <body>
