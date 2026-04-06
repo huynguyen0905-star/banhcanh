@@ -240,10 +240,11 @@
 </head>
 <body>
 
-<div id="login-screen" style="position:fixed; top:0; left:0; width:100%; height:100%; background:#2c3e50; z-index:9999; display:flex; justify-content:center; align-items:center; flex-direction:column; color:white;">
-    <h2 style="margin-bottom: 20px;">BÁNH CANH THANH QUYÊN - POS</h2>
+<div id="login-screen" style="position:fixed; top:0; left:0; width:100%; height:100%; background:#c0392b; z-index:9999; display:flex; justify-content:center; align-items:center; flex-direction:column; color:#f1c40f;">
+    <img src="https://via.placeholder.com/150/f1c40f/c0392b?text=LOGO" id="login-logo" alt="Logo Quán" style="width: 130px; height: 130px; object-fit: cover; border-radius: 50%; border: 4px solid #f1c40f; margin-bottom: 15px; background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+    <h2 style="margin-bottom: 20px; color:#f1c40f;">BÁNH CANH THANH QUYÊN - POS</h2>
     <div style="background:white; padding:30px; border-radius:10px; text-align:center; box-shadow:0 10px 30px rgba(0,0,0,0.3);">
-        <h3 style="color:#2c3e50; margin-top:0;">ĐĂNG NHẬP</h3>
+        <h3 style="color:#c0392b; margin-top:0;">ĐĂNG NHẬP</h3>
         <input type="password" id="login-pin" placeholder="Nhập mã PIN..." style="padding:12px; font-size:20px; text-align:center; border-radius:5px; border:1px solid #ccc; margin-bottom:15px; width:200px; display:block; outline:none;" onkeyup="if(event.key==='Enter') login()">
         <button onclick="login()" style="padding:12px; font-size:16px; font-weight:bold; background:var(--success); color:white; border:none; border-radius:5px; cursor:pointer; width:100%;">VÀO HỆ THỐNG</button>
     </div>
@@ -593,7 +594,9 @@
             { name: 'Súp Thịt Nạc', price: 23000 }, { name: 'Súp Chả Cá', price: 23000 }, { name: 'Súp Phèo Non', price: 28000 }, { name: 'Súp Xương Heo', price: 28000 }, { name: 'Súp Chả Cua', price: 28000 }, { name: 'Súp Giò Heo', price: 28000 }, { name: 'Súp Nạc Bắp', price: 28000 }, { name: 'Súp Bò Viên', price: 28000 }, { name: 'Súp Bò Tái', price: 33000 }, { name: 'Súp Tôm Tươi', price: 38000 }, { name: 'Súp Xí Quách', price: 33000 }, { name: 'Súp Giò Mỡ', price: 33000 }
         ],
         them: [
-            { name: 'Thêm Bò Tái (30g)', price: 15000 }, { name: 'Thêm Bò Viên (3v)', price: 10000 }, { name: 'Thêm Chả Cá', price: 5000 }, { name: 'Thêm Chả Cua', price: 7000 }, { name: 'Thêm Nạc Heo (2m)', price: 7000 }, { name: 'Thêm Phèo (3m)', price: 10000 }, { name: 'Thêm Tôm (1 con)', price: 13000 }, { name: 'Huyết thêm', price: 5000 }, { name: 'Bánh Quẩy', price: 7000 }, { name: 'Chén Hột Gà', price: 7000 }, { name: 'Hành Phi', price: 5000 }
+            { name: 'Thêm Bò Tái (30g)', price: 15000 }, { name: 'Thêm Bò Viên (3v)', price: 10000 }, { name: 'Thêm Chả Cá', price: 5000 }, { name: 'Thêm Chả Cua', price: 7000 }, { name: 'Thêm Nạc Heo (2m)', price: 7000 }, { name: 'Thêm Phèo (3m)', price: 10000 }, { name: 'Thêm Tôm (1 con)', price: 13000 }, { name: 'Huyết thêm', price: 5000 }, { name: 'Bánh Quẩy', price: 7000 }, { name: 'Chén Hột Gà', price: 7000 }, { name: 'Hành Phi', price: 5000 },
+            { name: 'Bánh thêm nước (10k)', price: 10000 }, { name: 'Bánh thêm nước (15k)', price: 15000 }, { name: 'Bánh thêm nước (20k)', price: 20000 },
+            { name: 'Bánh thêm khô (10k)', price: 10000 }, { name: 'Bánh thêm khô (15k)', price: 15000 }, { name: 'Bánh thêm khô (20k)', price: 20000 }
         ],
         nuoc: [
             { name: 'NC Trà Đá', price: 3000 }, { name: 'NC Nước Suối', price: 10000 }, { name: 'NC Sâm Mía Lau', price: 15000 }, { name: 'NC Nha Đam', price: 15000 }, { name: 'NC Mũ Trôm', price: 15000 }, { name: 'NC Trà Tắc', price: 15000 }, { name: 'NC Chanh Xả Gừng', price: 15000 }, { name: 'NC Red Bull', price: 15000 }, { name: 'NC Sữa Tươi', price: 20000 }, { name: 'NC Sữa Sen', price: 15000 }, { name: 'NC Sữa Gạo Lức', price: 15000 }, { name: 'NC Sữa Bắp', price: 15000 }, { name: 'NC Nước Ngọt', price: 15000 }
@@ -1201,7 +1204,7 @@
 
     function saveNote() {
         if (!currentTable || !orders[currentTable] || !currentNoteItemKey || !orders[currentTable][currentNoteItemKey]) { closeAllModals(); return; }
-        let note = document.getElementById('note-input').value.trim();
+        let note = document.getElementById('note-input').value.trim().toUpperCase();
         orders[currentTable][currentNoteItemKey].note = note;
         clearKitchenStatus(currentTable);
         updateFirebase(PATH_ORDERS, orders);
