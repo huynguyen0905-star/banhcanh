@@ -349,7 +349,7 @@
                     </div>
                 </div>
                 <div class="btn-group-cart" style="flex-wrap: wrap;">
-                    <button class="btn" style="background:#3498db; flex-basis: 100%; margin-bottom: 4px;" onclick="saveTempOrder()">💾 LƯU ĐƠN TẠM</button>
+                    <button class="btn" style="background:#3498db; flex-basis: 100%; margin-bottom: 4px;" onclick="saveTempOrder()">💾 HOÀN THÀNH GỌI MÓN</button>
                     <button class="btn" style="background:#e67e22; flex-basis: calc(50% - 4px);" onclick="printKitchen()">👨‍🍳 BÁO BẾP</button>
                     <button class="btn" style="background:var(--success); flex-basis: calc(50% - 4px);" onclick="markAsServed()">✔️ ĐÃ RA MÓN</button>
                     <button class="btn" style="background:#8e44ad; flex-basis: calc(50% - 4px);" onclick="printProvisional()">🖨 TẠM TÍNH</button>
@@ -1123,67 +1123,9 @@
     }
 
     function saveTempOrder() {
-        if (!currentTable || !orders[currentTable]) return alert("Chưa chọn bàn hoặc giỏ hàng trống!");
+        if (!currentTable || !orders[currentTable] || Object.keys(orders[currentTable]).length === 0) return alert("Chưa chọn bàn hoặc giỏ hàng trống!");
         
-        let billNo = generateBillNumber() + " (TẠM)";
-        let timeOutStr = new Date().toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}) + " " + new Date().toLocaleDateString('vi-VN');
-        let timeInStr = tableTimes[currentTable] || timeOutStr;
-        let staffName = tableStaffs[currentTable] || (currentUser ? currentUser.name : "Admin");
-        
-        let excelItems = []; 
-        let rawItemsData = {}; 
-        let total = 0;
-        
-        for(let n in orders[currentTable]) {
-            let i = orders[currentTable][n], tTien = i.price * i.qty; total += tTien; 
-            let bName = i.baseName || n, extraStr = (i.extras && i.extras.length > 0) ? ` (+${i.extras.map(e=>`${e.name} x${e.qty||1}`).join(', ')})` : '';
-            excelItems.push(`${bName}${extraStr}${i.note ? ' ['+i.note+']' : ''} x${i.qty}`); rawItemsData[n] = i;
-        }
-
-        let discountAmt = 0;
-        if (tableDiscounts[currentTable]) {
-            let d = tableDiscounts[currentTable];
-            if (d.type === 'percent') discountAmt = Math.round(total * d.value / 100); else discountAmt = d.value;
-        }
-        if (discountAmt > total) discountAmt = total;
-        let finalTotal = total - discountAmt;
-
-        if (GOOGLE_SHEET_URL.trim() !== "") {
-            fetch(GOOGLE_SHEET_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: JSON.stringify({ billNo: billNo, table: currentTable, timeIn: timeInStr, timeOut: timeOutStr, itemsText: excelItems.join(", "), total: finalTotal, method: "CHƯA THANH TOÁN (LƯU TẠM) (NV: " + staffName + ")", status: "Lưu tạm", cancelReason: "", cancelTime: "" })
-            }).catch(e => console.log("Lỗi gửi Sheets"));
-        }
-        
-        orderHistory.unshift({ 
-            billNo: billNo, 
-            table: currentTable, 
-            timeIn: timeInStr, 
-            timeOut: timeOutStr, 
-            itemsText: excelItems.join(", "), 
-            rawItems: rawItemsData, 
-            total: finalTotal, 
-            subTotal: total, 
-            discount: discountAmt, 
-            method: "CHƯA THANH TOÁN (LƯU TẠM)", 
-            staff: staffName 
-        });
-        updateFirebase(PATH_HISTORY, orderHistory);
-
-        autoDeductInventory(rawItemsData);
-
-        let oldTable = currentTable;
-        delete orders[currentTable]; delete tableTimes[currentTable]; delete tableStaffs[currentTable]; delete tableDiscounts[currentTable]; delete tableKitchen[currentTable]; delete tableServed[currentTable];
-        if(payRequests[currentTable]) { delete payRequests[currentTable]; updateFirebase(PATH_PAY_REQ, payRequests); }
-        updateFirebase(PATH_ORDERS, orders); updateFirebase(PATH_TIMES, tableTimes); updateFirebase(PATH_STAFFS, tableStaffs); updateFirebase(PATH_DISCOUNTS, tableDiscounts); updateFirebase(PATH_KITCHEN, tableKitchen); updateFirebase(PATH_SERVED, tableServed);
-        cleanupEmptyTakeawayTables(oldTable);
-        document.getElementById('cus-given').value = '';
-        calculateChange();
-        updateDiscountUI();
-
-        alert("Đã lưu đơn tạm thành công!");
+        printKitchen();
         switchPage('dash');
     }
 
