@@ -1125,7 +1125,6 @@
     function saveTempOrder() {
         if (!currentTable || !orders[currentTable] || Object.keys(orders[currentTable]).length === 0) return alert("Chưa chọn bàn hoặc giỏ hàng trống!");
         
-        printKitchen();
         switchPage('dash');
     }
 
@@ -1175,8 +1174,94 @@
     }
 
     function switchTab(tabId, el) { document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); el.classList.add('active'); activeTab = tabId; document.getElementById('modifiers-panel').style.display = (tabId === 'main') ? 'flex' : 'none'; renderMenu(); }
-    function setNoodle(type, el) { document.querySelectorAll('.mod-row:nth-child(1) .mod-btn').forEach(b => b.classList.remove('active')); el.classList.add('active'); activeNoodle = type; }
-    function setDry(isDry, el) { document.querySelectorAll('.mod-row:nth-child(2) .mod-btn').forEach(b => b.classList.remove('active')); el.classList.add('active'); isDryMode = isDry; }
+    function setNoodle(type, el) { 
+        document.querySelectorAll('.mod-row:nth-child(1) .mod-btn').forEach(b => b.classList.remove('active')); 
+        el.classList.add('active'); 
+        activeNoodle = type; 
+
+        if (selectedCartItemKey && currentTable && orders[currentTable] && orders[currentTable][selectedCartItemKey]) {
+            let item = orders[currentTable][selectedCartItemKey];
+            let baseName = item.baseName || selectedCartItemKey.split('|')[0];
+            
+            let match = baseName.match(/^(.*?) (Khô|Nước) - (.*)$/);
+            if (match) {
+                let dryOrWet = match[2];
+                let meat = match[3];
+                let newBaseName = `${type} ${dryOrWet} - ${meat}`;
+                
+                if (newBaseName !== baseName) {
+                    let oldKey = selectedCartItemKey;
+                    let newKey = newBaseName + (item.extras && item.extras.length > 0 ? '|' + item.extras.map(e=>`${e.name}x${e.qty||1}`).join('|') : '');
+                    let qtyToMove = item.qty;
+                    delete orders[currentTable][oldKey];
+                    
+                    if (orders[currentTable][newKey]) {
+                        orders[currentTable][newKey].qty += qtyToMove;
+                    } else {
+                        orders[currentTable][newKey] = {
+                            baseName: newBaseName,
+                            basePrice: item.basePrice,
+                            price: item.price,
+                            qty: qtyToMove,
+                            extras: item.extras,
+                            note: item.note
+                        };
+                    }
+                    selectedCartItemKey = newKey;
+                    clearKitchenStatus(currentTable);
+                    updateFirebase(PATH_ORDERS, orders);
+                    renderCart();
+                }
+            }
+        }
+    }
+
+    function setDry(isDry, el) { 
+        document.querySelectorAll('.mod-row:nth-child(2) .mod-btn').forEach(b => b.classList.remove('active')); 
+        el.classList.add('active'); 
+        isDryMode = isDry; 
+
+        if (selectedCartItemKey && currentTable && orders[currentTable] && orders[currentTable][selectedCartItemKey]) {
+            let item = orders[currentTable][selectedCartItemKey];
+            let baseName = item.baseName || selectedCartItemKey.split('|')[0];
+            
+            if (baseName.includes(" Khô - ") || baseName.includes(" Nước - ")) {
+                let newBaseName = isDry ? baseName.replace(" Nước - ", " Khô - ") : baseName.replace(" Khô - ", " Nước - ");
+                
+                if (newBaseName !== baseName) {
+                    let newBasePrice = item.basePrice;
+                    if (isDry) newBasePrice += 5000;
+                    else newBasePrice -= 5000;
+                    
+                    let oldKey = selectedCartItemKey;
+                    let newKey = newBaseName + (item.extras && item.extras.length > 0 ? '|' + item.extras.map(e=>`${e.name}x${e.qty||1}`).join('|') : '');
+                    let newPrice = newBasePrice + (item.extras ? item.extras.reduce((sum, e) => sum + (e.price * (e.qty || 1)), 0) : 0);
+                    let qtyToMove = item.qty;
+                    
+                    delete orders[currentTable][oldKey];
+                    
+                    if (orders[currentTable][newKey]) {
+                        orders[currentTable][newKey].qty += qtyToMove;
+                    } else {
+                        orders[currentTable][newKey] = {
+                            baseName: newBaseName,
+                            basePrice: newBasePrice,
+                            price: newPrice,
+                            qty: qtyToMove,
+                            extras: item.extras,
+                            note: item.note
+                        };
+                    }
+                    selectedCartItemKey = newKey;
+                    clearKitchenStatus(currentTable);
+                    updateFirebase(PATH_ORDERS, orders);
+                    renderCart();
+                }
+            }
+        }
+        
+        if (activeTab === 'main') renderMenu();
+    }
 
     function renderMenu() {
         const el = document.getElementById('menu-items'); el.innerHTML = '';
@@ -1212,7 +1297,7 @@
         if (existing) { existing.qty = (existing.qty || 1) + 1; } 
         else { newExtras.push({ name: name, price: price, qty: 1 }); }
         
-        newExtras.sort((a,b) => a.name.localeCompare(b.name));
+
         
         let baseName = item.baseName || oldKey.split('|')[0];
         let newKey = baseName + '|' + newExtras.map(e=>`${e.name}x${e.qty||1}`).join('|');
@@ -1342,7 +1427,7 @@
             if (existing) { existing.qty = (existing.qty || 1) + 1; } 
             else { newExtras.push({ name: fName, price: fPrice, qty: 1 }); }
             
-            newExtras.sort((a,b) => a.name.localeCompare(b.name));
+
             
             let baseName = item.baseName || oldKey.split('|')[0];
             let newKey = baseName + '|' + newExtras.map(e=>`${e.name}x${e.qty||1}`).join('|');
